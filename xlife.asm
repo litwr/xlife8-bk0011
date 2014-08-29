@@ -251,7 +251,7 @@ generate:
          bne 1$
 
          ;*jmp lnext
-         jmp 28$
+         jmp @#28$
 
 ;*cont3
 1$:
@@ -542,7 +542,7 @@ generate:
          jsr pc,@#chkadd2
 
 ;*lexit    jsr chkaddt
-14$:     jsr pc,chkaddt
+14$:     jsr pc,@#chkaddt
 
          ;*ldy #right
          ;*jsr iniadjc
@@ -1017,7 +1017,7 @@ generate:
 ;*cont2    sta currp+1
          ;*stx currp
          ;*jmp loop
-         jmp 5$
+         jmp @#5$
 
 ;*stage2   #assign16 currp,startp
          ;*.bend
@@ -1101,7 +1101,7 @@ stage2:  mov @#startp,r0
          cmp #1,r0
          bne rts2
 
-         jmp 1$
+         jmp @#1$
 
          ;*.bend
 
@@ -1168,7 +1168,7 @@ incgen:
 ;*cleanup  .block
 cleanup:
 ;*         jsr incgen
-         jsr pc,incgen
+         jsr pc,@#incgen
 
 ;*         inc clncnt
          incb @#clncnt

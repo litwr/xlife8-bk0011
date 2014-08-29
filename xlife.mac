@@ -112,7 +112,7 @@ pco      .blkb 8        ;+62
           mov one+2(r0),r5
           mov r5,r1
           swab r1
-          bic ^B1111111100000000,r1
+          bic #^B1111111100000000,r1
 
 ;*         tax
 ;*         ldy #\2 
@@ -120,7 +120,7 @@ pco      .blkb 8        ;+62
 ;*         and #3
           movb two(r0),r4
           mov r4,r2
-          bic ^B1111111111111100,r2
+          bic #^B1111111111111100,r2
           swab r2
           add r2,r1
 
@@ -133,7 +133,7 @@ pco      .blkb 8        ;+62
 
 ;*         ldy #\1+2
 ;*         lda (currp),y
-          bic ^B1111111100000000,r5
+          bic #^B1111111100000000,r5
 
 ;*         tax
 ;*         ldy #\2
@@ -144,7 +144,7 @@ pco      .blkb 8        ;+62
           asr r4
           asr r4
           mov r4,r2
-          bic ^B1111111111111100,r2
+          bic #^B1111111111111100,r2
           swab r2
           add r5,r2
 
@@ -166,7 +166,7 @@ pco      .blkb 8        ;+62
           mov one(r0),r5
           mov r5,r1
           swab r1
-          bic ^B1111111100000000,r1
+          bic #^B1111111100000000,r1
 
 ;*         tax
 ;*         ldy #\2
@@ -179,7 +179,7 @@ pco      .blkb 8        ;+62
           asr r4
           asr r4
           mov r4,r2
-          bic ^B1111111111111100,r2
+          bic #^B1111111111111100,r2
           swab r2
           add r1,r2
 
@@ -203,7 +203,7 @@ pco      .blkb 8        ;+62
 
 ;*         ldy #\1
 ;*         lda (currp),y
-          bic ^B1111111100000000,r5
+          bic #^B1111111100000000,r5
 
 ;*         tax
 ;*         ldy #\2
@@ -217,7 +217,7 @@ pco      .blkb 8        ;+62
           asr r4
           asr r4
           mov r4,r2
-          bic ^B1111111111111100,r2
+          bic #^B1111111111111100,r2
           swab r2
           add r5,r2
 
@@ -241,7 +241,7 @@ pco      .blkb 8        ;+62
 
 ;*         lda tab3,x
 ;*         tax
-          bic ^B1111111100000000,r3
+          bic #^B1111111100000000,r3
           movb tab3(r3),r2
 
 ;*         ldy #sum 
