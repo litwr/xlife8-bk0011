@@ -1,3 +1,4 @@
+//do not form plainbox - add it manually
 #include <stdio.h>
 #define TS 70
 
@@ -57,14 +58,14 @@ main() {
           }
           b[29] = video;
           printf("    .word ");
-          for (i = 0; i < 9; i++) printf("%o, ", b[i]);
-          printf("%o\n    .word ", b[i]);
-          for (i = 10; i < 19; i++) printf("%o, ", b[i]);
-          printf("%o\n    .word ", b[i]);
-          for (i = 20; i < 29; i++) printf("%o, ", b[i]);
-          printf("%o\n    .word ", b[i]);
-          for (i = 30; i < 34; i++) printf("%o, ", b[i]);
-          printf("%o\n", b[i]);
+          for (i = 0; i < 9; i++) printf("%u, ", b[i]);
+          printf("%u\n    .word ", b[i]);
+          for (i = 10; i < 19; i++) printf("%u, ", b[i]);
+          printf("%u\n    .word ", b[i]);
+          for (i = 20; i < 29; i++) printf("%u, ", b[i]);
+          printf("%u\n    .word ", b[i]);
+          for (i = 30; i < 34; i++) printf("%u, ", b[i]);
+          printf("%u\n", b[i]);
       }
 }
 

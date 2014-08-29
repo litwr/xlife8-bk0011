@@ -2,7 +2,7 @@ vermax   = 20     ;160
 hormax   = 24     ;192
 total    = <hormax*vermax>+1
 tilesize = 70
-;;plainbox = <hormax*vermax*tilesize>+tiles
+plainbox = <hormax*vermax*tilesize>+tiles
 
 left     = 8      ;all directions
 ul       = 10     ;not zero!
