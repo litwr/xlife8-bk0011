@@ -1,0 +1,8 @@
+pageport  = ^O177716
+kbdstport = ^O177660
+kbddtport = ^O177662
+timerport = ^O177706
+todata    = ^B10101100000000    ;open pages 2 and 3
+tovideo   =  ^B1111100000000    ;show both video pages
+nokbirq   = ^B1000000
+

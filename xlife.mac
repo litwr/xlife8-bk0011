@@ -1,0 +1,359 @@
+vermax   = 20     ;160
+hormax   = 24     ;192
+total    = <hormax*vermax>+1
+tilesize = 70
+;;plainbox = <hormax*vermax*tilesize>+tiles
+
+left     = 8      ;all directions
+ul       = 10     ;not zero!
+up       = 12
+ur       = 14
+right    = 16
+dr       = 18
+down     = 20
+dl       = 22
+next     = 24
+count    = 26
+video    = 58
+sum      = 60
+pco      = 62
+
+         .macro tile
+l0       .byte 0
+l1       .byte 0
+l2       .byte 0
+l3       .byte 0
+l4       .byte 0
+l5       .byte 0
+l6       .byte 0
+l7       .byte 0
+left     .word 0	;+8
+ul       .word 0
+up       .word 0        ;+12
+ur       .word 0
+right    .word 0        ;+16
+dr       .word 0
+down     .word 0        ;+20
+dl       .word 0
+next     .word 0        ;+24
+count    .blkb 32       ;+26
+video    .word 0        ;+58
+sum      .byte 0        ;+60
+         .byte 0        ;free
+pco      .blkb 8        ;+62
+         .endm
+
+;testlf   .macro
+;         lda (currp),y
+;         and #$80
+;         beq finish
+
+;         lda #1
+;         sta t1
+;         ora (adjcell),y
+;         sta (adjcell),y
+;finish
+         .endm
+
+;testrt   .macro
+;         lda (currp),y
+;         and #1
+;         beq finish
+;
+;         lda #$80
+;         sta t1
+;         ora (adjcell),y
+;         sta (adjcell),y
+;finish
+;         .endm
+
+;vidmacp  .macro
+;         lda (currp),y
+;         lsr
+;         lsr
+;         lsr
+;         lsr
+;         sta 7
+;         lda (adjcell),y
+;         and #$f0
+;         ora 7
+;         tax
+;         lda vistabpc,x
+;         ldx #0
+;         sta (i1,x)
+;         lda #8
+;         eor i1
+;         sta i1
+;         lda (currp),y
+;         and #$f
+;         sta 7
+;         lda (adjcell),y
+;         asl
+;         asl
+;         asl
+;         asl
+;         ora 7
+;         tax
+;         lda vistabpc,x
+;         ldx #0
+;         sta (i1,x)
+;         sec
+;         lda i1
+;         sbc #7
+;         sta i1
+;         iny
+;         .endm
+
+;*genmac   .macro
+         .macro genmac one,two,?ll
+
+;*         ldy #\1+3
+;*         lda (currp),y
+          mov one+2(r0),r5
+          mov r5,r1
+          swab r1
+          bic ^B1111111100000000,r1
+
+;*         tax
+;*         ldy #\2 
+;*         lda (currp),y
+;*         and #3
+          movb two(r0),r4
+          mov r4,r2
+          bic ^B1111111111111100,r2
+          swab r2
+          add r2,r1
+
+;*         clc
+;*         adc #>gentab
+;*         sta m1+2
+;*m1       lda gentab,x
+;*         sta i2
+          movb gentab(r1),r3
+
+;*         ldy #\1+2
+;*         lda (currp),y
+          bic ^B1111111100000000,r5
+
+;*         tax
+;*         ldy #\2
+;*         lda (currp),y
+;*         and #$c
+;*         lsr
+;*         lsr
+          asr r4
+          asr r4
+          mov r4,r2
+          bic ^B1111111111111100,r2
+          swab r2
+          add r5,r2
+
+;*         adc #>gentab
+;*         sta m2+2
+;*m2       lda gentab,x
+          movb gentab(r2),r2
+
+;*         asl
+;*         asl
+          asl r2
+          asl r2
+;*         ora i2
+;*         sta i2
+          bis r2,r3
+
+;*         ldy #\1+1
+;*         lda (currp),y
+          mov one(r0),r5
+          mov r5,r1
+          swab r1
+          bic ^B1111111100000000,r1
+
+;*         tax
+;*         ldy #\2
+;*         lda (currp),y
+;*         and #$30
+;*         lsr
+;*         lsr
+;*         lsr
+;*         lsr
+          asr r4
+          asr r4
+          mov r4,r2
+          bic ^B1111111111111100,r2
+          swab r2
+          add r1,r2
+
+;*         adc #>gentab
+;*         sta m3+2
+;*m3       lda gentab,x
+          movb gentab(r2),r2
+
+;*         asl
+;*         asl
+;*         asl
+;*         asl
+          asl r2
+          asl r2
+          asl r2
+          asl r2
+
+;*         ora i2
+;*         sta i2
+          bis r2,r3
+
+;*         ldy #\1
+;*         lda (currp),y
+          bic ^B1111111100000000,r5
+
+;*         tax
+;*         ldy #\2
+;*         lda (currp),y
+;*         and #$c0
+;*         rol	;CY=0 must be
+;*         rol
+;*         rol
+;*         adc #>gentab
+;*         sta m4+2
+          asr r4
+          asr r4
+          mov r4,r2
+          bic ^B1111111111111100,r2
+          swab r2
+          add r5,r2
+
+;*m4       lda gentab,x
+          movb gentab(r2),r2
+
+;*         ror
+;*         ror
+;*         ror
+          ror r2
+          ror r2
+          ror r2
+
+;*         ora i2
+          bis r2,r3
+
+;*         tax
+;*         ldy #\2
+;*         sta (currp),y
+          movb r3,two(r0) 
+
+;*         lda tab3,x
+;*         tax
+          bic ^B1111111100000000,r3
+          movb tab3(r3),r2
+
+;*         ldy #sum 
+;*         adc (currp),y
+;*         sta (currp),y
+          add  r2,sum(r0)
+
+;*         lda mode
+;*         cmp #2       ;hide?
+          cmpb #2,@#mode
+
+;*         beq cont2
+          beq ll
+
+;*         txa
+;*         #cellsum
+          cellsum ll
+
+;*cont2
+ll:
+         .endm
+
+         .macro cellsum cond2,?l1      ;in: r2
+;*         adc cellcnt+4   ;CY=0
+         mov #<cellcnt+4>,r1
+         movb (r1),r3
+         add r2,r3
+
+;*         cmp #$3a
+         cmp r3,#10
+
+;*         bcs l1
+         bcc l1
+
+;*         sta cellcnt+4
+         movb r3,(r1)
+
+;*         bcc cont2
+         br cond2
+
+;*l1       sbc #$a
+l1:      sub #10,r3
+
+;*         sta cellcnt+4
+         mov r3,(r1)
+
+;*         ldy #$30
+         clr r0
+
+;*         #incbcd cellcnt+3
+         inibcd l0
+
+;*         sty cellcnt+3
+         movb r0,@r1
+
+;*         #incbcd cellcnt+2
+         inibcd l0
+
+;*         sty cellcnt+2
+         movb r0,@r1
+
+;*         #incbcd cellcnt+1
+         inibcd l0
+
+;*         sty cellcnt+1
+         movb r0,@r1
+
+;*         #incbcd cellcnt
+         inibcd l0
+
+;*         sty cellcnt
+         movb r0,@r1
+cond2:
+         .endm
+
+;*incbcd   .segment
+         .macro incbcd l0;in: r1 - address, r3 - value
+;*         inc \1
+;*         lda \1
+         inc r3
+         movb r3,-(r1)
+;*         cmp #$3A
+         cmp #10,r3
+         bne l0
+         .endm
+
+;*inibcd   .macro ?l
+          .macro inibcd one,two,?l
+
+;*         lda #$30
+         clr r0
+         mov #<two+1>,r1
+
+;*         ldx #\2
+;*loop0    sta \1,x
+ l:      movb r0,@#one
+
+;*         dex
+;*         bpl loop0
+         sob r1,l
+         .endm
+
+;iniram   .macro
+;         ldy #0
+;loop1    lda $1800,y
+;         sta $332,y
+;         iny
+;         bne loop1
+;loop2    lda $1900,y
+;         sta $432,y
+;         iny
+;         cpy #$0a
+;         bne loop2
+;         .endm
+
