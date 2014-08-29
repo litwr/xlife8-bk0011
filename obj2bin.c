@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
       pc += l;
    }
    prg[0] = addr;
-   prg[1] = len_sum;
+   prg[1] = (pc - 2)*2;
 l1:fprintf(stderr, "@%x %x>=%x lines=%d\n", addr, (pc - 2)*2, len_sum, line);
    if (!strstr(buf, "ENDMOD")) {
       fprintf(stderr, "Possible wrong relocation!\n");
