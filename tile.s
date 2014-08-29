@@ -48,7 +48,7 @@ fixcnt2:
          ;*sta (currp),y
          movb tab20(r1),r3
          movb tab21(r1),r5
-         bswap r3
+         swab r3
          add r5,r3
          add r3,(r4)+
 
@@ -62,7 +62,7 @@ fixcnt2:
          ;*sta (currp),y
          movb tab22(r1),r3
          movb tab23(r1),r5
-         bswap r3
+         swab r3
          add r5,r3
          add r3,@r4
 
@@ -79,7 +79,7 @@ fixcnt1:
          ;*sta (currp),y
          movb tab13(r1),r3
          movb tab12(r1),r5
-         bswap r3
+         swab r3
          add r5,r3
          add r3,@r4
 
@@ -93,7 +93,7 @@ fixcnt1:
          ;*sta (currp),y
          movb tab11(r1),r3
          movb tab10(r1),r5
-         bswap r3
+         swab r3
          add r5,r3
          add r3,-(r4)
 
@@ -142,7 +142,7 @@ exit2:   rts pc
          ;*lda (adjcell2),y
          ;*iny
          ;*ora (adjcell2),y
-         tst next(r5)
+chkadd2: tst next(r5)
 
          ;*beq addnode2
          bne exit2

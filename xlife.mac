@@ -292,25 +292,25 @@ l1:      sub #10,r3
          clr r0
 
 ;*         #incbcd cellcnt+3
-         inibcd l0
+         incbcd cond2
 
 ;*         sty cellcnt+3
          movb r0,@r1
 
 ;*         #incbcd cellcnt+2
-         inibcd l0
+         incbcd cond2
 
 ;*         sty cellcnt+2
          movb r0,@r1
 
 ;*         #incbcd cellcnt+1
-         inibcd l0
+         incbcd cond2
 
 ;*         sty cellcnt+1
          movb r0,@r1
 
 ;*         #incbcd cellcnt
-         inibcd l0
+         incbcd cond2
 
 ;*         sty cellcnt
          movb r0,@r1
@@ -318,7 +318,7 @@ cond2:
          .endm
 
 ;*incbcd   .segment
-         .macro incbcd l0;in: r1 - address, r3 - value
+         .macro incbcd l0   ;in: r1 - address, r3 - value
 ;*         inc \1
 ;*         lda \1
          inc r3
@@ -328,8 +328,8 @@ cond2:
          bne l0
          .endm
 
-;*inibcd   .macro ?l
-          .macro inibcd one,two,?l
+;*inibcd   .macro
+          .macro inibcd one,two,?loop
 
 ;*         lda #$30
          clr r0
@@ -337,11 +337,11 @@ cond2:
 
 ;*         ldx #\2
 ;*loop0    sta \1,x
- l:      movb r0,@#one
+ loop:   movb r0,@#one
 
 ;*         dex
 ;*         bpl loop0
-         sob r1,l
+         sob r1,loop
          .endm
 
 ;iniram   .macro
