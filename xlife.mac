@@ -337,7 +337,7 @@ cond2:
 
 ;*         ldx #\2
 ;*loop0    sta \1,x
- loop:   movb r0,@#one
+ loop:   movb r0,<one-1>(r1)
 
 ;*         dex
 ;*         bpl loop0

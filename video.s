@@ -574,37 +574,40 @@ showscn2: mov @#startp,r0
 
 ;*         ldy #0
 ;*         #vidmac1
-          mov r1,r4        ;word output!
-          bic #^B1111111100000000,r4
+          movb r1,r4        ;word output!
+          ;bic #^B1111111100000000,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r1
-          bic #^B1111111100000000,r1
+          ;bic #^B1111111100000000,r1
+          movb r1,r1
           asl r1
           mov vistab(r1),@r5
           add #62,r5
 
 ;*         iny
 ;*         #vidmac1
-          mov #^B1111111100000000,r1
-          mov r2,r4
-          bic r1,r4
+          ;mov #^B1111111100000000,r1
+          movb r2,r4
+          ;bic r1,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r2
-          bic r1,r2
+          ;bic r1,r2
+          movb r2,r2
           asl r2
           mov vistab(r2),@r5
           add #62,r5
 
 ;*         iny
 ;*         #vidmac1
-          mov r3,r4
-          bic r1,r4
+          movb r3,r4
+          ;bic r1,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r3
-          bic r1,r3
+          ;bic r1,r3
+          movb r3,r3
           asl r3
           mov vistab(r3),@r5
           add #62,r5
@@ -612,12 +615,13 @@ showscn2: mov @#startp,r0
 ;*         iny
 ;*         #vidmac1
           mov @#temp,r2
-          mov r2,r4
-          bic r1,r4
+          movb r2,r4
+          ;bic r1,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r2
-          bic r1,r2
+          ;bic r1,r2
+          movb r2,r2
           asl r2
           mov vistab(r2),@r5
 

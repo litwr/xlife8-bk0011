@@ -6,7 +6,7 @@
 int main(int argc, char **argv) {
    char buf[BUF_SZ];
    short prg[MAX_PRG_SZ];
-   int l, addr, len, len_sum = 0, pc = 2, line = 0, mod;
+   int l, addr, len, len_sum = 0, pc = 2, line = 0, mod, f=0;
    if (argc != 1) {
       fputs("Run this program without arguments, e.g., obj2bin <IN >OUT\n", stderr);
       return 1;
@@ -22,13 +22,17 @@ int main(int argc, char **argv) {
       if (l == 2) break;
    }
    for(;;) {
+      int cpc, cpc2;
       fgets(buf, BUF_SZ, stdin);
+      buf[37] = 0;
+//if (f) {fprintf(stderr, "%o %s\n", prg[pc-3], buf);return 0;}
       line++;
-      l = sscanf(buf, " %*o: %o %o %o %o %*s\n", 
+      l = sscanf(buf, " %o: %o %o %o %o %*s\n", &cpc,
                prg + pc, prg + pc + 1, prg + pc + 2, prg + pc + 3);
       if (l == 0) {
-         l = sscanf(buf, "TEXT ADDR=%*o LEN=%o\n", &len);
-         if (l == 1) {
+         l = sscanf(buf, "TEXT ADDR=%o LEN=%o\n", &cpc2, &len);
+//if (cpc2 == 012630) {fprintf(stderr, "%s%o, %o %d\n", buf, cpc2, len, l); f = 1;}
+         if (l == 2) {
             len_sum += len;
             continue;
          }
@@ -44,7 +48,7 @@ int main(int argc, char **argv) {
          }
          break;
       }
-      pc += l;
+      pc += l - 1;
    }
    prg[0] = addr;
    prg[1] = (pc - 2)*2;
