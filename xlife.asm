@@ -48,9 +48,10 @@ start:
 
    mov #tiles,r0
    mov r0,@#startp
-   mov #6,2(r0)
+   mov #14,2(r0)
    mov #3,sum(r0)
    mov #1,next(r0)
+   mov #1,@#tilecnt
 
          ;!jsr pc,@#infoout
          ;!jsr pc,@#showrules
@@ -83,7 +84,7 @@ mainloop:
 
 5$:      jsr pc,@#zerocc
          jsr pc,@#generate
-         ;!jsr pc,@#showscn
+         jsr pc,@#showscn
          jsr pc,@#cleanup
          br mainloop
 
@@ -391,7 +392,7 @@ generate:
 ;*ll2      ldy #2
          ;*lda (currp),y
          ;*and #128
-7$:      mov @2(r0),r1               ;2 rows
+7$:      mov 2(r0),r1               ;2 rows
          tstb r1
 
          ;*beq ll3
@@ -437,7 +438,7 @@ generate:
 ;*ll4      ldy #4
          ;*lda (currp),y
          ;*and #128
-9$:      mov @4(r0),r1               ;2 rows
+9$:      mov 4(r0),r1               ;2 rows
          tstb r1
 
          ;*beq ll5
@@ -484,7 +485,7 @@ generate:
 ;*ll6      ldy #6
          ;*lda (currp),y
          ;*and #128
-11$:     mov @4(r0),r1               ;2 rows
+11$:     mov 6(r0),r1               ;2 rows
          tstb r1
 
          ;*beq ll7
@@ -678,7 +679,7 @@ generate:
 
 ;*lr4      ldy #4
          ;*lda (currp),y
-18$:     mov 2(r0),r1               ;2 rows
+18$:     mov 4(r0),r1               ;2 rows
          ;*and #1
          bit #1,r1
 
