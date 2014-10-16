@@ -408,9 +408,7 @@
 ;         rts        ;ZF=1
 ;         .bend
 
-;*showscnpg
-;*         .block
-showscnpg:
+showscnpz:
 ;xlimit   = $14
 ;ylimit   = $15
 ;         #assign16 i1,viewport
@@ -516,22 +514,11 @@ gexit:    ;!jmp @#crsrset
 ;*showscn  .block
 showscn:
 
-;*         jsr infoout
         ;!jsr pc,@#infoout
 
-;*        lda zoom
-        tstb @#zoom
+         tstb @#zoom
+         bne showscnpz
 
-;*         beq cont1
-        bne showscnpg
-
-;*         jmp showscnpg
-
-;*cont1    lda tilecnt
-;*         bne xcont2
-;*         lda tilecnt+1
-;*         beq gexit
-;*         .bend
          tst @#tilecnt
          beq gexit
 
@@ -554,131 +541,61 @@ showscn:
 ;         bne xcont2
 ;         rts
 
-;*showscn2 .block
-;*         #assign16 currp,startp
 showscn2: mov @#startp,r0
+1$:       mov video(r0),r5
+          add @#videobase,r5
           mov @r0,r1
           mov 2(r0),r2
           mov 4(r0),r3
           mov 6(r0),@#temp
           mov #tovideo,@#pageport
 
-;*loop     ldy #video
-;*         lda (currp),y
-;*         sta i1
-;*         iny
-;*         lda (currp),y
-;*         sta i1+1
-1$:       mov video(r0),r5
-          add @#videobase,r5
-
-;*         ldy #0
-;*         #vidmac1
           movb r1,r4        ;word output!
-          ;bic #^B1111111100000000,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r1
-          ;bic #^B1111111100000000,r1
           movb r1,r1
           asl r1
           mov vistab(r1),@r5
           add #62,r5
 
-;*         iny
-;*         #vidmac1
-          ;mov #^B1111111100000000,r1
           movb r2,r4
-          ;bic r1,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r2
-          ;bic r1,r2
           movb r2,r2
           asl r2
           mov vistab(r2),@r5
           add #62,r5
 
-;*         iny
-;*         #vidmac1
           movb r3,r4
-          ;bic r1,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r3
-          ;bic r1,r3
           movb r3,r3
           asl r3
           mov vistab(r3),@r5
           add #62,r5
 
-;*         iny
-;*         #vidmac1
           mov @#temp,r2
           movb r2,r4
-          ;bic r1,r4
           asl r4
           mov vistab(r4),(r5)+
           swab r2
-          ;bic r1,r2
           movb r2,r2
           asl r2
           mov vistab(r2),@r5
 
-;*         iny
-;*         #vidmac1
-;*         iny
-;*         #vidmac1
-;*         iny
-;*         #vidmac1
-;*         iny
-;*         #vidmac1
-
-;*         lda #8
-;*         eor i1
-;*         sta i1
-;*         ldy #0
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-;*         iny
-;*         #vidmac2
-
-;*         ldy #next
-;*         lda (currp),y
-;*         tax
-;*         iny
-;*         lda (currp),y
-;*         bne cont
           mov #todata,@#pageport
           mov next(r0),r0
-
-;*         cpx #1
           cmp #1,r0
-
-;*         bne cont
           bne 1$
 
 ;*         jmp crsrset
           ;?xor #^B1100000000000000,@#videobase
           jmp @#crsrset
 
-;*cont     sta currp+1
-;*         stx currp
-;*         jmp loop
-;*         .bend
-
-;showscnp .block
+showscnp:
 ;         #assign16 currp,startp
 ;loop     ldy #video
 ;         lda (currp),y

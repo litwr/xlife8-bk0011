@@ -1,7 +1,7 @@
 vermax   = 20     ;160
 hormax   = 24     ;192
 total    = <hormax*vermax>+1
-tilesize = 70
+tilesize = 62
 plainbox = <hormax*vermax*tilesize>+tiles
 
 left     = 8      ;all directions
@@ -13,10 +13,16 @@ dr       = 18
 down     = 20
 dl       = 22
 next     = 24
-count    = 26
+count0   = 26
+count1   = 30
+count2   = 34
+count3   = 38
+count4   = 42
+count5   = 46
+count6   = 50
+count7   = 54
 video    = 58
 sum      = 60
-pco      = 62
 
          .macro tile
 l0       .byte 0
@@ -36,11 +42,10 @@ dr       .word 0
 down     .word 0        ;+20
 dl       .word 0
 next     .word 0        ;+24
-count    .blkb 32       ;+26
+         .blkb 4        ;+26, count0
 video    .word 0        ;+58
 sum      .byte 0        ;+60
          .byte 0        ;free
-pco      .blkb 8        ;+62
          .endm
 
 ;testlf   .macro
@@ -104,228 +109,69 @@ pco      .blkb 8        ;+62
 ;         iny
 ;         .endm
 
-;*genmac   .macro
          .macro genmac one,two,?ll
+         movb one+3(r0),r5
+         movb gentab(r5),r1
+         bic #^B1111111111111100,r1
 
-;*         ldy #\1+3
-;*         lda (currp),y
-          mov one+2(r0),r5
-          mov r5,r1
-          swab r1
-          bic #^B1111111100000000,r1
+         movb one+2(r0),r5
+         movb gentab(r5),r5
+         bic #^B1111111111110011,r5
+         bis r5,r1
 
-;*         tax
-;*         ldy #\2 
-;*         lda (currp),y
-;*         and #3
-          movb two(r0),r4
-          mov r4,r2
-          bic #^B1111111111111100,r2
-          swab r2
-          add r2,r1
+         movb one+1(r0),r5
+         movb gentab(r5),r5
+         bic #^B1111111111001111,r5
+         bis r5,r1
 
-;*         clc
-;*         adc #>gentab
-;*         sta m1+2
-;*m1       lda gentab,x
-;*         sta i2
-          movb gentab(r1),r3
+         movb one(r0),r5
+         movb gentab(r5),r5
+         bic #^B1111111100111111,r5
+         bis r5,r1
+.if eq two
+         movb r1,@r0
+.iff
+         movb r1,two(r0)
+.endc
+         movb tab3(r1),r2
+         beq ll
 
-;*         ldy #\1+2
-;*         lda (currp),y
-          bic #^B1111111100000000,r5
+         movb r2,sum(r0)
+         cmpb #2,@#mode
+         beq ll
 
-;*         tax
-;*         ldy #\2
-;*         lda (currp),y
-;*         and #$c
-;*         lsr
-;*         lsr
-          asr r4
-          asr r4
-          mov r4,r2
-          bic #^B1111111111111100,r2
-          swab r2
-          add r5,r2
-
-;*         adc #>gentab
-;*         sta m2+2
-;*m2       lda gentab,x
-          movb gentab(r2),r2
-
-;*         asl
-;*         asl
-          asl r2
-          asl r2
-;*         ora i2
-;*         sta i2
-          bis r2,r3
-
-;*         ldy #\1+1
-;*         lda (currp),y
-          mov one(r0),r5
-          mov r5,r1
-          swab r1
-          bic #^B1111111100000000,r1
-
-;*         tax
-;*         ldy #\2
-;*         lda (currp),y
-;*         and #$30
-;*         lsr
-;*         lsr
-;*         lsr
-;*         lsr
-          asr r4
-          asr r4
-          mov r4,r2
-          bic #^B1111111111111100,r2
-          swab r2
-          add r1,r2
-
-;*         adc #>gentab
-;*         sta m3+2
-;*m3       lda gentab,x
-          movb gentab(r2),r2
-
-;*         asl
-;*         asl
-;*         asl
-;*         asl
-          asl r2
-          asl r2
-          asl r2
-          asl r2
-
-;*         ora i2
-;*         sta i2
-          bis r2,r3
-
-;*         ldy #\1
-;*         lda (currp),y
-          bic #^B1111111100000000,r5
-
-;*         tax
-;*         ldy #\2
-;*         lda (currp),y
-;*         and #$c0
-;*         rol	;CY=0 must be
-;*         rol
-;*         rol
-;*         adc #>gentab
-;*         sta m4+2
-          asr r4
-          asr r4
-          mov r4,r2
-          bic #^B1111111111111100,r2
-          swab r2
-          add r5,r2
-
-;*m4       lda gentab,x
-          movb gentab(r2),r2
-
-;*         ror
-;*         ror
-;*         ror
-          ror r2
-          ror r2
-          ror r2
-
-;*         ora i2
-          bis r2,r3
-
-;*         tax
-;*         ldy #\2
-;*         sta (currp),y
-          movb r3,two(r0) 
-
-;*         lda tab3,x
-;*         tax
-          bic #^B1111111100000000,r3
-          movb tab3(r3),r2
-
-;*         ldy #sum 
-;*         adc (currp),y
-;*         sta (currp),y
-          add  r2,sum(r0)
-
-;*         lda mode
-;*         cmp #2       ;hide?
-          cmpb #2,@#mode
-
-;*         beq cont2
-          beq ll
-
-;*         txa
-;*         #cellsum
-          cellsum ll
-
-;*cont2
+         cellsum ll
 ll:
          .endm
 
          .macro cellsum cond2,?l1      ;in: r2
-;*         adc cellcnt+4   ;CY=0
          mov #<cellcnt+4>,r1
          movb (r1),r3
          add r2,r3
-
-;*         cmp #$3a
          cmp r3,#10
-
-;*         bcs l1
          bcc l1
 
-;*         sta cellcnt+4
          movb r3,(r1)
-
-;*         bcc cont2
          br cond2
 
-;*l1       sbc #$a
 l1:      sub #10,r3
-
-;*         sta cellcnt+4
-         mov r3,(r1)
-
-;*         ldy #$30
-         clr r0
-
-;*         #incbcd cellcnt+3
+         movb r3,(r1)
+         movb -(r1),r3
          incbcd cond2
-
-;*         sty cellcnt+3
-         movb r0,@r1
-
-;*         #incbcd cellcnt+2
          incbcd cond2
-
-;*         sty cellcnt+2
-         movb r0,@r1
-
-;*         #incbcd cellcnt+1
          incbcd cond2
-
-;*         sty cellcnt+1
-         movb r0,@r1
-
-;*         #incbcd cellcnt
          incbcd cond2
-
-;*         sty cellcnt
-         movb r0,@r1
 cond2:
          .endm
 
-;*incbcd   .segment
          .macro incbcd l0   ;in: r1 - address, r3 - value
-;*         inc \1
-;*         lda \1
          inc r3
-         movb r3,-(r1)
-;*         cmp #$3A
+         movb r3,@r1
          cmp #10,r3
          bne l0
+
+         clrb @r1
+         mov -(r1),r3
          .endm
 
 ;*inibcd   .macro
@@ -356,4 +202,30 @@ cond2:
 ;         cpy #$0a
 ;         bne loop2
 ;         .endm
+
+         .macro setcount one,two
+         mov one(r0),r1
+         mov r1,r2
+         bic r3,r1
+         movb r1,two(r0)
+         swab r1
+         movb r1,two+4(r0)
+         mov r2,r1
+         bic r4,r1
+         asr r1
+         movb r1,two+1(r0)
+         swab r1
+         movb r1,two+5(r0)
+         mov r2,r1
+         bic r5,r1
+         asl r1
+         movb r1,two+2(r0)
+         swab r1
+         movb r1,two+6(r0)
+         mov r2,r1
+         bic #^B1111110011111100,r1
+         movb r1,two+3(r0)
+         swab r1
+         movb r1,two+7(r0)
+         .endm
 

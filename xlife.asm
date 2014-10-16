@@ -123,8 +123,6 @@ vistab:
    .word 5376, 5377, 5380, 5381, 5392, 5393, 5396, 5397
    .word 5440, 5441, 5444, 5445, 5456, 5457, 5460, 5461
 
-   
-
 vistabpc:
    .byte 0, 2, 8, 10, 32, 34, 40, 42, 128, 130, 136, 138, 160, 162, 168, 170
    .byte 0, 1, 8, 9, 32, 33, 40, 41, 128, 129, 136, 137, 160, 161, 168, 169
@@ -143,65 +141,8 @@ vistabpc:
    .byte 0, 2, 4, 6, 16, 18, 20, 22, 64, 66, 68, 70, 80, 82, 84, 86
    .byte 0, 1, 4, 5, 16, 17, 20, 21, 64, 65, 68, 69, 80, 81, 84, 85
 
-gentab:  .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7  ;block 0 - ?page aligned
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7  ;all 7s are free
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 2,2,2,3,2,2,2,2,2,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0 
+         .include gentab.s
 
-         .blkb 119
-
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7 ;block 1 = block0 + 256
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 2,2,3,3,2,2,2,2,2,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0
-
-ctab:    .byte 0,8,22,36,50,64,72,86,100,114,128,136,150
-         .byte 4,18,32,40,54,68,82,96,104,118,132
-
-bittab:  .byte 1,2,4,8,16,32,64,128
-
-         .blkb 87   ;free
-
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7  ;block 2 = block1 + 256
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 2,2,2,3,2,2,2,2,2,7,7,7,7,7,7,7
-         .byte 2,2,2,3,2,2,2,2,2,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,0,1,0,0,0,0,0  
-
-         .blkb 119
-
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7  ;block 3 = block2 + 256
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 2,2,3,3,2,2,2,2,2,7,7,7,7,7,7,7
-         .byte 2,2,3,3,2,2,2,2,2,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0,7,7,7,7,7,7,7
-         .byte 0,0,1,1,0,0,0,0,0
-
-tab3:    .byte 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
-         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
-         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
-         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
-         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
-         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
-         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
-         .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
          .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
          .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
          .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
@@ -210,6 +151,15 @@ tab3:    .byte 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
          .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
          .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
          .byte 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+tab3:
+         .byte 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
+         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
+         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
+         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
+         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+         .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
 
 ttab:    .byte 0,1,2,3,3,4,5,6,7,8,8,9,16,17,18,19,19,20
          .byte 21,22,23,24,24,25,32,33,34,35,35,36
@@ -222,6 +172,11 @@ ttab:    .byte 0,1,2,3,3,4,5,6,7,8,8,9,16,17,18,19,19,20
          .byte 133,134,135,136,136,137,144,145,146,147,147,148
          .byte 149,150,151,152,152,153
 
+ctab:    .byte 0,8,22,36,50,64,72,86,100,114,128,136,150
+         .byte 4,18,32,40,54,68,82,96,104,118,132
+
+bittab:  .byte 1,2,4,8,16,32,64,128
+
          .even
          ;!.include "interface.s"
          .include tile.s
@@ -229,16 +184,28 @@ ttab:    .byte 0,1,2,3,3,4,5,6,7,8,8,9,16,17,18,19,19,20
          ;!.include "io.s"
          ;!.include "rules.s"
          ;!.include "ramdisk.s"
-         ;!.include "video.s"
+         .include video.s
          .include tab12.s
 
-;*generate .block
 generate:
-         ;*#assign16 currp,startp
          mov @#startp,r0           ;currp=r0
+;*loop3
+         mov #^B0011111100111111,r3
+         mov #^B1100111111001111,r4
+         mov #^B1111001111110011,r5
+30$:     setcount 0,count0
+         setcount 2,count2
+         setcount 4,count4
+         setcount 6,count6
+
+         mov next(r0),r0
+         cmp #1,r0
+         beq 31$
+         jmp @#30$
+
+31$:     mov @#startp,r0
 ;*loop
-5$:
-         ;*ldy #sum
+5$:         ;*ldy #sum
          ;*lda (currp),y
          tstb sum(r0)
 
@@ -253,7 +220,7 @@ generate:
          ;*ldy #0		;up
          ;*lda (currp),y
          movb @r0,r1            ;top row, later saved at 6502 X
-         ;bic #^B1111111100000000,r1
+         asl r1
 
          ;*beq ldown
          beq 3$
@@ -261,29 +228,25 @@ generate:
          ;*tax
          ;*ldy #up
          ;*jsr iniadjc
-         mov up(r0),r2          ;adjcell=r2, this line replaces iniadjc call!
+         mov up(r0),r2       ;adjcell=r2, this line replaces iniadjc call!
 
          ;*clc
-         ;*ldy #count+31
-         mov #count+30,r4
-         add @r2,r4
-
+         ;*ldy #count7+3
          ;*jsr fixcnt1e
-         jsr pc,@#fixcnt1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count7+2(r2)
+         add r4,count7(r2)
 
-         ;*ldy #count+7
-         mov #count+6,r4
-         add @r0,r4
-
+         ;*ldy #count1+3
          ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         add r3,count1+2(r0)
+         add r4,count1(r0)
 
          ;*ldy #count
-         mov #count,r4
-         add @r0,r4
-
          ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
+         add tab2223(r1),count0+2(r0)
+         add tab2021(r1),count0(r0)
 
          ;*jsr chkadd
          jsr pc,@#chkadd
@@ -293,7 +256,7 @@ generate:
          ;*ldy #7
          ;*lda (currp),y
          movb 7(r0),r1            ;top row, later saved at 6502 X
-         ;bic #^B1111111100000000,r1
+         asl r1
 
          ;*beq lleft
          beq 4$
@@ -304,26 +267,22 @@ generate:
          mov down(r0),r2          ;adjcell=r2
 
          ;*clc
-         ;*ldy #count+3
-         mov #count+2,r4
-         add @r2,r4
-
+         ;*ldy #count0+3
          ;*jsr fixcnt1e
-         jsr pc,@#fixcnt1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count0+2(r2)
+         add r4,count0(r2)
 
-         ;ldy #count+27
-         mov #count+26,r4
-         add @r0,r4
-
+         ;ldy #count6+3
          ;jsr fixcnt1
-         jsr pc,@#fixcnt1
+         add r3,count6+2(r0)
+         add r4,count6(r0)
 
-         ;ldy #count+28
-         mov #count+28,r4
-         add @r0,r4
-
+         ;ldy #count7
          ;jsr fixcnt2
-         jsr pc,@#fixcnt2
+         add tab2223(r1),count7+2(r0)
+         add tab2021(r1),count7(r0)
 
          ;jsr chkadd
          jsr pc,@#chkadd
@@ -332,6 +291,7 @@ generate:
 4$:
          ;*jsr iniadjc
          mov left(r0),r2          ;adjcell=r2
+         mov #4,r4                ;item to add
 
          ;*ldy #0
          ;*sty t1   ;change indicator
@@ -348,21 +308,21 @@ generate:
          ;*sta t1
          mov r1,r3
  
-         ;*ldy #count+3
-         ;*#ispyr adjcell
-         incb count+3(r2)
+         ;*ldy #count0+3
+         ;*#ispyr4 adjcell
+         add r4,count0+3(r2)
 
-         ;*ldy #count+7
-         ;*#ispyr adjcell
-         incb count+7(r2)
+         ;*ldy #count1+3
+         ;*#ispyr4 adjcell
+         add r4,count1+3(r2)
 
          ;*ldy #ul
          ;*jsr iniadjc2
          mov ul(r0),r5          ;adjcell2=r5
 
-         ;*ldy #count+31
-         ;*#ispyr adjcell2
-         incb count+31(r5)
+         ;*ldy #count7+3
+         ;*#ispyr4 adjcell2
+         add r4,count7+3(r5)
 
          ;*jsr chkadd2
          jsr pc,@#chkadd2
@@ -370,168 +330,106 @@ generate:
 ;*ll1      ldy #1
          ;*lda (currp),y
          ;*and #128
-6$:      tst r1
          ;*beq ll2
+6$:      tst r1
          bpl 7$
 
          ;*sta t1
          mov r1,r3
 
-         ;*ldy #count+3
-         ;*#ispyr adjcell
-         incb count+3(r2)
+         ;*ldy #count0+3
+         ;*#ispyr4 adjcell
+         add r4,count0+3(r2)
 
-         ;*ldy #count+7
-         ;*#ispyr adjcell
-         incb count+7(r2)
+         ;*ldy #count1+3
+         ;*#ispyr4 adjcell
+         add r4,count1+3(r2)
 
-         ;*ldy #count+11
-         ;*#ispyr adjcell
-         incb count+11(r2)
+         ;*ldy #count2+3
+         ;*#ispyr4 adjcell
+         add r4,count2+3(r2)
 
 ;*ll2      ldy #2
          ;*lda (currp),y
          ;*and #128
+         ;*beq ll3
 7$:      mov 2(r0),r1               ;2 rows
          tstb r1
-
-         ;*beq ll3
          bpl 8$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+7
-         ;*#ispyr adjcell
-         incb count+7(r2)
-
-         ;*ldy #count+11
-         ;*#ispyr adjcell
-         incb count+11(r2)
-
-         ;*ldy #count+15
-         ;*#ispyr adjcell
-         incb count+15(r2)
+         add r4,count1+3(r2)
+         add r4,count2+3(r2)
+         add r4,count3+3(r2)
 
 ;*ll3      ldy #3
          ;*lda (currp),y
          ;*and #128
-8$:      tst r1
          ;*beq ll4
+8$:      tst r1
          bpl 9$
 
          ;*sta t1
          mov r1,r3
-
-         ;ldy #count+11
-         ;#ispyr adjcell
-         incb count+11(r2)
-
-         ;ldy #count+15
-         ;#ispyr adjcell
-         incb count+15(r2)
-
-         ;ldy #count+19
-         ;#ispyr adjcell
-         incb count+19(r2)
+         add r4,count2+3(r2)
+         add r4,count3+3(r2)
+         add r4,count4+3(r2)
 
 ;*ll4      ldy #4
          ;*lda (currp),y
          ;*and #128
+         ;*beq ll5
 9$:      mov 4(r0),r1               ;2 rows
          tstb r1
-
-         ;*beq ll5
          bpl 10$
 
          ;sta t1
          mov r1,r3
-
-         ;ldy #count+15
-         ;#ispyr adjcell
-         incb count+15(r2)
-
-         ;ldy #count+19
-         ;#ispyr adjcell
-         incb count+19(r2)
-
-         ;ldy #count+23
-         ;#ispyr adjcell
-         incb count+23(r2)
+         add r4,count3+3(r2)
+         add r4,count4+3(r2)
+         add r4,count5+3(r2)
 
 ;*ll5      ldy #5
          ;*lda (currp),y
          ;*and #128
-10$:     tst r1
-
          ;*beq ll6
+10$:     tst r1
          bpl 11$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+19
-         ;*#ispyr adjcell
-         incb count+19(r2)
-
-         ;*ldy #count+23
-         ;*#ispyr adjcell
-         incb count+23(r2)
-
-         ;*ldy #count+27
-         ;*#ispyr adjcell
-         incb count+27(r2)
+         add r4,count4+3(r2)
+         add r4,count5+3(r2)
+         add r4,count6+3(r2)
 
 ;*ll6      ldy #6
          ;*lda (currp),y
          ;*and #128
+         ;*beq ll7
 11$:     mov 6(r0),r1               ;2 rows
          tstb r1
-
-         ;*beq ll7
          bpl 12$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+23
-         ;*#ispyr adjcell
-         incb count+23(r2)
-
-         ;*ldy #count+27
-         ;*#ispyr adjcell
-         incb count+27(r2)
-
-         ;*ldy #count+31
-         ;*#ispyr adjcell
-         incb count+31(r2)
+         add r4,count5+3(r2)
+         add r4,count6+3(r2)
+         add r4,count7+3(r2)
 
 ;*ll7      ldy #7
          ;*lda (currp),y
          ;*and #128
-12$:     tst r1
-
          ;*beq lexit
+12$:     tst r1
          bpl 14$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+27
-         ;*#ispyr adjcell
-         incb count+27(r2)
-
-         ;*ldy #count+31
-         ;*#ispyr adjcell
-         incb count+31(r2)
-
-         ;*ldy #dl
-         ;*jsr iniadjc2
+         add r4,count6+3(r2)
+         add r4,count7+3(r2)
          mov dl(r0),r5          ;adjcell2=r5
-
-         ;*ldy #count+3
-         ;*#ispyr adjcell2
-         incb count+3(r5)
+         add r4,count0+3(r5)
 
          ;*jsr chkadd2
          jsr pc,@#chkadd2
@@ -552,36 +450,18 @@ generate:
          mov @r0,r1               ;2 rows
 
          ;*and #1
-         bit #1,r1
+         asr r1
 
          ;*beq lr1
-         beq 15$
+         bcc 15$
 
          ;*sta t1
-         mov r1,r3
+         adc r3
 
-         ;*ldy #count
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count(r2)
-
-         ;*lda #16
-         ;*ldy #count+4
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+4(r2)
-
-         ;*ldy #ur
-         ;*jsr iniadjc2
          mov ur(r0),r5          ;adjcell2=r5
-
-         ;*lda #16
-         ;*ldy #count+28
-         ;*adc (adjcell2),y
-         ;*sta (adjcell2),y
-         add r4,count+28(r5)
+         add r4,count7(r5)
+         add r4,count0(r2)
+         add r4,count1(r2)
 
          ;*jsr chkadd2
          jsr pc,@#chkadd2
@@ -589,219 +469,104 @@ generate:
 ;*lr1      ldy #1
          ;*lda (currp),y
          ;*and #1
-15$:     bit #^B100000000,r1
-
          ;*beq lr2
-         beq 16$
+15$:     tstb r1
+         bpl 16$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count(r2)
-
-         ;*lda #16
-         ;*ldy #count+4
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+4(r2)
-
-         ;*lda #16
-         ;*ldy #count+8
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+8(r2)
+         add r4,count0(r2)
+         add r4,count1(r2)
+         add r4,count2(r2)
 
 ;*lr2      ldy #2
          ;*lda (currp),y
 16$:     mov 2(r0),r1               ;2 rows
+
          ;*and #1
-         bit #1,r1
+         asr r1
 
          ;*beq lr3
-         beq 17$
+         bcc 17$
 
          ;*sta t1
-         mov r1,r3
-
-         ;*ldy #count+4
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+4(r2)
-
-         ;*lda #16
-         ;*ldy #count+8
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+8(r2)
-
-         ;*lda #16
-         ;*ldy #count+12
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+12(r2)
+         adc r3
+         add r4,count1(r2)
+         add r4,count2(r2)
+         add r4,count3(r2)
 
 ;*lr3      ldy #3
          ;*lda (currp),y
          ;*and #1
-17$:     bit #^B100000000,r1
+17$:     tstb r1
 
          ;*beq lr4
-         beq 18$
+         bpl 18$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+8
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+8(r2)
-
-         ;*lda #16
-         ;*ldy #count+12
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+12(r2)
-
-         ;*lda #16
-         ;*ldy #count+16
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+16(r2)
+         add r4,count2(r2)
+         add r4,count3(r2)
+         add r4,count4(r2)
 
 ;*lr4      ldy #4
          ;*lda (currp),y
 18$:     mov 4(r0),r1               ;2 rows
          ;*and #1
-         bit #1,r1
+         asr r1
 
          ;*beq lr5
-         beq 19$
+         bcc 19$
 
          ;*sta t1
-         mov r1,r3
-
-         ;*ldy #count+12
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+12(r2)
-
-         ;*lda #16
-         ;*ldy #count+16
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+16(r2)
-
-         ;*lda #16
-         ;*ldy #count+20
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+20(r2)
+         adc r3
+         add r4,count3(r2)
+         add r4,count4(r2)
+         add r4,count5(r2)
 
 ;*lr5      ldy #5
          ;*lda (currp),y
          ;*and #1
-19$:     bit #^B100000000,r1
+19$:     tstb r1
 
          ;beq lr6
-         beq 20$
+         bpl 20$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+16
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+16(r2)
-
-         ;*lda #16
-         ;*ldy #count+20
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+20(r2)
-
-         ;*lda #16
-         ;*ldy #count+24
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+24(r2)
+         add r4,count4(r2)
+         add r4,count5(r2)
+         add r4,count6(r2)
 
 ;*lr6      ldy #6
          ;*lda (currp),y
 20$:     mov 6(r0),r1               ;2 rows
          ;*and #1
-         bit #1,r1
+         asr r1
 
          ;*beq lr7
-         beq 21$
+         bcc 21$
 
          ;*sta t1
-         mov r1,r3
-
-         ;*ldy #count+20
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+20(r2)
-
-         ;*lda #16
-         ;*ldy #count+24
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+24(r2)
-
-         ;*lda #16
-         ;*ldy #count+28
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+28(r2)
+         adc r3
+         add r4,count5(r2)
+         add r4,count6(r2)
+         add r4,count7(r2)
 
 ;*lr7      ldy #7
          ;*lda (currp),y
          ;*and #1
-21$:     bit #^B100000000,r1
+21$:     tstb r1
 
          ;*beq rexit
-         beq 22$
+         bpl 22$
 
          ;*sta t1
          mov r1,r3
-
-         ;*ldy #count+24
-         ;*lda #16
-         ;*clc
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+24(r2)
-
-         ;*lda #16
-         ;*ldy #count+28
-         ;*adc (adjcell),y
-         ;*sta (adjcell),y
-         add r4,count+28(r2)
-
-         ;*ldy #dr
-         ;*jsr iniadjc2
+         add r4,count6(r2)
+         add r4,count7(r2)
          mov dr(r0),r5          ;adjcell2=r5
-
-         ;*lda #16
-         ;*ldy #count
-         ;*adc (adjcell2),y
-         ;*sta (adjcell2),y
-         add r4,count(r5)
+         add r4,count0(r5)
 
          ;*jsr chkadd2
          jsr pc,@#chkadd2
@@ -811,188 +576,99 @@ generate:
 
          ;*ldy #6
          ;*lda (currp),y
-         bic #^B1111111100000000,r1
- 
          ;*beq l2
+         movb 6(r0),r1
          beq 23$
 
-         ;*tax
-         ;*clc
-         ;*ldy #count+23
-         mov #count+22,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
-
-         ;*ldy #count+24
-         mov #count+24,r4
-         add @r0,r4
-
-         ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
-
-         ;*ldy #count+31
-         mov #count+30,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         asl r1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count7+2(r0)
+         add r4,count7(r0)
+         add r3,count5+2(r0)
+         add r4,count5(r0)
+         add tab2223(r1),count6+2(r0)
+         add tab2021(r1),count6(r0)
 
 ;*l2       ldy #5
          ;*lda (currp),y
-23$:     movb 5(r0),r1
-         bic #^B1111111100000000,r1
-
          ;*beq l3
+23$:     mov 5(r0),r1  ;2 bytes
          beq 24$
 
-         ;*tax
-         ;*clc
-         ;*ldy #count+19
-         mov #count+18,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
-
-         ;*ldy #count+20
-         mov #count+20,r4
-         add @r0,r4
-
-         ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
-
-         ;*ldy #count+27
-         mov #count+26,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         asl r1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count6+2(r0)
+         add r4,count6(r0)
+         add r3,count4+2(r0)
+         add r4,count4(r0)
+         add tab2223(r1),count5+2(r0)
+         add tab2021(r1),count5(r0)
 
 ;*l3       ldy #4
          ;*lda (currp),y
-24$:     movb 4(r0),r1
-         bic #^B1111111100000000,r1
-
          ;*beq l4
+24$:     movb 4(r0),r1
          beq 25$
 
-         ;*tax
-         ;*clc
-         ;*ldy #count+15
-         mov #count+14,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
-
-         ;*ldy #count+16
-         mov #count+16,r4
-         add @r0,r4
-
-         ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
-
-         ;*ldy #count+23
-         mov #count+22,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         asl r1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count5+2(r0)
+         add r4,count5(r0)
+         add r3,count3+2(r0)
+         add r4,count3(r0)
+         add tab2223(r1),count4+2(r0)
+         add tab2021(r1),count4(r0)
 
 ;*l4       ldy #3
          ;*lda (currp),y
-25$:     movb 3(r0),r1
-         bic #^B1111111100000000,r1
-
          ;*beq l5
+25$:     movb 3(r0),r1
          beq 26$
 
-         ;*tax
-         ;*clc
-         ;*ldy #count+11
-         mov #count+10,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
-
-         ;*ldy #count+12
-         mov #count+12,r4
-         add @r0,r4
-
-         ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
-
-         ;*ldy #count+19
-         mov #count+18,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         asl r1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count4+2(r0)
+         add r4,count4(r0)
+         add r3,count2+2(r0)
+         add r4,count2(r0)
+         add tab2223(r1),count3+2(r0)
+         add tab2021(r1),count3(r0)
 
 ;*l5       ldy #2
          ;*lda (currp),y
-26$:     movb 2(r0),r1
-         bic #^B1111111100000000,r1
-
          ;*beq l6
+26$:     movb 2(r0),r1
          beq 27$
 
-         ;*tax
-         ;*clc
-         ;*ldy #count+7
-         mov #count+6,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
-
-         ;*ldy #count+8
-         mov #count+8,r4
-         add @r0,r4
-
-         ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
-
-         ;*ldy #count+15
-         mov #count+14,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         asl r1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count3+2(r0)
+         add r4,count3(r0)
+         add r3,count1+2(r0)
+         add r4,count1(r0)
+         add tab2223(r1),count2+2(r0)
+         add tab2021(r1),count2(r0)
 
 ;*l6       ldy #1
          ;*lda (currp),y
-27$:     movb 1(r0),r1
-         bic #^B1111111100000000,r1
-
          ;*beq lnext
+27$:     movb 1(r0),r1
          beq 28$
 
-         ;*tax
-         ;*clc
-         ;*ldy #count+3
-         mov #count+2,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
-
-         ;*ldy #count+4
-         mov #count+4,r4
-         add @r0,r4
-
-         ;*jsr fixcnt2
-         jsr pc,@#fixcnt2
-
-         ;*ldy #count+11
-         mov #count+10,r4
-         add @r0,r4
-
-         ;*jsr fixcnt1
-         jsr pc,@#fixcnt1
+         asl r1
+         mov tab1213(r1),r3
+         mov tab1011(r1),r4
+         add r3,count2+2(r0)
+         add r4,count2(r0)
+         add r3,count0+2(r0)
+         add r4,count0(r0)
+         add tab2223(r1),count1+2(r0)
+         add tab2021(r1),count1(r0)
 
 ;*lnext    ldy #next
          ;*lda (currp),y
@@ -1000,22 +676,10 @@ generate:
          ;*iny
          ;*lda (currp),y
 28$:     mov next(r0),r0
-
-         ;*bne cont2
-
-         ;cpx #1
          cmp #1,r0
-
-         ;beq stage2
          beq stage2
-
-;*cont2    sta currp+1
-         ;*stx currp
-         ;*jmp loop
          jmp @#5$
 
-;*stage2   #assign16 currp,startp
-         ;*.bend
 stage2:  mov @#startp,r0
 
 ;*genloop2 ldy #sum
@@ -1024,160 +688,35 @@ stage2:  mov @#startp,r0
          ;*sta (currp),y
 1$:      
          clrb sum(r0)
+         genmac count0,0
+         genmac count1,1
+         genmac count2,2
+         genmac count3,3
+         genmac count4,4
+         genmac count5,5
+         genmac count6,6
+         genmac count7,7
 
-         ;*lda pseudoc   ;commented = 5% slower
-         tstb @#pseudoc
-
-         ;*beq cont4     ;with no pseudocolor
-         beq 2$
-
-         ;ldx #8
-         ;lda #0
-         ;sta loop8+1
-         ;lda #pc
-         ;sta mpc+1
-;loop8    ldy #0
-         ;lda (currp),y
-;mpc      ldy #pc
-         ;sta (currp),y
-         ;inc loop8+1
-         ;inc mpc+1
-         ;dex
-         ;bne loop8
-
-;*cont4    #genmac count,0
-2$:      genmac count,0
-
-         ;*#genmac count+4,1
-         genmac count+4,1
-
-         ;*#genmac count+8,2
-         genmac count+8,2
-
-         ;*#genmac count+12,3
-         genmac count+12,3
-
-         ;*#genmac count+16,4
-         genmac count+16,4
-
-         ;*#genmac count+20,5
-         genmac count+20,5
-
-         ;*#genmac count+24,6
-         genmac count+24,6
-
-         ;*#genmac count+28,7
-         genmac count+28,7
-
-         ;*ldy #count
-         mov #count,r1
-         mov #16,r2
-
-         ;*lda #0
-;*loop3    sta (currp),y
-3$:      clr (r1)+
-
-         ;*iny
-         ;*cpy #count+32
-         ;*bne loop3
-         sob r2,3$
-
-         ;*ldy #next
-         ;*lda (currp),y
-         ;*tax
-         ;*iny
-         ;*lda (currp),y
          mov next(r0),r0
-         
-         ;bne gencont1
-
-         ;*cpx #1
-         ;*bne gencont1
          cmp #1,r0
-         bne rts2
-
+         beq incgen
          jmp @#1$
 
-         ;*.bend
-
-;*rts2     rts
-rts2:    rts pc
-
-;*gencont1 sta currp+1
-;*         stx currp
-;*         jmp genloop2
-
-;*incgen   .block
-incgen:
-;*          ldy #48
-          clr r0
-          mov #<gencnt+6>,r1
+incgen:   mov #<gencnt+6>,r1
           movb @r1,r3
+          incbcd rts2
+          incbcd rts2
+          incbcd rts2
+          incbcd rts2
+          incbcd rts2
+          incbcd rts2
+          incbcd rts2
+rts2:     rts pc
 
-;*         #incbcd gencnt+6
-          incbcd 1$
+cleanup:  incb @#clncnt
+          bitb #15,@#clncnt
+          bne rts2
 
-;*         sty gencnt+6
-          movb r0,@r1
-
-;*         #incbcd gencnt+5
-          incbcd 1$
-
-;*         sty gencnt+5
-          movb r0,@r1
-
-;*         #incbcd gencnt+4
-          incbcd 1$
-
-;*         sty gencnt+4
-          movb r0,@r1
-
-;*         #incbcd gencnt+3
-          incbcd 1$
-
-;*         sty gencnt+3
-          movb r0,@r1
-
-;*         #incbcd gencnt+2
-          incbcd 1$
-
-;*         sty gencnt+2
-          movb r0,@r1
-
-;*         #incbcd gencnt+1
-          incbcd 1$
-
-;*         sty gencnt+1
-          movb r0,@r1
-
-;*         #incbcd gencnt
-          incbcd 1$
-
-;*         sty gencnt
-          movb r0,@r1
-
-;*cont2    rts
-;*         .bend
-1$:       rts pc
-
-;*cleanup  .block
-cleanup:
-;*         jsr incgen
-         jsr pc,@#incgen
-
-;*         inc clncnt
-         incb @#clncnt
-
-;*         lda #15
-;*         and clncnt
-         bitb #15,@#clncnt
-
-;*         bne rts2
-;*         .bend
-         bne rts2
-
-;*cleanup0 .block
-;*         #assign16 currp,startp
 cleanup0: mov @#startp,r0
 
 ;*         #zero16 adjcell   ;mark 1st
@@ -1221,6 +760,25 @@ cleanup0: mov @#startp,r0
 ;*         dec tilecnt+1
 ;*l2       dec tilecnt
 2$:       dec @#tilecnt
+
+          mov #count0,r1
+          add r0,r1
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
+          clr (r1)+
 
 ;*         ldy #next
 ;*         lda (currp),y

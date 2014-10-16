@@ -38,68 +38,6 @@
 ;         jmp infoout
 ;         .bend
 
-fixcnt2:
-         ;*lda tab20,x
-         ;*adc (currp),y
-         ;*sta (currp),y
-         ;*lda tab21,x
-         ;*iny
-         ;*adc (currp),y
-         ;*sta (currp),y
-         movb tab20(r1),r3
-         movb tab21(r1),r5
-         swab r3
-         add r5,r3
-         add r3,(r4)+
-
-         ;*lda tab22,x
-         ;*iny
-         ;*adc (currp),y
-         ;*sta (currp),y 
-         ;*lda tab23,x
-         ;*iny
-         ;*adc (currp),y
-         ;*sta (currp),y
-         movb tab22(r1),r3
-         movb tab23(r1),r5
-         swab r3
-         add r5,r3
-         add r3,@r4
-
-         ;*rts
-         rts pc
-
-fixcnt1: 
-         ;*lda tab13,x
-         ;*adc (currp),y
-         ;*sta (currp),y
-         ;*lda tab12,x
-         ;*dey
-         ;*adc (currp),y
-         ;*sta (currp),y
-         movb tab13(r1),r3
-         movb tab12(r1),r5
-         swab r3
-         add r5,r3
-         add r3,@r4
-
-         ;*lda tab11,x
-         ;*dey
-         ;*adc (currp),y
-         ;*sta (currp),y
-         ;*lda tab10,x
-         ;*dey
-         ;*adc (currp),y
-         ;*sta (currp),y
-         movb tab11(r1),r3
-         movb tab10(r1),r5
-         swab r3
-         add r5,r3
-         add r3,-(r4)
-
-         ;*rts
-         rts pc
-
 ;*chkaddt  lda t1
 chkaddt: tst r3
          ;*beq exit2
