@@ -552,30 +552,27 @@ showscn2: mov @#startp,r0
 
           movb r1,r4        ;word output!
           asl r4
-          mov vistab(r4),(r5)+
+          mov vistab(r4),@r5
           swab r1
           movb r1,r1
           asl r1
-          mov vistab(r1),@r5
-          add #62,r5
+          mov vistab(r1),64(r5)
 
           movb r2,r4
           asl r4
-          mov vistab(r4),(r5)+
+          mov vistab(r4),128(r5)
           swab r2
           movb r2,r2
           asl r2
-          mov vistab(r2),@r5
-          add #62,r5
+          mov vistab(r2),192(r5)
 
           movb r3,r4
           asl r4
-          mov vistab(r4),(r5)+
+          mov vistab(r4),256(r5)
           swab r3
           movb r3,r3
           asl r3
-          mov vistab(r3),@r5
-          add #62,r5
+          mov vistab(r3),320(r5)
 
           mov @#temp,r2
           movb r2,r4

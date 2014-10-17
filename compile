@@ -1,5 +1,5 @@
 F=${1%%asm}
-macro11 -yus -ysl 16 -o ${F}obj -l ${F}lst $1 && \
-dumpobj ${F}obj >${F}dump && \
-obj2bin <${F}dump >${F}bin && \
+../macro11 -yus -ysl 16 -o ${F}obj -l ${F}lst $1 && \
+../dumpobj ${F}obj >${F}dump && \
+./obj2bin <${F}dump >${F}bin && \
 awk -f lst2hex.awk ${F}lst > ${F}hex.lst

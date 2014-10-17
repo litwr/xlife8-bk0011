@@ -13,4 +13,4 @@ ls /mnt/loop/xlife* && \
 sudo sync && \
 sudo umount /mnt/loop
 #-t 01010016.00 = 1000
-#rm initiles.s gentab.s tab12.s a.out
+rm initiles.s gentab.s tab12.s
