@@ -48,7 +48,9 @@ start:
 
    mov #tiles,r0
    mov r0,@#startp
-   movb #7,3(r0)
+   movb #4,0(r0)
+   movb #3,1(r0)
+   movb #6,2(r0)
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
@@ -776,12 +778,8 @@ cleanup0: mov @#startp,r0
 ;*         iny
 ;*         lda i1+1
 ;*         sta (adjcell),y
-         mov r1,r2
-
-;*         bne loop
-;*         lda #1
-;*         cmp i1
-         cmp #1,r1
+         mov r1,@r2
+         dec r1
 
 ;*         bne loop
          bne 1$
@@ -790,7 +788,7 @@ cleanup0: mov @#startp,r0
 4$:       rts pc
 
 ;*del1st   #assign16 startp,i1
-3$:      mov r1,r0
+3$:      mov r1,@#startp
 
 ;         lda tilecnt
 ;         bne loop

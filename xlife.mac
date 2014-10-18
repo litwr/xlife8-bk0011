@@ -167,11 +167,11 @@ cond2:
          .macro incbcd l0   ;in: r1 - address, r3 - value
          inc r3
          movb r3,@r1
-         cmp #10,r3
+         cmpb #10,r3
          bne l0
 
          clrb @r1
-         mov -(r1),r3
+         movb -(r1),r3
          .endm
 
 ;*inibcd   .macro
