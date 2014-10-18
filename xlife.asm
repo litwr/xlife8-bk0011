@@ -61,6 +61,7 @@ start:
          ;!jsr pc,@#crsrcalc
 
 mainloop:
+         jsr pc,@#waitkbd
          ;!jsr pc,@#dispatcher
          movb @#mode,r0
          beq mainloop
@@ -90,7 +91,7 @@ mainloop:
          jsr pc,@#cleanup
          br mainloop
 
-    .include vistab.s
+        .include vistab.s
 
 vistabpc:
    .byte 0, 2, 8, 10, 32, 34, 40, 42, 128, 130, 136, 138, 160, 162, 168, 170
@@ -112,6 +113,14 @@ vistabpc:
 
          .include gentab.s
 
+tab3:    .byte 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
+         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
+         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
+         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
+         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+         .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
          .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
          .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
          .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
@@ -120,15 +129,6 @@ vistabpc:
          .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
          .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
          .byte 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-tab3:
-         .byte 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
-         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
-         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
-         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
-         .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
-         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
-         .byte 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
-         .byte 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7
 
 ttab:    .byte 0,1,2,3,3,4,5,6,7,8,8,9,16,17,18,19,19,20
          .byte 21,22,23,24,24,25,32,33,34,35,35,36
@@ -260,148 +260,69 @@ generate:
 4$:
          ;*jsr iniadjc
          mov left(r0),r2          ;adjcell=r2
-         mov #4,r4                ;item to add
+         mov #1024,r4             ;item to add
 
-         ;*ldy #0
-         ;*sty t1   ;change indicator
-         clr r3
-
-         ;*lda (currp),y
-         ;*and #128
+         clr r3     ;change indicator
          mov @r0,r1               ;2 rows
-         tstb r1
-
-         ;*beq ll1
          bpl 6$
 
-         ;*sta t1
          mov r1,r3
- 
-         ;*ldy #count0+3
-         ;*#ispyr4 adjcell
-         add r4,count0+3(r2)
-
-         ;*ldy #count1+3
-         ;*#ispyr4 adjcell
-         add r4,count1+3(r2)
-
-         ;*ldy #ul
-         ;*jsr iniadjc2
-         mov ul(r0),r5          ;adjcell2=r5
-
-         ;*ldy #count7+3
-         ;*#ispyr4 adjcell2
-         add r4,count7+3(r5)
-
-         ;*jsr chkadd2
-         jsr pc,@#chkadd2
-
-;*ll1      ldy #1
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq ll2
-6$:      tst r1
+         add r4,count0+2(r2)
+         add r4,count1+2(r2)
+         add r4,count2+2(r2)
+6$:      tstb r1
          bpl 7$
 
-         ;*sta t1
          mov r1,r3
-
-         ;*ldy #count0+3
-         ;*#ispyr4 adjcell
-         add r4,count0+3(r2)
-
-         ;*ldy #count1+3
-         ;*#ispyr4 adjcell
-         add r4,count1+3(r2)
-
-         ;*ldy #count2+3
-         ;*#ispyr4 adjcell
-         add r4,count2+3(r2)
-
-;*ll2      ldy #2
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq ll3
+         add r4,count0+2(r2)
+         add r4,count1+2(r2)
+         mov ul(r0),r5          ;adjcell2=r5
+         add r4,count7+2(r5)
+         jsr pc,@#chkadd2         
 7$:      mov 2(r0),r1               ;2 rows
-         tstb r1
          bpl 8$
 
-         ;*sta t1
          mov r1,r3
-         add r4,count1+3(r2)
-         add r4,count2+3(r2)
-         add r4,count3+3(r2)
-
-;*ll3      ldy #3
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq ll4
-8$:      tst r1
+         add r4,count2+2(r2)
+         add r4,count3+2(r2)
+         add r4,count4+2(r2)
+8$:      tstb r1
          bpl 9$
 
-         ;*sta t1
          mov r1,r3
-         add r4,count2+3(r2)
-         add r4,count3+3(r2)
-         add r4,count4+3(r2)
-
-;*ll4      ldy #4
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq ll5
+         add r4,count1+2(r2)
+         add r4,count2+2(r2)
+         add r4,count3+2(r2)         
 9$:      mov 4(r0),r1               ;2 rows
-         tstb r1
          bpl 10$
 
-         ;sta t1
          mov r1,r3
-         add r4,count3+3(r2)
-         add r4,count4+3(r2)
-         add r4,count5+3(r2)
-
-;*ll5      ldy #5
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq ll6
-10$:     tst r1
+         add r4,count4+2(r2)
+         add r4,count5+2(r2)
+         add r4,count6+2(r2)
+10$:     tstb r1
          bpl 11$
 
-         ;*sta t1
          mov r1,r3
-         add r4,count4+3(r2)
-         add r4,count5+3(r2)
-         add r4,count6+3(r2)
-
-;*ll6      ldy #6
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq ll7
+         add r4,count3+2(r2)
+         add r4,count4+2(r2)
+         add r4,count5+2(r2)
 11$:     mov 6(r0),r1               ;2 rows
-         tstb r1
          bpl 12$
 
-         ;*sta t1
          mov r1,r3
-         add r4,count5+3(r2)
-         add r4,count6+3(r2)
-         add r4,count7+3(r2)
-
-;*ll7      ldy #7
-         ;*lda (currp),y
-         ;*and #128
-         ;*beq lexit
-12$:     tst r1
+         add r4,count6+2(r2)
+         add r4,count7+2(r2)
+         mov dl(r0),r5          ;adjcell2=r5
+         add r4,count0+2(r5)
+         jsr pc,@#chkadd2
+12$:     tstb r1
          bpl 14$
 
-         ;*sta t1
          mov r1,r3
-         add r4,count6+3(r2)
-         add r4,count7+3(r2)
-         mov dl(r0),r5          ;adjcell2=r5
-         add r4,count0+3(r5)
-
-         ;*jsr chkadd2
-         jsr pc,@#chkadd2
+         add r4,count5+2(r2)
+         add r4,count6+2(r2)
+         add r4,count7+2(r2)
 
 ;*lexit    jsr chkaddt
 14$:     jsr pc,@#chkaddt
@@ -409,7 +330,7 @@ generate:
          ;*ldy #right
          ;*jsr iniadjc
          mov right(r0),r2          ;adjcell=r2
-         mov #16,r4                ;item to add
+         mov #8,r4                ;item to add
 
          ;*ldy #0
          ;*sty t1   ;change indicator
@@ -687,42 +608,19 @@ cleanup:  incb @#clncnt
           bne rts2
 
 cleanup0: mov @#startp,r0
-
-;*         #zero16 adjcell   ;mark 1st
-          clr r2
-
-;*loop     ldy #sum
-;*         lda (currp),y
+          clr r2        ;mark 1st
 1$:       tstb sum(r0)
 
 ;*         beq delel
           beq 2$
 
-;*         ldy #next
-;*         lda (currp),y
-;*         tax
-;*         iny
-;*         lda (currp),y
+          mov r0,r2     ;save pointer to previous
           mov next(r0),r0
 
-;*         bne cont2
-;*         cpx #1
-;*         bne cont2
           cmp #1,r0
-          beq rts2
+          bne 1$
 
-;*         rts
-
-;*cont2    ldy currp    ;save pointer to previous
-;*         sty adjcell
-;*         ldy currp+1
-;*         sty adjcell+1
-         mov r0,r2
-
-;*         sta currp+1
-;*         stx currp
-;*         jmp loop
-         br 1$
+          rts pc
 
 ;*delel    lda tilecnt
 ;*         bne l2
@@ -749,36 +647,20 @@ cleanup0: mov @#startp,r0
           clr (r1)+
           clr (r1)+
 
-;*         ldy #next
-;*         lda (currp),y
-;*         sta i1
-;*         iny
-;*         lda (currp),y
-;*         sta i1+1
-         mov next(r0),r1
-
-;*         lda #0
-;*         sta (currp),y
-;*         dey
-;*         sta (currp),y
-         clr next(r0)
-
-;*         #assign16 currp,i1
-         mov r1,r0
-
-;*         lda adjcell
-;*         ora adjcell+1
-         tst r2
+          mov next(r0),r1
+          clr next(r0)
+          mov r1,r0
+          tst r2
 
 ;*         beq del1st
-         beq 3$
+          beq 3$
 
 ;*         lda i1
 ;*         sta (adjcell),y
 ;*         iny
 ;*         lda i1+1
 ;*         sta (adjcell),y
-         mov r1,@r2
+         mov r1,next(r2)
          dec r1
 
 ;*         bne loop
@@ -802,6 +684,13 @@ cleanup0: mov @#startp,r0
 ;         jmp loop
 ;         .bend
          br 1$
+
+waitkbd: mov @#kbdstport,r0
+         tstb r0
+         bpl waitkbd
+
+         mov @#kbddtport,r0
+         rts pc
 
 startp:   .word 1
 tilecnt:  .word 0
