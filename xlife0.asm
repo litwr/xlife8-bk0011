@@ -9,19 +9,21 @@
          .radix 10
          .dsabl gbl
 
+         .include bk0011m.mac
+
          .asect
          .=512
 
 stack:   .blkw 128
 
-start:   mov #^B10110000000000,@#^O177716
+start:   mov #^B11110000000000,@#pageport  ;open pages 3 and 4 (AnDOS)
          mov #data,r1
          emt #^O36     ;load XLIFE2.COM
 
          mov #start,@#<data+2> 
          decb @#<fn+5>
 
-         mov #^B11110000000000,@#^O177716
+         mov #^B10110000000000,@#pageport  ;open pages 2 and 4 (AnDOS)
          mov #start,sp
          mov sp,-(sp)
          mov #data,r1

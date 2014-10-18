@@ -3,6 +3,6 @@ kbdstport = ^O177660
 kbddtport = ^O177662
 timerport = ^O177706
 todata    = ^B10101100000000    ;open pages 2 and 3
-tovideo   = ^B1111100000000    ;show both video pages
+tovideo   = ^B01111100000000    ;show both video pages 1 (soft 5), 7 (soft 6)
 nokbirq   = ^B1000000
 

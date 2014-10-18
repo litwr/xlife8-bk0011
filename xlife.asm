@@ -48,7 +48,7 @@ start:
 
    mov #tiles,r0
    mov r0,@#startp
-   mov #14,2(r0)
+   movb #14,2(r0)
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
@@ -187,7 +187,6 @@ generate:
          ;*ldy #0		;up
          ;*lda (currp),y
          movb @r0,r1            ;top row, later saved at 6502 X
-         asl r1
 
          ;*beq ldown
          beq 3$
@@ -200,6 +199,7 @@ generate:
          ;*clc
          ;*ldy #count7+3
          ;*jsr fixcnt1e
+         asl r1
          mov tab1213(r1),r3
          mov tab1011(r1),r4
          add r3,count7+2(r2)
@@ -223,7 +223,6 @@ generate:
          ;*ldy #7
          ;*lda (currp),y
          movb 7(r0),r1            ;top row, later saved at 6502 X
-         asl r1
 
          ;*beq lleft
          beq 4$
@@ -236,6 +235,7 @@ generate:
          ;*clc
          ;*ldy #count0+3
          ;*jsr fixcnt1e
+         asl r1
          mov tab1213(r1),r3
          mov tab1011(r1),r4
          add r3,count0+2(r2)
@@ -855,7 +855,7 @@ ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0
 
-         . = 15482            ;16384-((20*24+1)*70-32*1024)
+         . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:
          .include initiles.s
 
