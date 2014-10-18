@@ -48,7 +48,7 @@ start:
 
    mov #tiles,r0
    mov r0,@#startp
-   movb #14,2(r0)
+   movb #7,3(r0)
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
@@ -560,7 +560,7 @@ generate:
 ;*l2       ldy #5
          ;*lda (currp),y
          ;*beq l3
-23$:     mov 5(r0),r1  ;2 bytes
+23$:     movb 5(r0),r1  ;2 bytes
          beq 24$
 
          asl r1

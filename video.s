@@ -577,11 +577,11 @@ showscn2: mov @#startp,r0
           mov @#temp,r2
           movb r2,r4
           asl r4
-          mov vistab(r4),(r5)+
+          mov vistab(r4),384(r5)
           swab r2
           movb r2,r2
           asl r2
-          mov vistab(r2),@r5
+          mov vistab(r2),448(r5)
 
           mov #todata,@#pageport
           mov next(r0),r0
