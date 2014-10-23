@@ -408,6 +408,19 @@
 ;         rts        ;ZF=1
 ;         .bend
 
+infoout:
+         ;ld hl,gencnt
+         ;ld b,7
+         ;ld de,$c782
+         ;call digiout
+
+         ;ld hl,cellcnt
+         ;ld b,5
+         ;ld de,$c792
+         ;call digiout
+         ;jp showtinfo
+         rts pc
+
 showscnpz:
 ;xlimit   = $14
 ;ylimit   = $15
@@ -514,7 +527,7 @@ gexit:    ;!jmp @#crsrset
 ;*showscn  .block
 showscn:
 
-        ;!jsr pc,@#infoout
+         jsr pc,@#infoout
 
          tstb @#zoom
          bne showscnpz
@@ -543,7 +556,6 @@ showscn:
 
 showscn2: mov @#startp,r0
 1$:       mov video(r0),r5
-          add @#videobase,r5
           mov @r0,r1
           mov 2(r0),r2
           mov 4(r0),r3

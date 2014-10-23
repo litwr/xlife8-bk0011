@@ -48,20 +48,20 @@ start:
 
    mov #tiles,r0
    mov r0,@#startp
-   movb #4,0(r0)
-   movb #3,1(r0)
-   movb #6,2(r0)
+   movb #3,0(r0) ;4
+   movb #6,1(r0) ;3
+   movb #2,2(r0) ;6
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
 
-         ;!jsr pc,@#infoout
+         jsr pc,@#infoout
          ;!jsr pc,@#showrules
          ;!jsr pc,@#crsrset       ;unite with the next!
          ;!jsr pc,@#crsrcalc
 
 mainloop:
-         jsr pc,@#waitkbd
+         ;;jsr pc,@#waitkbd
          ;!jsr pc,@#dispatcher
          movb @#mode,r0
          beq mainloop
@@ -697,7 +697,6 @@ tilecnt:  .word 0
 viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
-videobase: .word 16384       ;$4000
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
 xcrsr:    .byte 0,0,0
