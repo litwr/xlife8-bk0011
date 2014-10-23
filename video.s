@@ -408,17 +408,43 @@
 ;         rts        ;ZF=1
 ;         .bend
 
+digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
+1$:      movb (r0)+,r3
+         asl r3
+         asl r3
+         asl r3
+         movb digifont+1(r3),64(r2)
+         movb digifont+2(r3),128(r2)
+         movb digifont+3(r3),192(r2)
+         movb digifont+4(r3),256(r2)
+         movb digifont+5(r3),320(r2)
+         movb digifont+6(r3),384(r2)
+         movb digifont(r3),(r2)+
+         sob r1,1$
+         rts pc
+
 infoout:
+         mov #tovideo,@#pageport
          ;ld hl,gencnt
          ;ld b,7
          ;ld de,$c782
          ;call digiout
+         mov #gencnt,r0
+         mov #7,r1
+         mov #<160*64+16384+8>,r2
+         jsr pc,@#digiout
 
          ;ld hl,cellcnt
          ;ld b,5
          ;ld de,$c792
          ;call digiout
+         mov #cellcnt,r0
+         mov #5,r1
+         mov #<160*64+16384+80>,r2
+         jsr pc,@#digiout
+
          ;jp showtinfo
+         mov #todata,@#pageport
          rts pc
 
 showscnpz:
