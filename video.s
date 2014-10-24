@@ -413,39 +413,71 @@ digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
          asl r3
          asl r3
          asl r3
-         movb digifont+1(r3),64(r2)
-         movb digifont+2(r3),128(r2)
-         movb digifont+3(r3),192(r2)
-         movb digifont+4(r3),256(r2)
-         movb digifont+5(r3),320(r2)
-         movb digifont+6(r3),384(r2)
-         movb digifont(r3),(r2)+
+         asl r3
+         mov digifont+2(r3),64(r2)
+         mov digifont+4(r3),128(r2)
+         mov digifont+6(r3),192(r2)
+         mov digifont+8(r3),256(r2)
+         mov digifont+10(r3),320(r2)
+         mov digifont+12(r3),384(r2)
+         mov digifont(r3),(r2)+
          sob r1,1$
          rts pc
 
-infoout:
-         mov #tovideo,@#pageport
-         ;ld hl,gencnt
-         ;ld b,7
-         ;ld de,$c782
-         ;call digiout
+infoout: mov #tovideo,@#pageport
          mov #gencnt,r0
          mov #7,r1
-         mov #<160*64+16384+8>,r2
+         mov #<160*64+16384+2>,r2
          jsr pc,@#digiout
 
-         ;ld hl,cellcnt
-         ;ld b,5
-         ;ld de,$c792
-         ;call digiout
          mov #cellcnt,r0
          mov #5,r1
-         mov #<160*64+16384+80>,r2
+         mov #<160*64+16384+18>,r2
          jsr pc,@#digiout
 
          ;jp showtinfo
          mov #todata,@#pageport
          rts pc
+
+;showtinfo  proc          ;must be after infoout
+;           local cont1,cont2
+;           ld hl,(tilecnt)
+;           srl h
+;           rr l
+;           srl h
+;           rr l
+;           ld a,l
+;           cp 120
+;           jr nz,cont1
+
+;           ld a,1
+;           ld (tinfo),a
+;           ld hl,0
+;           ld (tinfo+1),hl
+;           jp cont2
+
+;cont1      ld hl,$0a0a
+;           ld (tinfo),hl
+;           ld h,high(ttab)
+;           add a,low(ttab)
+;           ld l,a
+;           ld a,(hl)
+;           and $f
+;           ld (tinfo+2),a
+;           ld a,(hl)
+;           and $f0
+;           rrca
+;           rrca
+;           rrca
+;           rrca
+;           jr z,cont2
+
+;           ld (tinfo+1),a
+;cont2      ld b,3
+;           ld hl,tinfo
+;           ld de,$c79e
+;           jp digiout
+;           endp
 
 showscnpz:
 ;xlimit   = $14
@@ -792,47 +824,7 @@ showscnp:
 ;
 ;         rts
 ;         .bend
-;
-;showtinfo
-;         .block
-;         lda tilecnt
-;         sta t1
-;         lda tilecnt+1
-;         lsr
-;         ror t1
-;         lsr
-;         ror t1
-;         ldx t1
-;         cpx #120
-;         bne cont1
-;
-;         ldx #$31
-;         stx tcscr
-;         dex
-;         stx tcscr+1
-;         stx tcscr+2
-;         rts
-;
-;cont1    lda #$20
-;         sta tcscr
-;         sta tcscr+1
-;         lda ttab,x
-;         tax
-;         and #$f
-;         eor #$30
-;         sta tcscr+2
-;         txa
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         beq exit
-;
-;         eor #$30
-;         sta tcscr+1
-;exit     rts
-;         .bend
-;
+
 ;loadmenu .block
 ;scrfn    = $c00+123
 ;         jsr JPRIMM
