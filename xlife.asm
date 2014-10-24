@@ -725,7 +725,7 @@ cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
 xcrsr:    .byte 0,0,0
 ycrsr:    .byte 0,0,0
-;;tinfo     .byte 0,0,0
+tinfo:    .byte 0,0,0  ;even alignment for BK!
 xdir:     .byte 0      ;linear transformation
 ydir:     .byte 0
 x0:       .byte 0

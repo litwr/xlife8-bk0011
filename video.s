@@ -424,7 +424,7 @@ digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
          sob r1,1$
          rts pc
 
-infoout: mov #tovideo,@#pageport
+infoout: mov #tovideo,@#pageport    ;must be before showtinfo
          mov #gencnt,r0
          mov #7,r1
          mov #<160*64+16384+2>,r2
@@ -434,10 +434,6 @@ infoout: mov #tovideo,@#pageport
          mov #5,r1
          mov #<160*64+16384+18>,r2
          jsr pc,@#digiout
-
-         ;jp showtinfo
-         mov #todata,@#pageport
-         rts pc
 
 ;showtinfo  proc          ;must be after infoout
 ;           local cont1,cont2
@@ -449,12 +445,21 @@ infoout: mov #tovideo,@#pageport
 ;           ld a,l
 ;           cp 120
 ;           jr nz,cont1
+showtinfo:  mov #tinfo,r0
+            mov @#tilecnt,r3
+            asr r3
+            asr r3
+            cmp r3,#120
+            bne 1$
 
 ;           ld a,1
 ;           ld (tinfo),a
 ;           ld hl,0
 ;           ld (tinfo+1),hl
 ;           jp cont2
+            mov #1,@r0
+            clrb 2(r0)
+            br 2$
 
 ;cont1      ld hl,$0a0a
 ;           ld (tinfo),hl
@@ -471,13 +476,30 @@ infoout: mov #tovideo,@#pageport
 ;           rrca
 ;           rrca
 ;           jr z,cont2
-
+1$:         mov #2570,@r0
+            movb ttab(r3),r1
+            mov r1,r2
+            bic #^B11110000,r1
+            movb r1,2(r0)
+            asr r2
+            asr r2
+            asr r2
+            asr r2
+            beq 2$
+            
 ;           ld (tinfo+1),a
+            movb r2,1(r0)
+
 ;cont2      ld b,3
 ;           ld hl,tinfo
 ;           ld de,$c79e
 ;           jp digiout
 ;           endp
+2$:         mov #3,r1
+            mov #<160*64+16384+30>,r2
+            jsr pc,@#digiout
+            mov #todata,@#pageport
+            rts pc
 
 showscnpz:
 ;xlimit   = $14
