@@ -9,9 +9,10 @@ bin2com xlife0.bin && \
 sudo ~/bin/mountimg XLIFE.IMG && \
 rm /mnt/loop/xlife?.com && \
 cp xlife[012].com /mnt/loop && \
-touch -t 01010024.00 /mnt/loop/xlife0.com && \
+touch -t 01010016.00 /mnt/loop/xlife0.com && \
 ls /mnt/loop/xlife* && \
 sudo sync && \
 sudo umount /mnt/loop
-#-t 01010016.00 = 1000
+#-t 01010016.00 = 01000 = $200
+#-t 01010024.00 = 01400 = $300
 rm initiles.s gentab.s tab12.s vistab.s

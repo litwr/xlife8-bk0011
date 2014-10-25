@@ -751,7 +751,15 @@ showscnp:
 ;         stx currp
 ;         jmp loop
 ;         .bend
-;
+
+clrscn:   mov #tovideo,@#pageport
+          mov #16384,r0
+          mov #8192,r1
+1$:       clr (r0)+
+          sob r1,1$          
+          mov #todata,@#pageport
+          rts pc
+
 ;xclrscn  .block
 ;         lda tilecnt
 ;         bne cont1

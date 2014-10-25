@@ -14,8 +14,18 @@
          .asect
          .=512
 
-stack:   .blkw 128
+stack:   br start
 
+data:    .word 3
+         .word 16384
+         .word 0
+fn:      .asciz /XLIFE2.COM/
+         .byte 0,0,0,0,0
+fa:      .word 0
+         .word 0
+         .blkb 16
+
+         .=768
 start:   mov #^B11110000000000,@#pageport  ;open pages 3 and 4 (AnDOS)
          mov #data,r1
          emt #^O36     ;load XLIFE2.COM
@@ -29,17 +39,5 @@ start:   mov #^B11110000000000,@#pageport  ;open pages 3 and 4 (AnDOS)
          mov #data,r1
          jmp @#^O120002  ;load XLIFE1.COM
          nop
-         nop
-         nop
-
-data:    .word 3
-         .word 16384
-         .word 0
-fn:      .asciz /XLIFE2.COM/
-         .byte 0,0,0,0,0
-fa:      .word 0
-         .word 0
-         .blkb 16
-
          .end
 

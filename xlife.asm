@@ -26,11 +26,10 @@ start:
          ;!jsr pc,@#loadcf
          ;!jsr pc,@#copyr
          ;!jsr pc,@#help
-         ;;lda #147
-         ;;jsr BSOUT
-         ;;jsr TOCHARSET1   ;to caps & graphs
+         jsr pc,@#clrscn
+
          ;;#iniram
-         ;!jsr pc,@setcolor
+         ;!jsr pc,@#setcolor
          ;;lda #"G"-"A"+1
          ;;sta 4032
          ;;lda #"%"
