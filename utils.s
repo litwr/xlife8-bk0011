@@ -5,7 +5,7 @@
 ;*zerocc   #inibcd cellcnt,4
 ;*         rts
 zerocc:   inibcd cellcnt,4
-          rts pc
+          return
 
 ;calcspd .block
 ;        lda #<eval1

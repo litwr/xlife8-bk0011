@@ -74,7 +74,7 @@ addnode:                  ;in: R2
          ;*.bend
 
 ;*exit2    rts
-exit2:   rts pc
+exit2:   return
 
 ;*chkadd2  ldy #next
          ;*lda (adjcell2),y
@@ -107,7 +107,7 @@ addnode2:                 ;in: R5
          inc @#tilecnt
 
 ;*exit     rts
-         rts pc
+         return
 
          ;*.bend
 

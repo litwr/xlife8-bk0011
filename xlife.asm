@@ -16,20 +16,25 @@
 start:
          mov #nokbirq,@#kbdstport
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
-         mov #todata,@#pageport
+         mov #155,r0    ;32 chars in line
+         emt #^O16
+         mov #154,r0    ;no cursor
+         emt #^O16
+         call @#clrscn
+         call @#initxt
          ;;lda 174     ;current device #
          ;;bne nochg
 
          ;;lda curdev
 ;;nochg:
          ;;sta curdev
-         ;!jsr pc,@#loadcf
-         ;!jsr pc,@#copyr
-         ;!jsr pc,@#help
-         jsr pc,@#clrscn
+         ;!call @#loadcf
+         ;!call @#copyr
+         ;!call @#help
+
 
          ;;#iniram
-         ;!jsr pc,@#setcolor
+         ;!call @#setcolor
          ;;lda #"G"-"A"+1
          ;;sta 4032
          ;;lda #"%"
@@ -54,14 +59,14 @@ start:
    mov #1,next(r0)
    mov #1,@#tilecnt
 
-         jsr pc,@#infoout
-         ;!jsr pc,@#showrules
-         ;!jsr pc,@#crsrset       ;unite with the next!
-         ;!jsr pc,@#crsrcalc
+         call @#infoout
+         ;!call @#showrules
+         ;!call @#crsrset       ;unite with the next!
+         ;!call @#crsrcalc
 
 mainloop:
-         ;;jsr pc,@#waitkbd
-         ;!jsr pc,@#dispatcher
+         ;;call @#waitkbd
+         ;!call @#dispatcher
          movb @#mode,r0
          beq mainloop
 
@@ -80,14 +85,14 @@ mainloop:
 4$:      cmpb #2,r0
          bne 5$
 
-         jsr pc,@#generate     ;hide
-         jsr pc,@#cleanup
+         call @#generate     ;hide
+         call @#cleanup
          br mainloop
 
-5$:      jsr pc,@#zerocc
-         jsr pc,@#generate
-         jsr pc,@#showscn
-         jsr pc,@#cleanup
+5$:      call @#zerocc
+         call @#generate
+         call @#showscn
+         call @#cleanup
          br mainloop
 
         .include vistab.s
@@ -241,7 +246,7 @@ generate:
          add tab2021(r1),count0(r0)
 
          ;*jsr chkadd
-         jsr pc,@#chkadd
+         call @#chkadd
 
 ;*ldown:
 3$:
@@ -277,7 +282,7 @@ generate:
          add tab2021(r1),count7(r0)
 
          ;jsr chkadd
-         jsr pc,@#chkadd
+         call @#chkadd
 
 ;*lleft    ldy #left
 4$:
@@ -301,7 +306,7 @@ generate:
          add r4,count1+2(r2)
          mov ul(r0),r5          ;adjcell2=r5
          add r4,count7+2(r5)
-         jsr pc,@#chkadd2         
+         call @#chkadd2         
 7$:      mov 2(r0),r1               ;2 rows
          bpl 8$
 
@@ -338,7 +343,7 @@ generate:
          add r4,count7+2(r2)
          mov dl(r0),r5          ;adjcell2=r5
          add r4,count0+2(r5)
-         jsr pc,@#chkadd2
+         call @#chkadd2
 12$:     tstb r1
          bpl 14$
 
@@ -348,7 +353,7 @@ generate:
          add r4,count7+2(r2)
 
 ;*lexit    jsr chkaddt
-14$:     jsr pc,@#chkaddt
+14$:     call @#chkaddt
 
          ;*ldy #right
          ;*jsr iniadjc
@@ -377,7 +382,7 @@ generate:
          add r4,count1(r2)
 
          ;*jsr chkadd2
-         jsr pc,@#chkadd2
+         call @#chkadd2
 
 ;*lr1      ldy #1
          ;*lda (currp),y
@@ -482,10 +487,10 @@ generate:
          add r4,count0(r5)
 
          ;*jsr chkadd2
-         jsr pc,@#chkadd2
+         call @#chkadd2
 
 ;*rexit    jsr chkaddt
-22$:     jsr pc,@#chkaddt
+22$:     call @#chkaddt
 
          ;*ldy #6
          ;*lda (currp),y
@@ -624,7 +629,7 @@ incgen:   mov #<gencnt+6>,r1
           incbcd rts2
           incbcd rts2
           incbcd rts2
-rts2:     rts pc
+rts2:     return
 
 cleanup:  incb @#clncnt
           bitb #15,@#clncnt
@@ -643,7 +648,7 @@ cleanup0: mov @#startp,r0
           cmp #1,r0
           bne 1$
 
-          rts pc
+          return
 
 ;*delel    lda tilecnt
 ;*         bne l2
@@ -690,7 +695,7 @@ cleanup0: mov @#startp,r0
          bne 1$
 
 ;*exit     rts
-4$:       rts pc
+4$:       return
 
 ;*del1st   #assign16 startp,i1
 3$:      mov r1,@#startp
@@ -713,7 +718,7 @@ waitkbd: mov @#kbdstport,r0
          bpl waitkbd
 
          mov @#kbddtport,r0
-         rts pc
+         return
 
 startp:   .word 1
 tilecnt:  .word 0
@@ -763,6 +768,42 @@ ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0
+
+         .even   ;high area
+initxt:  mov #tovideo,@#pageport
+         mov #<160*64+16384>,r0
+         mov #1365,r1    ;$555
+         mov #1285,r2    ;$505
+         mov #1360,r3    ;$550
+         mov r1,@r0
+         mov r2,48(r0)
+         mov r2,56(r0)
+         movb r2,64(r0)
+         mov r2,100(r0)
+         mov r2,112(r0)
+         mov r2,120(r0)
+         movb r2,128(r0)
+         movb r2,165(r0)
+         movb r3,176(r0)
+         mov r2,184(r0)
+         mov r2,192(r0)
+         movb r3,228(r0)
+         movb r3,240(r0)
+         movb r3,248(r0)
+         mov r2,256(r0)
+         movb r3,292(r0)
+         mov r2,304(r0)
+         movb r3,312(r0)
+         mov r2,320(r0)
+         movb r2,356(r0)
+         mov r2,368(r0)
+         movb r3,376(r0)
+         mov r1,384(r0)
+         mov r2,420(r0)
+         mov r2,432(r0)
+         movb r3,440(r0)
+         mov #todata,@#pageport
+         return
 
          . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:

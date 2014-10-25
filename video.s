@@ -16,7 +16,7 @@
 ;         adc #6     ;CY=1
 ;l1       jsr BSOUT
 ;         .endm
-;
+
 ;totext   sta $ff3e
 ;totext0  lda #$88
 ;         jsr set_ntsc
@@ -29,7 +29,7 @@
 ;         lda #$71
 ;         sta $ff15
 ;         jmp savebl
-;
+
 ;tograph  lda zoom
 ;         beq tographx
 ;
@@ -422,18 +422,18 @@ digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
          mov digifont+12(r3),384(r2)
          mov digifont(r3),(r2)+
          sob r1,1$
-         rts pc
+         return
 
 infoout: mov #tovideo,@#pageport    ;must be before showtinfo
          mov #gencnt,r0
          mov #7,r1
          mov #<160*64+16384+2>,r2
-         jsr pc,@#digiout
+         call @#digiout
 
          mov #cellcnt,r0
          mov #5,r1
          mov #<160*64+16384+18>,r2
-         jsr pc,@#digiout
+         call @#digiout
 
 ;showtinfo  proc          ;must be after infoout
 ;           local cont1,cont2
@@ -497,9 +497,9 @@ showtinfo:  mov #tinfo,r0
 ;           endp
 2$:         mov #3,r1
             mov #<160*64+16384+30>,r2
-            jsr pc,@#digiout
+            call @#digiout
             mov #todata,@#pageport
-            rts pc
+            return
 
 showscnpz:
 ;xlimit   = $14
@@ -588,7 +588,7 @@ showscnpz:
 ;
 ;*gexit    jmp crsrset
 gexit:    ;!jmp @#crsrset
-          rts pc   ;$$ temporary command
+          return   ;$$ temporary command
 
 ;updatepc .block
 ;         lda pseudoc
@@ -607,7 +607,7 @@ gexit:    ;!jmp @#crsrset
 ;*showscn  .block
 showscn:
 
-         jsr pc,@#infoout
+         call @#infoout
 
          tstb @#zoom
          bne showscnpz
@@ -758,7 +758,7 @@ clrscn:   mov #tovideo,@#pageport
 1$:       clr (r0)+
           sob r1,1$          
           mov #todata,@#pageport
-          rts pc
+          return
 
 ;xclrscn  .block
 ;         lda tilecnt
@@ -1921,7 +1921,7 @@ clrscn:   mov #tovideo,@#pageport
 ;gexit2   rts
 
 ;;crsrset  jsr crsrset1
-crsrset: rts pc
+crsrset: return
 ;         lda zoom
 ;         bne gexit2
 
