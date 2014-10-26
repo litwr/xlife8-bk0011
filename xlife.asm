@@ -70,7 +70,7 @@ start:
 
 mainloop:
          ;call @#waitkbd
-         ;!call @#dispatcher
+         call @#dispatcher
          movb @#mode,r0
          beq mainloop
 
@@ -160,7 +160,6 @@ digifont:   ;8th columns are free
       .word  0, 0, 0, 0, 0, 0, 0, 0   ;space
 
          .even
-         ;!.include "interface.s"
          .include tile.s
          .include utils.s
          ;!.include "io.s"
@@ -721,7 +720,7 @@ x0:       .byte 0
 y0:       .byte 0
 xchgdir:  .byte 0
 clncnt:   .byte 0
-pseudoc:  .byte 1
+pseudoc:  .byte 0
 mode:     .byte 1      ;0-stop, 1-run, 2-hide, 3-exit
 crsrbit:  .byte 128    ;x bit position
 crsrbyte: .byte 0      ;y%8
@@ -755,6 +754,8 @@ ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 ;;         .repeat 20,0
 
          .even   ;high area
+         .include interface.s
+
 initxt:  mov #tovideo,@#pageport
          mov #<160*64+16384>,r0
          mov #1365,r1    ;$555

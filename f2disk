@@ -15,4 +15,4 @@ touch -t 01010016.00 /mnt/loop/xlife0.com && \
 ls /mnt/loop/xlife* && \
 sudo sync && \
 sudo umount /mnt/loop
-#rm initiles.s gentab.s tab12.s vistab.s
+rm initiles.s gentab.s tab12.s vistab.s

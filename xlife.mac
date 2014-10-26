@@ -93,7 +93,6 @@ sum      .byte 0        ;+60
 .iff
           movb vistabpc(r3),two(r5)
 .endc
-
           bic #^B1111110011100111,r4
           asl r4
           asl r4
