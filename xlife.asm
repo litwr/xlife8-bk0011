@@ -721,7 +721,7 @@ y0:       .byte 0
 xchgdir:  .byte 0
 clncnt:   .byte 0
 pseudoc:  .byte 0
-mode:     .byte 1      ;0-stop, 1-run, 2-hide, 3-exit
+mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 crsrbit:  .byte 128    ;x bit position
 crsrbyte: .byte 0      ;y%8
 crsrx:    .byte 0      ;x/4 -  not at pseudographics

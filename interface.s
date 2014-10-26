@@ -14,15 +14,21 @@ dispat0:
 
 ;*         lda mode
 ;*         beq cont2
-;*
+         tstb @#mode
+         beq 2$
+
 ;*         dec mode
 ;*         beq l4
-;*
+         decb @#mode
+         beq 40$
+
 ;*l5       jmp scrnorm
-;*
+
 ;*cont2    inc mode
+2$:      incb @#mode
+
 ;*l4       rts
-         return
+40$:     return
 
 ;*cont3    cmp #"Q"-"A"+$c1
 ;*         bne cont5
@@ -63,20 +69,28 @@ dispat0:
 
 ;*         lda mode
 ;*         bne l1
-;*
+         tstb @#mode
+         bne 101$
+
 ;*         lda tilecnt
 ;*         bne l8
 ;*
 ;*         lda tilecnt+1
 ;*         bne l8
-;*
+         tst @#tilecnt
+         bne 108$
+
 ;*l1       rts
-;*
+101$:    return
+
 ;*l8       jsr zerocc
 ;*         jsr generate
 ;*         jsr showscn
 ;*         jmp cleanup
-         return
+108$:    call @#zerocc
+         call @#generate
+         call @#showscn
+         jmp @#cleanup
 
 ;*cont7    cmp #"?"
 ;*         bne cont8
@@ -109,11 +123,15 @@ dispat0:
 
 ;*         dec pseudoc
 ;*         beq l11
-;*
+         decb @#pseudoc
+         beq 111$
+
 ;*         lda #1
 ;*         sta pseudoc
 ;*l11      jmp showscn
-;*
+         movb #1,@#pseudoc
+111$:    jmp @#showscn
+
 ;*cont11   cmp #"!"
 ;*         bne cont12
 11$:     cmpb #'!,r0
