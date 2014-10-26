@@ -72,42 +72,42 @@ sum      .byte 0        ;+60
 ;finish
 ;         .endm
 
-;vidmacp  .macro
-;         lda (currp),y
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         sta 7
-;         lda (adjcell),y
-;         and #$f0
-;         ora 7
-;         tax
-;         lda vistabpc,x
-;         ldx #0
-;         sta (i1,x)
-;         lda #8
-;         eor i1
-;         sta i1
-;         lda (currp),y
-;         and #$f
-;         sta 7
-;         lda (adjcell),y
-;         asl
-;         asl
-;         asl
-;         asl
-;         ora 7
-;         tax
-;         lda vistabpc,x
-;         ldx #0
-;         sta (i1,x)
-;         sec
-;         lda i1
-;         sbc #7
-;         sta i1
-;         iny
-;         .endm
+        .macro vidmacp one,two
+          mov one(r0),r2
+          mov one+2(r0),r4
+          bic #^B1110011100111111,r2
+          mov r2,r3
+          swab r3
+          aslb r3   ;sets CY=0
+          bis r3,r2
+          mov r1,r3
+          rorb r3    ;uses CY=0
+          asrb r3
+          asrb r3
+          asrb r3
+          movb r3,r3
+          bisb r2,r3
+          mov #tovideo,@#pageport
+.if eq two
+          movb vistabpc(r3),@r5
+.iff
+          movb vistabpc(r3),two(r5)
+.endc
+
+          bic #^B1111110011100111,r4
+          asl r4
+          asl r4
+          asl r4
+          mov r4,r3
+          swab r3
+          asl r3
+          bis r3,r4
+          movb r1,r3
+          bic #^B1111111111110000,r3
+          bisb r4,r3
+          movb vistabpc(r3),two+1(r5)
+          mov #todata,@#pageport
+        .endm
 
          .macro genmac one,two,?ll
          movb one+3(r0),r5

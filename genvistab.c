@@ -16,9 +16,35 @@ int main() {
    for (i = 0; i < 16; i++) {
       printf("    %s ", ".word");
       for (n = 0; n < 15; n++)
-          printf("%3d,", t[i*16 + n + off]);
-      printf("%3d\n", t[i*16 + n + off]);
+          printf("%5d,", t[i*16 + n + off]);
+      printf("%5d\n", t[i*16 + n + off]);
       if (i*16 + n == 127) {printf("vistab:\n"); off = -128;}
+   }
+   for (i = 0; i < 256; i++) t[i] = 0;
+   for (i = 0; i < 256; i++) {
+      if (i & 0x1) {
+         t[i] += 64;
+         if ((i & 0x10) == 0) t[i] += 64;
+      }
+      if (i & 0x2) {
+         t[i] += 16;
+         if ((i & 0x20) == 0) t[i] += 16;
+      }
+      if (i & 0x4) {
+         t[i] += 4;
+         if ((i & 0x40) == 0) t[i] += 4;
+      }
+      if (i & 0x8) {
+         t[i] += 1;
+         if ((i & 0x80) == 0) t[i] += 1;
+      }
+   }
+   printf("vistabpc:\n");
+   for (i = 0; i < 16; i++) {
+      printf("    %s ", ".byte");
+      for (n = 0; n < 15; n++)
+          printf("%3d,", t[i*16 + n]);
+      printf("%3d\n", t[i*16 + n]);
    }
    return 0;
 }

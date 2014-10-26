@@ -604,10 +604,7 @@ gexit:    ;!jmp @#crsrset
 ;         .bend
 ;rts1     rts         ;CY is not changed or set to 0
 
-;*showscn  .block
-showscn:
-
-         call @#infoout
+showscn: call @#infoout
 
          tstb @#zoom
          bne showscnpz
@@ -681,76 +678,141 @@ showscn2: mov @#startp,r0
           bne 1$
 
 ;*         jmp crsrset
-          ;?xor #^B1100000000000000,@#videobase
           jmp @#crsrset
 
-showscnp:
+;showscnp .block    ;uses: 7(vidmacp), i1(2), adjcell(2), adjcell2(2), temp(2)
 ;         #assign16 currp,startp
 ;loop     ldy #video
 ;         lda (currp),y
 ;         sta i1
+;         eor #8
+;         sta temp
 ;         iny
 ;         lda (currp),y
 ;         sta i1+1
-;         ldy #pc
-;         sty t1
+;         sta temp+1
 ;         ldy #0
-;         #vidmac1p
+;         clc
+;         lda currp
+;         adc #count0
+;         sta adjcell
+;         lda currp+1
+;         adc #0
+;         sta adjcell+1
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
+;         #vidmacp
 ;         iny
-;         inc t1
-;         #vidmac1p
-;         lda #8
-;         eor i1
-;         sta i1
-;         ldy #0
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         iny
-;         #vidmac2p
-;         ldy #next
+;         #vidmacp
+;         ldy #next+1
 ;         lda (currp),y
-;         tax
-;         iny
-;         lda (currp),y
-;         bne cont
-;
-;         cpx #1
 ;         bne cont
 ;         jmp crsrset
-;
-;cont     sta currp+1
-;         stx currp
+
+;cont     tax
+;         dey
+;         lda (currp),y
+;         sta currp
+;         stx currp+1
 ;         jmp loop
 ;         .bend
+showscnp: mov @#startp,r0
+1$:       mov video(r0),r5
+          mov @r0,r1
+          bne 3$
+
+          mov #tovideo,@#pageport
+          clr @r5
+          clr 64(r5)
+          mov #todata,@#pageport
+          br 4$
+
+3$:       vidmacp count0,0
+          swab r1
+          bne 5$
+
+          mov #tovideo,@#pageport
+          clr 64(r5)
+          mov #todata,@#pageport
+          br 4$
+
+5$:       vidmacp count1,64
+4$:       mov 2(r0),r1
+          bne 7$
+
+          mov #tovideo,@#pageport
+          clr 128(r5)
+          clr 192(r5)
+          mov #todata,@#pageport
+          br 6$
+
+7$:       vidmacp count2,128
+          swab r1
+          bne 8$
+
+          mov #tovideo,@#pageport
+          clr 192(r5)
+          mov #todata,@#pageport
+          br 6$
+
+8$:       vidmacp count3,192
+6$:       mov 4(r0),r1
+          bne 10$
+
+          mov #tovideo,@#pageport
+          clr 256(r5)
+          clr 320(r5)
+          mov #todata,@#pageport
+          br 11$
+
+10$:      vidmacp count4,256
+          swab r1
+          bne 12$
+
+          mov #tovideo,@#pageport
+          clr 320(r5)
+          mov #todata,@#pageport
+          br 11$
+
+12$:      vidmacp count5,320
+11$:      mov 6(r0),r1
+          bne 14$
+
+          mov #tovideo,@#pageport
+          clr 384(r5)
+          clr 448(r5)
+          mov #todata,@#pageport
+          br 15$
+
+14$:      vidmacp count6,384
+          swab r1
+          bne 16$
+
+          mov #tovideo,@#pageport
+          clr 448(r5)
+          mov #todata,@#pageport
+          br 15$
+
+16$:      vidmacp count7,448
+15$:      mov next(r0),r0
+          cmp #1,r0
+          beq 2$
+
+          jmp @#1$
+
+;*         jmp crsrset
+2$:       jmp @#crsrset
+          
 
 clrscn:   mov #tovideo,@#pageport
           mov #16384,r0
