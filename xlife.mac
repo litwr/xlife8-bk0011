@@ -1,5 +1,5 @@
-vermax   = 20     ;160
-hormax   = 24     ;192
+vermax   = 24     ;192
+hormax   = 20     ;160
 total    = <hormax*vermax>+1
 tilesize = 62
 plainbox = <hormax*vermax*tilesize>+tiles

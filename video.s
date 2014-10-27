@@ -427,12 +427,12 @@ digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
 infoout: mov #tovideo,@#pageport    ;must be before showtinfo
          mov #gencnt,r0
          mov #7,r1
-         mov #<160*64+16384+2>,r2
+         mov #<statusline*64+16384+2>,r2
          call @#digiout
 
          mov #cellcnt,r0
          mov #5,r1
-         mov #<160*64+16384+18>,r2
+         mov #<statusline*64+16384+18>,r2
          call @#digiout
 
 ;showtinfo  proc          ;must be after infoout
@@ -496,7 +496,7 @@ showtinfo:  mov #tinfo,r0
 ;           jp digiout
 ;           endp
 2$:         mov #3,r1
-            mov #<160*64+16384+30>,r2
+            mov #<statusline*64+16384+30>,r2
             call @#digiout
             mov #todata,@#pageport
             return

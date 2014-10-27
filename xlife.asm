@@ -62,6 +62,7 @@ start:
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
+   call @#showscn
 
          call @#infoout
          ;!call @#showrules
@@ -757,7 +758,7 @@ ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
          .include interface.s
 
 initxt:  mov #tovideo,@#pageport
-         mov #<160*64+16384>,r0
+         mov #<statusline*64+16384>,r0
          mov #1365,r1    ;$555
          mov #1285,r2    ;$505
          mov #1360,r3    ;$550
