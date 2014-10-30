@@ -501,125 +501,297 @@ showtinfo:  mov #tinfo,r0
             mov #todata,@#pageport
             return
 
-showscnpz:
-;xlimit   = $14
-;ylimit   = $15
-;         #assign16 i1,viewport
-;         jsr updatepc
-;         lda #$c
-;         sta cont2+2
-;         lda #0
-;         sta cont2+1
-;         lda #5
-;         sta xlimit
-;loop3    lda #3
-;         sta ylimit
-;loop4    ldy #0
-;loop2    lda (adjcell),y    ;pseudocolor
-;         sta t1             ;pseudocolor
-;         lda (i1),y
-;         ldx #0
-;loop1    asl t1             ;pseudocolor
-;         rol adjcell2       ;pseudocolor
+calcx:       ;$80 -> 0, $40 -> 1, ...
+;         ldx #$ff
+;cl2      inx
 ;         asl
-;         bcc cont1
+;         bcc cl2
 ;
-;         pha
-;         lda pseudoc
-;         beq cont12
-;
-;         lsr adjcell2
-;         bcs cont12
-;
-;         lda #87         ;new cell char
-;         bne cont2
-;
-;cont12   lda #81         ;live cell char
-;cont2    sta $c00,x
-;         pla
-;         inx
-;         cpx #8
-;         bne loop1
-;
-;         lda #39    ;CY=1
-;         adc cont2+1
-;         sta cont2+1
-;         bcc nocy1
-;
-;         inc cont2+2
-;nocy1    iny
-;         cpy #8
-;         bne loop2
-;
-;         dec ylimit
-;         beq cont3
-;
-;         lda #<tilesize*20-1 ;CY=1
-;         adc i1
-;         sta i1
-;         lda i1+1
-;         adc #>tilesize*20
-;         sta i1+1
-;         jsr updatepc
-;         bcc loop4
-;
-;cont1    pha
-;         lda #32
-;         bne cont2
-;
-;cont3    dec xlimit
-;         beq gexit
-;
-;         lda cont2+1    ;CY=1
-;         sbc #<952
-;         sta cont2+1
-;         lda cont2+2
-;         sbc #>952
-;         sta cont2+2  
-;         lda i1   ;CY=1
-;         sbc #<tilesize*39
-;         sta i1
-;         lda i1+1
-;         sbc #>tilesize*39
-;         sta i1+1
-;         jsr updatepc
-;         jmp loop3
-;         .bend
-;
-;*gexit    jmp crsrset
-gexit:    ;!jmp @#crsrset
-          return   ;$$ temporary command
+;         txa
+;         rts
+         bic #^B1111111100000000,r1
+         add #65280,r1    ;$ff00, IN: R1, OUT: R1
+1$:      add #256,r1
+         aslb r1
+         bcc 1$
 
-;updatepc .block
-;         lda pseudoc
-;         beq rts1
-;
-;         lda #pc
-;         clc
-;         adc i1
-;         sta adjcell
-;         lda #0
-;         adc i1+1
-;         sta adjcell+1
-;         .bend
-;rts1     rts         ;CY is not changed or set to 0
+         swab r1
+         movb r1,r1
+         return
+
+crsrpg:
+;crsrpg   xor a
+;         ld (i1),a
+;         push hl
+;         ld a,h
+;         sub 8
+;         ld h,a
+;         dec hl
+;         dec l
+;         ld a,(crsrpgmk)
+;         or a
+;         jr z,clrcur
+
+;         ld a,$f
+;         ld (hl),a
+;         inc l
+;         nexthlds 8
+;         rept 6
+;         nexthlc
+;         nexthlds 8
+;         endm
+;         ld a,$f
+;         ld (hl),a
+;         inc l
+;         ld (hl),a
+;         pop hl         
+;         ret
+         return
+
+showscnzp:
+;         local m1,loop1,loop2,loop3,loop4
+;         local cont1,cont2,cont2a,cont4,cont5,cont6,cont8,cont12
+;;use: i1:2, temp:1
+;;ylimit - iyh, xlimit - iyl
+;loop3    ld iyl,5
+;loop4    ld a,(crsrtile)
+;         cp ixl
+;         jp nz,cont4
+
+;         ld a,(crsrtile+1)
+;         cp ixh
+;         jr nz,cont4
+
+;         ld a,1
+;         ld (i1),a
+;cont4    xor a
+;         ld (m1+2),a
+;         ld c,8
+;loop2    ;ld a,(m1+2)
+;         rlca
+;         rlca
+;         add a,count0
+;         add a,ixl
+;         ld e,a
+;         ld a,ixh
+;         adc a,0
+;         ld d,a
+;         ld a,(de)
+;         and $c0
+;         ld b,a
+;         inc de
+;         ld a,(de)
+;         rlca
+;         and $30
+;         or b
+;         ld b,a
+;         inc de
+;         ld a,(de)
+;         rrca
+;         and $c
+;         or b
+;         ld b,a
+;         inc de
+;         ld a,(de)
+;         and 3
+;         or b
+;         ld d,a
+;m1       ld e,(ix)
+;         ld b,8
+;loop1    rlc d              ;pseudocolor
+;         sla e
+;         jp nc,cont1
+
+;         nexthll 3
+;         nexthld $c,8
+;         nexthll 7
+;         nexthld $e,8
+;         ld a,d
+;         rrca
+;         jr c,cont12
+     
+;         nexthll 6     ;new cell char
+;         nexthld 6,8
+;         nexthll 6
+;         nexthld 6,8
+;         jp cont2
+
+;cont12   nexthll 7     ;live cell char
+;         nexthld $e,8
+;         nexthll 7
+;         nexthld $e,8
+;cont2    nexthll 7
+;         nexthld $e,8
+;         nexthll 3
+;         ld (hl),$c
+;cont2a   ld a,h
+;         sub 40
+;         ld h,a
+;cont6    inc hl
+;         ld a,(i1)
+;         dec a
+;         jr nz,cont5
+
+;         ld a,(i1+1)
+;         cp c
+;         jr nz,cont5
+
+;         ld a,(temp)
+;         cp b
+;         call z,crsrpg
+;cont5    djnz loop1
+
+;         dec c
+;         jr z,cont8
+
+;         ld de,m1+2
+;         ld a,(de)
+;         inc a
+;         ld (de),a
+;         ld de,80-16
+;         add hl,de
+;         jp loop2
+
+;cont8    ld de,(~(80*7))+1
+;         add hl,de
+;         ld c,tilesize  ;b=0
+;         add ix,bc
+;         dec iyl
+;         jp nz,loop4
+
+;         dec iyh
+;         jp z,crsrset
+
+;         ld de,tilesize*15
+;         add ix,de
+;         ld de,560
+;         add hl,de
+;         jp loop3
+
+;cont1    xor a
+;         cp (hl)     ;is it empty cell?
+;         ld (hl),a
+;         inc hl
+;         jp z,cont6
+
+;         rept 5
+;         nexthlds 8
+;         nexthlls
+;         endm
+;         ld (hl),a
+;         jp cont2a
+;         endp
+
+showscnz:
+         mov @#viewport,r0
+
+;         ld a,(crsrbyte)
+;         ld b,a
+;         ld a,8
+;         sub b
+;         ld (i1+1),a
+         mov #8,r1
+         movb @#crsrbyte,r2
+         sub r2,r1
+         movb r1,@#i1+1
+
+;         ld a,(crsrbit)
+;         call calcx
+;         ld a,8
+;         sub b
+;         ld (temp),a
+         movb @#crsrbit,r1
+         call @#calcx
+         mov #8,r2
+         sub r1,r2
+         mov r2,@#temp
+
+;         ld hl,$c800
+;         ld iyh,3
+         mov #16384+64+12,r1
+         mov #65280+3,r2    ;$ff03
+         tstb @#pseudoc
+         bne showscnzp
+
+;loop3    ld iyl,5
+3$:       add #5*256,r2   ;IY -> R2
+
+;loop4    ld a,(crsrtile)
+;         cp ixl
+;         jp nz,cont4
+;         ld a,(crsrtile+1)
+;         cp ixh
+;         jr nz,cont4
+
+4$:      
+;cont4    ld d,8
+          mov #8,r3    ;D -> R3
+
+2$:      movb (r0)+,r4
+         mov #8,r5     ;B -> R5
+         mov #tovideo,@#pageport
+1$:      aslb r4
+         bcc 11$
+
+         movb #68,64(r1)
+         movb #68,128(r1)  ;live cell char
+         movb #68,192(r1)
+         movb #68,256(r1)
+         movb #16,320(r1)
+         movb #16,(r1)+
+16$:     ;cmp r0,@#crsrtile   ;error!! (r0)+ was used
+         ;bne 15$
+
+         ;cmpb r3,@#i1+1
+         ;bne 15$
+
+         ;cmpb @#temp,r5
+         ;bne 15$
+
+         ;call @#crsrpg
+15$:     sob r5,1$
+
+         mov #todata,@#pageport
+         add #8*64-8,r1
+         sob r3,2$
+
+         sub #64*64-8,r1
+         add #tilesize-8,r0
+         sub #256,r2
+         bpl 4$
+
+         decb r2
+         bne 30$
+
+         return
+
+30$:     add #tilesize*15,r0
+         add #64*64-40,r1
+         br 3$
+
+11$:     tstb (r1)+     ;is it an empty cell?
+         beq 16$
+
+         clrb 63(r1)
+         clrb 127(r1)
+         clrb 191(r1)
+         clrb 255(r1)
+         clrb 319(r1)
+         clrb -1(r1)
+         br 16$
+
+gexit:   jmp @#crsrset
 
 showscn: call @#infoout
-
          tstb @#zoom
-         bne showscnpz
+         bne showscnz
 
          tst @#tilecnt
          beq gexit
 
-;*xcont2   lda pseudoc
          tstb @#pseudoc
-
-;*         beq showscn2
          beq showscn2
-
-;*         jmp showscnp
-         br showscnp
+         br  showscnp
 
 ;showscn0 lda zoom
 ;         beq rts1
@@ -1496,17 +1668,7 @@ clrscn:   mov #tovideo,@#pageport
 ;cont14   lda x8bit
 ;         jmp xcont3
 ;         .bend
-;
-;calcx    .block        ;$80 -> 0, $40 -> 1, ...
-;         ldx #$ff
-;cl2      inx
-;         asl
-;         bcc cl2
-;
-;         txa
-;         rts
-;         .bend
-;
+
 ;clrrect  .block   ;in: x8poscp, y8poscp
 ;;uses: adjcell:2, adjcell2:2, currp:2, i1:2, i2, t1, t2, t3, 7, $fd
 ;x8pos    = t3
@@ -1815,172 +1977,259 @@ clrscn:   mov #tovideo,@#pageport
 ;         dey
 ;         bcs loop8
 ;         .bend
-;
-;setviewport
-;         .block    ;in: cursor coordinates at the status line!
-;         #assign16 viewport,crsrtile
-;         ldx #2
-;         stx vptilecx
-;         dex
-;         stx vptilecy
-;         lda $fe5
-;         ora $fe6
-;         eor #$30
-;         bne cont1
-;
-;         lda $fe7
-;         cmp #$38
-;         bcs cont1
-;
-;         dec vptilecy
-;         lda viewport          ;up
-;         adc #<tilesize*20     ;CY=0
-;         sta viewport
-;         lda viewport+1
-;         adc #>tilesize*20
-;         sta viewport+1
-;         bne cont2
-;
-;cont1    lda $fe5
-;         cmp #$31
-;         bne cont2
-;
-;         lda $fe6
-;         cmp #$38
-;         bcc cont2
-;
-;         bne cont4
-;
-;         lda $fe7
-;         cmp #$34
-;         bcc cont2
-;
-;cont4    inc vptilecy
-;         lda viewport          ;down
-;         sbc #<tilesize*20     ;CY=1
-;         sta viewport
-;         lda viewport+1
-;         sbc #>tilesize*20
-;         sta viewport+1
-;
-;cont2    lda $fe0
-;         ora $fe1
-;         eor #$30
-;         bne cont3
-;
-;         lda $fe2
-;         cmp #$38
-;         bcs cont3
-;
-;         dec vptilecx
-;         dec vptilecx
-;         lda viewport          ;left2
-;         adc #<tilesize*2      ;CY=0
-;         sta viewport
-;         lda viewport+1
-;         adc #>tilesize*2
-;         sta viewport+1
-;         bne cont5
-;
-;cont3    lda $fe0
-;         eor #$30
-;         bne cont6
-;
-;         lda $fe1
-;         cmp #$31
-;         bcc cont7
-;
-;         bne cont6
-;
-;         lda $fe2
-;         cmp #$36
-;         bcs cont6
-;
-;cont7    dec vptilecx
-;         lda viewport          ;left1
-;         adc #<tilesize        ;CY=0
-;         sta viewport
-;         lda viewport+1
-;         adc #>tilesize
-;         sta viewport+1
-;         bne cont5
-;
-;cont6    lda $fe0
-;         cmp #$31
-;         bne cont8
-;
-;         lda $fe1
-;         cmp #$35
-;         bne cont8
-;
-;         lda $fe2
-;         cmp #$32
-;         bcc cont8
-;
-;         inc vptilecx
-;         inc vptilecx
-;         lda viewport          ;right2
-;         sbc #<tilesize*2      ;CY=1
-;         sta viewport
-;         lda viewport+1
-;         sbc #>tilesize*2
-;         sta viewport+1
-;         bne cont5
-;
-;cont8    lda $fe0
-;         cmp #$31
-;         bne cont5
-;
-;         lda $fe1
-;         cmp #$34
-;         bcc cont5
-;
-;         bne cont10
-;
-;         lda $fe2
-;         cmp #$34
-;         bcc cont5
-;
-;cont10   inc vptilecx
-;         lda viewport          ;right1
-;         sbc #<tilesize        ;CY=1
-;         sta viewport
-;         lda viewport+1
-;         sbc #>tilesize
-;         sta viewport+1
-;
-;cont5    ldy #ul
-;         lda (viewport),y
-;         tax
-;         iny
-;         lda (viewport),y
-;         sta viewport+1
-;         stx viewport
-;         ldy #left
-;         lda (viewport),y
-;         tax
-;         iny
-;         lda (viewport),y
-;         sta viewport+1
-;         stx viewport
-;         ldy #3
-;loop12   asl vptilecx
-;         asl vptilecy
-;         dey
-;         bne loop12
-;
-;         lda crsrbyte
-;         clc
-;         adc vptilecy
-;         sta vptilecy
-;         lda crsrbit
-;         jsr calcx
-;         clc
-;         adc vptilecx
-;         sta vptilecx
-;         .bend
-;
-;gexit2   rts
+
+setviewport:
+          mov @#crsrtile,@#viewport
+          return
+
+;         ld hl,(crsrtile)
+;         ld (viewport),hl
+;         ld ix,vptilecx
+;;*         ldx #2
+;;*         stx vptilecx
+;;*         dex
+;;*         stx vptilecy
+;         ld a,2
+;         ld (vptilecx),a
+;         dec a
+;         ld (vptilecy),a
+;;*         lda $fe5
+;;*         ora $fe6
+;;*         eor #$30
+;;*         bne cont1
+;         ld hl,(ycrsr)
+;         ld a,l
+;         or h
+;         jr nz,cont1
+ 
+;;*         lda $fe7
+;;*         cmp #$38
+;;*         bcs cont1
+;         ld a,(ycrsr+2)
+;         cp 8
+;         jr nc,cont1
+
+;;*         dec vptilecy
+;         dec (ix+1)
+;;*         lda viewport          ;up
+;;*         adc #<tilesize*20     ;CY=0
+;;*         sta viewport
+;;*         lda viewport+1
+;;*         adc #>tilesize*20
+;;*         sta viewport+1
+;;*         bne cont2
+;         ld hl,(viewport)      ;up
+;         ld de,tilesize*20
+;         add hl,de
+;         ld (viewport),hl
+;         jr cont2
+
+;;*cont1    lda $fe5
+;;*         cmp #$31
+;;*         bne cont2
+;cont1    ld a,(ycrsr)
+;         dec a
+;         jr nz,cont2
+
+;;*         lda $fe6
+;;*         cmp #$38
+;;*         bcc cont2
+;;*         bne cont4
+;         ld a,(ycrsr+1)
+;         cp 8
+;         jr c,cont2
+;         jr nz,cont4
+
+;;*         lda $fe7
+;;*         cmp #$34
+;;*         bcc cont2
+;         ld a,(ycrsr+2)
+;         cp 4
+;         jr c,cont2
+
+;;*cont4    inc vptilecy
+;;*         lda viewport          ;down
+;;*         sbc #<tilesize*20     ;CY=1
+;;*         sta viewport
+;;*         lda viewport+1
+;;*         sbc #>tilesize*20
+;;*         sta viewport+1
+;cont4    inc (ix+1)
+;         ld hl,(viewport)      ;down
+;         ld de,(~(tilesize*20))+1
+;         add hl,de
+;         ld (viewport),hl
+
+;;*cont2    lda $fe0
+;;*         ora $fe1
+;;*         eor #$30
+;;*         bne cont3
+;cont2    ld hl,(xcrsr)
+;         ld a,l
+;         or h
+;         jr nz,cont3
+
+;;*         lda $fe2
+;;*         cmp #$38
+;;*         bcs cont3
+;         ld a,(xcrsr+2)
+;         cp 8
+;         jr nc,cont3
+
+;;*         dec vptilecx
+;;*         dec vptilecx
+;         dec (ix)
+;         dec (ix)
+;;*         lda viewport          ;left2
+;;*         adc #<tilesize*2      ;CY=0
+;;*         sta viewport
+;;*         lda viewport+1
+;;*         adc #>tilesize*2
+;;*         sta viewport+1
+;;*         bne cont5
+;         ld hl,(viewport)      ;left2
+;         ld de,tilesize*2
+;         add hl,de
+;         ld (viewport),hl
+;         jr cont5
+
+;;*cont3    lda $fe0
+;;*         eor #$30
+;;*         bne cont6
+;cont3    ld a,(xcrsr)
+;         or a
+;         jr nz,cont6
+
+;;*         lda $fe1
+;;*         cmp #$31
+;;*         bcc cont7
+;;*         bne cont6
+;         ld a,(xcrsr+1)
+;         cp 1
+;         jr c,cont7
+;         jr nz,cont6
+
+;;*         lda $fe2
+;;*         cmp #$36
+;;*         bcs cont6
+;         ld a,(xcrsr+2)
+;         cp 6
+;         jr nc,cont6
+
+;;*cont7    dec vptilecx
+;cont7    dec (ix)
+;;*         lda viewport          ;left1
+;;*         adc #<tilesize        ;CY=0
+;;*         sta viewport
+;;*         lda viewport+1
+;;*         adc #>tilesize
+;;*         sta viewport+1
+;;*         bne cont5
+;         ld hl,(viewport)      ;left1
+;         ld de,tilesize
+;         add hl,de
+;         ld (viewport),hl
+;         jr cont5
+
+;;*cont6    lda $fe0
+;;*         cmp #$31
+;;*         bne cont8
+;cont6    ld a,(xcrsr)
+;         dec a
+;         jr nz,cont8
+
+;;*         lda $fe1
+;;*         cmp #$35
+;;*         bne cont8
+;         ld a,(xcrsr+1)
+;         cp 5
+;         jr nz,cont8
+
+;;*         lda $fe2
+;;*         cmp #$32
+;;*         bcc cont8
+;         ld a,(xcrsr+2)
+;         cp 2
+;         jr c,cont8
+
+;;*         inc vptilecx
+;;*         inc vptilecx
+;         inc (ix)
+;         inc (ix)
+;;*         lda viewport          ;right2
+;;*         sbc #<tilesize*2      ;CY=1
+;;*         sta viewport
+;;*         lda viewport+1
+;;*         sbc #>tilesize*2
+;;*         sta viewport+1
+;;*         bne cont5
+;         ld hl,(viewport)      ;right2
+;         ld de,(~(tilesize*2))+1
+;         add hl,de
+;         ld (viewport),hl
+;         jr cont5
+
+;;*cont8    lda $fe0
+;;*         cmp #$31
+;;*         bne cont5
+;cont8    ld a,(xcrsr)
+;         dec a
+;         jr nz,cont5
+
+;;*         lda $fe1
+;;*         cmp #$34
+;;*         bcc cont5
+;;*         bne cont10
+;         ld a,(xcrsr+1)
+;         cp 4
+;         jr c,cont5
+;         jr nz,cont10
+
+;;*         lda $fe2
+;;*         cmp #$34
+;;*         bcc cont5
+;         ld a,(xcrsr+2)
+;         cp 4
+;         jr c,cont5
+
+;;*cont10   inc vptilecx
+;cont10   inc (ix)
+;;*         lda viewport          ;right1
+;;*         sbc #<tilesize        ;CY=1
+;;*         sta viewport
+;;*         lda viewport+1
+;;*         sbc #>tilesize
+;;*         sta viewport+1
+;         ld hl,(viewport)      ;right1
+;         ld de,(~tilesize)+1
+;         add hl,de
+;         ld (viewport),hl
+
+;;*cont5    ldy #ul
+;;*         lda (viewport),y
+;;*         tax
+;;*         iny
+;;*         lda (viewport),y
+;;*         sta viewport+1
+;;*         stx viewport
+;cont5    ld iy,(viewport)
+;         ld hl,fixvp
+;         call calllo
+;         ld (viewport),hl
+;         ld b,3
+;loop12   sla (ix)
+;         sla (ix+1)
+;         djnz loop12
+
+;         ld a,(crsrbyte)
+;         add a,(ix+1)
+;         ld (ix+1),a
+;         ld a,(crsrbit)
+;         call calcx
+;         add a,(ix)
+;         ld (ix),a
+;         ret
+
 
 ;;crsrset  jsr crsrset1
 crsrset: return

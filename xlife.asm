@@ -52,16 +52,18 @@ start:
 
    mov #tiles,r0
    mov r0,@#startp
-   ;movb #112,2(r0)
-   ;movb #4,0(r0) ;glider
-   ;movb #3,1(r0)
-   ;movb #6,2(r0)
-   movb #3,0(r0) ;r-pentamino
-   movb #6,1(r0)
-   movb #2,2(r0)
+   ;movb #14,2(r0)
+   movb #4,0(r0) ;glider
+   movb #3,1(r0)
+   movb #6,2(r0)
+
+   ;movb #3,0(r0) ;r-pentamino
+   ;movb #6,1(r0)
+   ;movb #2,2(r0)
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
+   call @#setviewport
    call @#showscn
 
          call @#infoout
@@ -710,6 +712,7 @@ tilecnt:  .word 0
 viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
+i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
 xcrsr:    .byte 0,0,0
@@ -727,7 +730,7 @@ crsrbit:  .byte 128    ;x bit position
 crsrbyte: .byte 0      ;y%8
 crsrx:    .byte 0      ;x/4 -  not at pseudographics
 crsry:    .byte 0      ;y/8
-zoom:     .byte 0
+zoom:     .byte 1
 fnlen:    .byte 0
 ;;fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 dirnlen:  .byte 0
