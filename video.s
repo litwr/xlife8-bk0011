@@ -520,32 +520,18 @@ calcx:       ;$80 -> 0, $40 -> 1, ...
          return
 
 crsrpg:
-;crsrpg   xor a
-;         ld (i1),a
-;         push hl
-;         ld a,h
-;         sub 8
-;         ld h,a
-;         dec hl
-;         dec l
-;         ld a,(crsrpgmk)
-;         or a
-;         jr z,clrcur
-
-;         ld a,$f
-;         ld (hl),a
-;         inc l
-;         nexthlds 8
-;         rept 6
-;         nexthlc
-;         nexthlds 8
-;         endm
-;         ld a,$f
-;         ld (hl),a
-;         inc l
-;         ld (hl),a
-;         pop hl         
-;         ret
+         clrb @#i1
+         mov r0,-(sp)
+         mov #85,r0
+         xor r0,63(r1)
+         xor r0,127(r1)
+         xor r0,191(r1)
+         xor r0,255(r1)
+         xor r0,319(r1)
+         xor r0,-1(r1)
+         movb r0,383(r1)
+         movb r0,-65(r1)
+         mov (sp)+,r0
          return
 
 showscnzp:
@@ -684,6 +670,7 @@ showscnzp:
 
 showscnz:
          mov @#viewport,r0
+         clrb @#i1
 
 ;         ld a,(crsrbyte)
 ;         ld b,a
@@ -727,28 +714,32 @@ showscnz:
 ;cont4    ld d,8
           mov #8,r3    ;D -> R3
 
+         cmp r0,@#crsrtile
+         bne 2$
+
+         incb @#i1
 2$:      movb (r0)+,r4
          mov #8,r5     ;B -> R5
          mov #tovideo,@#pageport
 1$:      aslb r4
          bcc 11$
 
-         movb #68,64(r1)
-         movb #68,128(r1)  ;live cell char
-         movb #68,192(r1)
-         movb #68,256(r1)
+         movb #84,64(r1)
+         movb #84,128(r1)  ;live cell char
+         movb #84,192(r1)
+         movb #84,256(r1)
          movb #16,320(r1)
          movb #16,(r1)+
-16$:     ;cmp r0,@#crsrtile   ;error!! (r0)+ was used
-         ;bne 15$
+16$:     tstb @#i1
+         beq 15$
 
-         ;cmpb r3,@#i1+1
-         ;bne 15$
+         cmpb r3,@#i1+1
+         bne 15$
 
-         ;cmpb @#temp,r5
-         ;bne 15$
+         cmpb @#temp,r5
+         bne 15$
 
-         ;call @#crsrpg
+         call @#crsrpg
 15$:     sob r5,1$
 
          mov #todata,@#pageport

@@ -53,13 +53,13 @@ start:
    mov #tiles,r0
    mov r0,@#startp
    ;movb #14,2(r0)
-   movb #4,0(r0) ;glider
-   movb #3,1(r0)
-   movb #6,2(r0)
+   ;movb #4,0(r0) ;glider
+   ;movb #3,1(r0)
+   ;movb #6,2(r0)
 
-   ;movb #3,0(r0) ;r-pentamino
-   ;movb #6,1(r0)
-   ;movb #2,2(r0)
+   movb #3,0(r0) ;r-pentamino
+   movb #6,1(r0)
+   movb #2,2(r0)
    mov #3,sum(r0)
    mov #1,next(r0)
    mov #1,@#tilecnt
