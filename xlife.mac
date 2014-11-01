@@ -228,3 +228,11 @@ cond2:
          movb r1,two+7(r0)
          .endm
 
+         .macro push arg
+         mov arg,-(sp)
+         .endm
+
+         .macro pop arg
+         mov (sp)+,arg
+         .endm
+

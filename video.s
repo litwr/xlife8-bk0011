@@ -521,7 +521,7 @@ calcx:       ;$80 -> 0, $40 -> 1, ...
 
 crsrpg:
          clrb @#i1
-         mov r0,-(sp)
+         push r0
          mov #85,r0
          xor r0,63(r1)
          xor r0,127(r1)
@@ -531,142 +531,105 @@ crsrpg:
          xor r0,-1(r1)
          movb r0,383(r1)
          movb r0,-65(r1)
-         mov (sp)+,r0
+         pop r0
          return
 
 showscnzp:
-;         local m1,loop1,loop2,loop3,loop4
-;         local cont1,cont2,cont2a,cont4,cont5,cont6,cont8,cont12
-;;use: i1:2, temp:1
-;;ylimit - iyh, xlimit - iyl
 ;loop3    ld iyl,5
+3$:      add #5*256,r2   ;IY -> R2
+
 ;loop4    ld a,(crsrtile)
 ;         cp ixl
 ;         jp nz,cont4
+4$:      clr @#200$+2
+         movb #8,@#temp+1
 
-;         ld a,(crsrtile+1)
-;         cp ixh
-;         jr nz,cont4
+         cmp r0,@#crsrtile
+         bne 2$
 
-;         ld a,1
-;         ld (i1),a
-;cont4    xor a
-;         ld (m1+2),a
-;         ld c,8
-;loop2    ;ld a,(m1+2)
-;         rlca
-;         rlca
-;         add a,count0
-;         add a,ixl
-;         ld e,a
-;         ld a,ixh
-;         adc a,0
-;         ld d,a
-;         ld a,(de)
-;         and $c0
-;         ld b,a
-;         inc de
-;         ld a,(de)
-;         rlca
-;         and $30
-;         or b
-;         ld b,a
-;         inc de
-;         ld a,(de)
-;         rrca
-;         and $c
-;         or b
-;         ld b,a
-;         inc de
-;         ld a,(de)
-;         and 3
-;         or b
-;         ld d,a
-;m1       ld e,(ix)
-;         ld b,8
-;loop1    rlc d              ;pseudocolor
-;         sla e
-;         jp nc,cont1
+         incb @#i1
+2$:      mov @#200$+2,r4
+         asl r4
+         asl r4
+         add #count0,r4
+         add r0,r4
+         mov (r4)+,r5
+         bic #^B1110011100111111,r5
+         mov r5,r3
+         swab r3
+         aslb r3
+         bis r3,r5
+         mov @r4,r3
+         bic #^B1111110011100111,r3
+         mov r3,r4
+         asrb r3
+         swab r4
+         bis r5,r4
+         movb r3,r3
+         bisb r4,r3
+         swab r3
+200$:    movb 8(r0),r4
+         bisb r4,r3
+         inc @#200$+2
+         mov #8,r5     ;B -> R5 low
+         mov #tovideo,@#pageport
 
-;         nexthll 3
-;         nexthld $c,8
-;         nexthll 7
-;         nexthld $e,8
-;         ld a,d
-;         rrca
-;         jr c,cont12
-     
-;         nexthll 6     ;new cell char
-;         nexthld 6,8
-;         nexthll 6
-;         nexthld 6,8
-;         jp cont2
+1$:      tstb r3
+         bpl 11$
 
-;cont12   nexthll 7     ;live cell char
-;         nexthld $e,8
-;         nexthll 7
-;         nexthld $e,8
-;cont2    nexthll 7
-;         nexthld $e,8
-;         nexthll 3
-;         ld (hl),$c
-;cont2a   ld a,h
-;         sub 40
-;         ld h,a
-;cont6    inc hl
-;         ld a,(i1)
-;         dec a
-;         jr nz,cont5
+         mov #84,r4
+         tst r3         ;pseudocolor  
+         bmi 112$
+         
+         mov #68,r4
+112$:    movb r4,64(r1)   ;new cell char
+         movb r4,128(r1)  
+         movb r4,192(r1)
+         movb r4,256(r1)
+         movb #16,320(r1)
+         movb #16,(r1)+
+16$:     asl  r3
+         tstb @#i1
+         beq 15$
 
-;         ld a,(i1+1)
-;         cp c
-;         jr nz,cont5
+         cmpb @#temp+1,@#i1+1
+         bne 15$
 
-;         ld a,(temp)
-;         cp b
-;         call z,crsrpg
-;cont5    djnz loop1
+         cmpb @#temp,r5
+         bne 15$
 
-;         dec c
-;         jr z,cont8
+         call @#crsrpg
+15$:     sob r5,1$
 
-;         ld de,m1+2
-;         ld a,(de)
-;         inc a
-;         ld (de),a
-;         ld de,80-16
-;         add hl,de
-;         jp loop2
+         mov #todata,@#pageport
+         add #8*64-8,r1
+         decb @#temp+1
+         bne 2$
 
-;cont8    ld de,(~(80*7))+1
-;         add hl,de
-;         ld c,tilesize  ;b=0
-;         add ix,bc
-;         dec iyl
-;         jp nz,loop4
+         sub #64*64-8,r1
+         add #tilesize,r0
+         sub #256,r2
+         bpl 4$
 
-;         dec iyh
-;         jp z,crsrset
+         decb r2
+         bne 30$
 
-;         ld de,tilesize*15
-;         add ix,de
-;         ld de,560
-;         add hl,de
-;         jp loop3
+         return
 
-;cont1    xor a
-;         cp (hl)     ;is it empty cell?
-;         ld (hl),a
-;         inc hl
-;         jp z,cont6
+30$:     add #tilesize*15,r0
+         add #64*64-40,r1
+         br 3$
 
-;         rept 5
-;         nexthlds 8
-;         nexthlls
-;         endm
-;         ld (hl),a
-;         jp cont2a
-;         endp
+11$:     tstb (r1)+     ;is it an empty cell?
+         beq 16$
+
+         clrb 63(r1)
+         clrb 127(r1)
+         clrb 191(r1)
+         clrb 255(r1)
+         clrb 319(r1)
+         clrb -1(r1)
+         br 16$
 
 showscnz:
          mov @#viewport,r0
@@ -691,14 +654,15 @@ showscnz:
          call @#calcx
          mov #8,r2
          sub r1,r2
-         mov r2,@#temp
+         movb r2,@#temp
 
 ;         ld hl,$c800
 ;         ld iyh,3
          mov #16384+64+12,r1
-         mov #65280+3,r2    ;$ff03
+         mov #65280+3,r2    ;65280=$ff03
          tstb @#pseudoc
-         bne showscnzp
+         beq 3$
+         jmp @#showscnzp
 
 ;loop3    ld iyl,5
 3$:       add #5*256,r2   ;IY -> R2
