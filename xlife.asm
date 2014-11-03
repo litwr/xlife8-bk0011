@@ -13,8 +13,7 @@
          .asect
          .=768
 
-start:
-         mov #nokbirq,@#kbdstport
+start:   mov #nokbirq,@#kbdstport
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
          mov #155,r0    ;32 chars in line
          emt #^O16
@@ -35,19 +34,7 @@ start:
 
          ;;#iniram
          ;!call @#setcolor
-         ;;lda #"G"-"A"+1
-         ;;sta 4032
-         ;;lda #"%"
-         ;;sta 4050
-         ;;lda #"X"-"A"+1
-         ;;sta 4063
-         ;;lda #"Y"-"A"+1
-         ;;sta 4068
 
-         ;*lda #<tiles
-         ;*sta crsrtile
-         ;*lda #>tiles
-         ;*sta crsrtile+1
          mov #tiles,@#crsrtile
 
    mov #tiles,r0
@@ -65,6 +52,9 @@ start:
    mov #1,@#tilecnt
    call @#setviewport
    call @#showscn
+   call @#showmode
+   call @#showtopology
+   call @#xyout
 
          call @#infoout
          ;!call @#showrules
@@ -72,7 +62,6 @@ start:
          ;!call @#crsrcalc
 
 mainloop:
-         ;call @#waitkbd
          call @#dispatcher
          movb @#mode,r0
          beq mainloop
@@ -87,6 +76,12 @@ mainloop:
          bne 4$
 
          clrb @#mode
+         call @#incgen
+         call @#initxt
+         call @#showtopology
+         call @#xyout
+         call @#showscn
+         call @#showmode
          br mainloop
 
 4$:      cmpb #2,r0
@@ -724,13 +719,13 @@ x0:       .byte 0
 y0:       .byte 0
 xchgdir:  .byte 0
 clncnt:   .byte 0
-pseudoc:  .byte 1
+pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 crsrbit:  .byte 128    ;x bit position
 crsrbyte: .byte 0      ;y%8
 crsrx:    .byte 0      ;x/4 -  not at pseudographics
 crsry:    .byte 0      ;y/8
-zoom:     .byte 1
+zoom:     .byte 0
 fnlen:    .byte 0
 ;;fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 dirnlen:  .byte 0
@@ -756,6 +751,11 @@ ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0
+msgstop: .asciz /STOP/
+msgrun:  .asciz /RUN /
+msghide: .asciz /HIDE/
+msgtore: .asciz /TORUS/
+msgplan: .asciz /PLAIN/
 
          .even   ;high area
          .include interface.s

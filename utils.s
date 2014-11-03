@@ -2,9 +2,10 @@
 ;zerocnt
 ;zerocc
 
-;*zerocc   #inibcd cellcnt,4
-;*         rts
 zerocc:   inibcd cellcnt,4
+          return
+
+zerogc:   inibcd gencnt,6
           return
 
 ;calcspd .block

@@ -3,6 +3,7 @@ hormax   = 20     ;160
 total    = <hormax*vermax>+1
 tilesize = 62
 plainbox = <hormax*vermax*tilesize>+tiles
+statusline = 192
 
 left     = 8      ;all directions
 ul       = 10     ;not zero!

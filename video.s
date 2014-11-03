@@ -424,6 +424,19 @@ digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
          sob r1,1$
          return
 
+xyout:   mov #tovideo,@#pageport
+         mov #xcrsr,r0
+         mov #3,r1
+         mov #<statusline*64+16384+50>,r2
+         call @#digiout
+
+         mov #ycrsr,r0
+         mov #3,r1
+         mov #<statusline*64+16384+58>,r2
+         call @#digiout
+         mov #todata,@#pageport
+         return
+
 infoout: mov #tovideo,@#pageport    ;must be before showtinfo
          mov #gencnt,r0
          mov #7,r1
@@ -2665,7 +2678,7 @@ crsrset: return
 ;
 ;         inc $15
 ;         bne loop
-;
+
 ;exit     pla
 ;         sta y0
 ;         pla
@@ -2673,4 +2686,40 @@ crsrset: return
 ;         inc ppmode
 ;         rts
 ;         .bend
-;
+
+showtopology:
+         mov #27,r1
+         mov #2,r2
+         mov #msgtore,r3
+         tstb @#topology
+         beq showptxt
+
+         mov #msgplan,r3
+         br showptxt
+
+showmode:
+         mov #0,r1
+         mov #2,r2
+         mov #msgstop,r3
+         movb @#mode,r0
+         beq showptxt
+
+         mov #msgrun,r3
+         dec r0
+         beq showptxt
+         
+         mov #msghide,r3
+
+showptxt:     ;IN: R1 - X, R2 - Y, R3 - msg
+         mov #toandos,@#pageport
+         emt #^O24
+         mov r3,r1
+spt1:    mov #255,r2
+         emt #^O20
+         mov #todata,@#pageport
+         return
+
+showtxt:     ;IN: R1 - msg
+         mov #toandos,@#pageport
+         br spt1
+

@@ -6,87 +6,56 @@ dispatcher:
 
 1$:      mov @#kbddtport,r0
 
-dispat0:
-;*         cmp #"G"-"A"+$41
-;*         bne cont3
-         cmpb #'g,r0
+dispat0: cmpb #'g,r0
          bne 3$
 
-;*         lda mode
-;*         beq cont2
          tstb @#mode
          beq 2$
 
-;*         dec mode
-;*         beq l4
-         decb @#mode
+53$:     decb @#mode
          beq 40$
 
-;*l5       jmp scrnorm
+         call @#initxt
+         call @#showtopology
+         call @#xyout
+         br 40$
 
-;*cont2    inc mode
 2$:      incb @#mode
+40$:     jmp @#showmode
 
-;*l4       rts
-40$:     return
-
-;*cont3    cmp #"Q"-"A"+$c1
-;*         bne cont5
 3$:      cmpb #'Q,r0
          bne 5$
 
          movb #3,@#mode
-         return
+101$:    return
 
-;*cont5    cmp #"H"-"A"+$41
-;*         bne cont4
 5$:      cmpb #'h,r0
          bne 4$
 
-;*         lda #2
-;*         cmp mode
-;*         bne l3
-;*
-;*         dec mode
-;*         bne l5
-;*
-;*l3       sta mode
-;*         jsr xclrscn
-;*         jmp scrblnk
-         return
+         cmpb #2,@#mode
+         beq 53$
 
-;*cont4    cmp #"T"-"A"+$c1
-;*         bne cont6
+         movb #2,@#mode
+         call @#clrscn
+         jmp @#showmode
+
 4$:      cmpb #'T,r0
          bne 6$
 
 ;*         #chgtopology
-;*
-;*cont6    cmp #"O"-"A"+$41
-;*         bne cont7
+
 6$:      cmpb #'o,r0
          bne 7$
 
-;*         lda mode
-;*         bne l1
          tstb @#mode
          bne 101$
 
-;*         lda tilecnt
-;*         bne l8
-;*
-;*         lda tilecnt+1
-;*         bne l8
          tst @#tilecnt
          bne 108$
 
-;*l1       rts
-101$:    return
+         call @#incgen
+         br 202$
 
-;*l8       jsr zerocc
-;*         jsr generate
-;*         jsr showscn
-;*         jmp cleanup
 108$:    call @#zerocc
          call @#generate
          call @#showscn
@@ -105,30 +74,24 @@ dispat0:
 ;*         jsr curoff
 ;*         jsr help
 ;*         jmp finish
-;*
-;*cont8    cmp #"C"-"A"+$c1
-;*         bne cont10
+
 8$:      cmpb #'C,r0
          bne 10$
 
-;*         lda tilecnt
-;*         ora tilecnt+1
-;*         beq l1
-;*         jmp clear
-;*
-;*cont10   cmp #"E"-"A"+$c1
-;*         bne cont11
+         tst @#tilecnt
+         bne 201$
+
+         call @#zerogc
+202$:    jmp @#infoout
+
+201$:    jmp @#clear
+
 10$:     cmpb #'E,r0
          bne 11$
 
-;*         dec pseudoc
-;*         beq l11
          decb @#pseudoc
          beq 111$
 
-;*         lda #1
-;*         sta pseudoc
-;*l11      jmp showscn
          movb #1,@#pseudoc
 111$:    jmp @#showscn
 

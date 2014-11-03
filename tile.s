@@ -1,42 +1,21 @@
-;clear    .block
-;         jsr zerocc
-;         #inibcd gencnt,6
-;         #assign16 currp,startp
-;loop     ldy #sum
-;         lda (currp),y
-;         beq lnext
+clear:    call @#zerocc
+          call @#zerogc
+          mov @#startp,r0
+10$:      tstb sum(r0)
+          beq 11$
 
-;         lda #0
-;         sta (currp),y
-;         ldy #7
-;loop0    sta (currp),y
-;         dey
-;         bpl loop0
+          clrb sum(r0)
+          clr @r0
+          clr 2(r0)
+          clr 4(r0)
+          clr 6(r0)
+11$:      mov next(r0),r0
+          cmp r0,#1
+          bne 10$
 
-;         ldy #pc
-;loop1    sta (currp),y
-;         iny
-;         cpy #pc+8
-;         bne loop1
-
-;lnext    ldy #next
-;         lda (currp),y
-;         tax
-;         iny
-;         lda (currp),y
-;         bne cont1
-
-;         cpx #1
-;         beq cont2
-
-;cont1    sta currp+1
-;         stx currp
-;         jmp loop
-
-;cont2    jsr showscn
-;         jsr cleanup0
-;         jmp infoout
-;         .bend
+          call @#showscn
+          call @#cleanup0
+          jmp @#infoout
 
 ;*chkaddt  lda t1
 chkaddt: tst r3
