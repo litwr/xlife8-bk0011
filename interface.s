@@ -107,21 +107,17 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr random
 ;*         jmp showscn
-;*
+
 ;*cont12   cmp #"%"
 ;*         bne cont14
 12$:     cmpb #'%,r0
          bne 14$
 
-;*         lda mode
-;*         cmp #2
-;*         beq cont14
-;*
-;*         jsr totext
-;*         jsr curoff
-;*         jsr indens
-;*         jmp finish
-;*
+           cmpb #2,@#mode
+           beq 14$
+
+         jmp @#indens
+
 ;*cont14   cmp #"B"-"A"+$c1
 ;*         bne cont15
 14$:     cmpb #'B,r0

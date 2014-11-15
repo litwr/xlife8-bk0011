@@ -281,51 +281,51 @@ spaces10:  .ascii "          "
 ;         sta scrstay,y
 ;         bne loop1
 ;         .bend
-;
-;indens   .block
-;         jsr JPRIMM
-;         .byte 144,147
-;         .text "select density or press "
-;         .byte 28
-;         .text "esc"
-;         .byte 144
-;         .text " to exit"
-;         .byte $d,28,"0",30
-;         .text " - 12.5%"
-;         .byte $d,28,"1",30
-;         .text " - 28%"
-;         .byte $d,28,"2",30
-;         .text " - 42%"
-;         .byte $d,28,"3",30
-;         .text " - 54%"
-;         .byte $d,28,"4",30
-;         .text " - 64%"
-;         .byte $d,28,"5",30
-;         .text " - 73%"
-;         .byte $d,28,"6",30
-;         .text " - 81%"
-;         .byte $d,28,"7",30
-;         .text " - 88.5%"
-;         .byte $d,28,"8",30
-;         .text " - 95%"
-;         .byte $d,28,"9",30
-;         .text " - 100%"
-;         .byte 144,0
+
+indens:  call @#totext
+         jsr r3,@#printstr
+         .byte 146
+         .ascii "SELECT DENSITY OR PRESS "
+         .byte 145
+         .ascii "ESC"
+         .byte 146
+         .ascii " TO EXIT"
+         .byte 10,9,145,'0,147
+         .ascii " - 12.5%"
+         .byte 10,9,145,'1,147
+         .ascii " - 28%"
+         .byte 10,9,145,'2,147
+         .ascii " - 42%"
+         .byte 10,9,145,'3,147
+         .ascii " - 54%"
+         .byte 10,9,145,'4,147
+         .ascii " - 64%"
+         .byte 10,9,145,'5,147
+         .ascii " - 73%"
+         .byte 10,9,145,'6,147
+         .ascii " - 81%"
+         .byte 10,9,145,'7,147
+         .ascii " - 88.5%"
+         .byte 10,9,145,'8,147
+         .ascii " - 95%"
+         .byte 10,9,145,'9,147
+         .ascii " - 100%"
+         .byte 145,0,0
 ;loop1    jsr getkey
-;         cmp #$1b
-;         beq exit
-;
-;         cmp #$30
-;         bcc loop1
-;
-;         cmp #$40
-;         bcs loop1
-;
-;         eor #$30
-;         adc #1
-;         sta density
-;exit     rts
-;         .bend
+1$:      call @#getkey
+         cmpb #27,r0
+         beq 2$
+
+         cmpb r0,#'0
+         bcs 1$
+
+         cmpb r0,#'0+10
+         bcc 1$
+
+         sub #'0,r0
+         inc r0
+         movb r0,@#density
+2$:      jmp @#tograph
 
 help:    call @#totext
          jsr r3,@#printstr
