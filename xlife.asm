@@ -16,7 +16,7 @@
 start:   mov #nokbirq,@#kbdstport
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
          jsr r3,@#printstr
-         .byte 155,154,0,0
+         .byte 155,154,0,0   ;cursor off, 32 chars
          call @#clrscn
          call @#initxt
          ;;lda 174     ;current device #

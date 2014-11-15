@@ -317,10 +317,9 @@ spaces10:  .ascii "          "
 ;         .bend
 
 help:    mov @#yscroll,@#yshift    
-         ;jsr r3,@#printstr
-         ;.byte 155,0
          call @#clrscn
          jsr r3,@#printstr
+         .byte 12
          .ascii "    "
          .byte 146,159
          .ascii "*** XLIFE COMMANDS ***"
@@ -379,12 +378,12 @@ help:    mov @#yscroll,@#yshift
          .ascii "shift"
          .byte 156,159
          .ascii " to speed up the movement"
-         .byte 159,0 ;word align
+         .byte 159,0,0 ;word align
          mov @#yshift,@#yscroll
          add #14,@#yshift
          call @#getkey
          jsr r3,@#printstr
-         .byte 12,155,0,0
+         .byte 155,0
          mov #^O1330,@#yshift
          jmp @#clrscn
 
@@ -2741,10 +2740,13 @@ showmode:
 
 showptxt:     ;IN: R1 - X, R2 - Y, R3 - msg
          mov #toandos,@#pageport
+         ;mov @#yscroll,@#yshift 
          emt #^O24
          mov r3,r1
 spt1:    mov #255,r2
          emt #^O20
+         ;mov @#yshift,@#yscroll
+         ;mov #^O1330,@#yshift
          mov #todata,@#pageport
          return
 
