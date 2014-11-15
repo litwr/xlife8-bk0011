@@ -311,7 +311,6 @@ indens:  call @#totext
          .byte 10,9,145,'9,147
          .ascii " - 100%"
          .byte 145,0,0
-;loop1    jsr getkey
 1$:      call @#getkey
          cmpb #27,r0
          beq 2$
@@ -322,8 +321,7 @@ indens:  call @#totext
          cmpb r0,#'0+10
          bcc 1$
 
-         sub #'0,r0
-         inc r0
+         sub #'0-1,r0
          movb r0,@#density
 2$:      jmp @#tograph
 
