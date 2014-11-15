@@ -699,6 +699,7 @@ tilecnt:  .word 0
 viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
+tobin:    .word 1,10,100,1000,10000
 yscroll:  .word ^O1330
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
@@ -749,6 +750,7 @@ msgrun:  .asciz /RUN /
 msghide: .asciz /HIDE/
 msgtore: .asciz /TORUS/
 msgplan: .asciz /PLAIN/
+stringbuf: .blkb 5
 
          .even   ;high area
          .include interface.s

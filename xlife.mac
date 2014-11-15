@@ -43,7 +43,7 @@ dr       .word 0
 down     .word 0        ;+20
 dl       .word 0
 next     .word 0        ;+24
-         .blkb 4        ;+26, count0
+         .blkb 32       ;+26, count0
 video    .word 0        ;+58
 sum      .byte 0        ;+60
          .byte 0        ;free

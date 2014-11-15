@@ -3,7 +3,9 @@ totext:    call @#clrscn
            mov #toandos,@#pageport    
            return
 
-tograph:   mov #^O1330,@#yshift
+tograph:   jsr r3,@#printstr
+           .byte 145,0
+           mov #^O1330,@#yshift
            call @#clrscn
            call @#initxt
            call @#showscn
@@ -95,67 +97,118 @@ spaces10:  .ascii "          "
 ;         .null "speed:"
 ;         rts
 ;         .bend
-;
-;scrbench = $c17
-;insteps  .block
-;         jsr JPRIMM
-;         .byte 144,147
-;         .null "number of generations: "
-;loop3    ldy #0
-;         sty $ff0c
-;loop1    tya
-;         clc
-;         adc #<scrbench
-;         sta $ff0d
-;         jsr getkey
-;         cmp #$d
-;         beq cont1
-;
-;         cmp #$14
-;         beq cont2
-;
-;         cmp #$1b
-;         beq exit
-;
-;         cmp #$30
-;         bcc loop1
-;
-;         cmp #$3a
-;         bcs loop1
-;
-;         cpy #7
-;         beq loop1
-;
-;         sta scrbench,y  ;temp area
-;         iny
-;         bne loop1
-;
-;cont1    jsr curoff
-;         tya
-;         bne cont3
-;
-;exit     rts        ;return yr=len, zf=1
-;
-;cont3    ldx #6
-;         sty temp
-;         dey
-;loop2    lda scrbench,y
-;         sta bencnt,x
-;         dex
-;         dey
-;         bpl loop2
-;
-;         ldy temp
-;         rts      ;no zf!
-;
-;cont2    dey
-;         bmi loop3
-;
-;         lda #$20     ;space
-;         sta scrbench,y
-;         bne loop1
-;         .bend
-;
+
+insteps: call @#totext
+         jsr r3,@#printstr
+         .byte 154,0
+38$:     jsr r3,@#printstr
+         .byte 12,146
+         .ascii "NUMBER OF GENERATIONS: "
+         .byte 0
+;         call TXT_PLACE_CURSOR
+3$:      mov #stringbuf,r2
+;         ld c,0
+         clr r1
+         clr @#temp
+1$:      call @#getkey
+;         cp $d
+         cmpb #10,r0
+;         jr z,cont1
+         beq 11$
+
+;         cp $fc       ;esc
+;         ret z
+         cmpb #9,r0    ;tab
+         bne 16$
+
+20$:     jsr r3,@#printstr
+         .byte 154,0
+         jmp @#tograph
+
+;         cp $7f       ;backspace
+;         jr z,cont2
+16$:     cmpb #24,r0    ;backspace=zaboy
+         beq 12$
+
+;         cp $3a
+;         jr nc,loop1
+         cmp r0,#'0+10
+         bcc 1$
+
+;         cp "0"
+;         jr c,loop1
+         cmp r0,#'0
+         bcs 1$
+
+;         ld b,a
+;         ld a,5
+;         cp c
+;         ld a,b
+;         jr z,loop1
+          cmp #5,r1
+          beq 1$
+
+;         ld (de),a
+;         inc de
+;         inc c
+         inc r1
+;         ld b,a
+;         call TXT_REMOVE_CURSOR
+;         ld a,b
+;         call TXT_OUTPUT
+         emt ^O16
+         sub #'0,r0
+         movb r0,(r2)+
+;cont4    call TXT_PLACE_CURSOR
+;         jr loop1
+          br 1$
+
+;cont2    dec de
+;         dec c
+;         jp m,loop3
+12$:     dec r2
+         dec r1
+         bmi 3$
+
+;         call TXT_REMOVE_CURSOR
+;         call printn
+;         db 8,32,8,"$"
+;         jr cont4
+         jsr r3,@#printstr
+         .byte 8,32,8,0
+         br 1$
+
+;cont1    call TXT_REMOVE_CURSOR
+11$:      tst r1
+          beq 20$
+
+;         ld l,e
+;         ld h,d
+;         ld a,c
+;         or a
+;         ret z
+
+;         ld bc,(~stringbuf)+1
+;         add hl,bc
+;         ret    ;hl - buffer length, de - buffer end
+         sub r1,r2          ;convert to binary
+         clr r4
+         dec r1
+         asl r1
+33$:     movb (r2)+,r3
+         beq 34$
+
+         mov tobin(r1),r0
+32$:     add r0,r4
+         bcs 38$        ;65535=max
+         sob r3,32$
+
+34$:     sub #2,r1
+         bpl 33$
+
+         mov r4,@#temp
+         br 20$
+
 ;scrborn = $d1f
 ;inborn  .block
 ;         jsr JPRIMM
@@ -287,7 +340,7 @@ indens:  call @#totext
          .byte 146
          .ascii "SELECT DENSITY OR PRESS "
          .byte 145
-         .ascii "ESC"
+         .ascii "TAB"
          .byte 146
          .ascii " TO EXIT"
          .byte 10,9,145,'0,147
@@ -310,9 +363,9 @@ indens:  call @#totext
          .ascii " - 95%"
          .byte 10,9,145,'9,147
          .ascii " - 100%"
-         .byte 145,0,0
+         .byte 0
 1$:      call @#getkey
-         cmpb #27,r0
+         cmpb #9,r0
          beq 2$
 
          cmpb r0,#'0

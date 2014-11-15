@@ -123,12 +123,13 @@ dispat0: cmpb #'g,r0
 14$:     cmpb #'B,r0
          bne 15$
 
-;*         jsr xclrscn
-;*         jsr totext
 ;*         jsr zerocnt
-;*         jsr insteps
+         call @#insteps
+         tst @#temp
+         bne 142$
 ;*         beq qbexit
-;*
+         return
+142$:    return
 ;*         lda #<decben
 ;*         sta m1+1
 ;*         sta m2+1
