@@ -1,3 +1,25 @@
+printstr:  mov #toandos,@#pageport
+1$:        movb (r3)+,r0
+           beq 2$
+
+           cmp #9,r0
+           bne 3$
+
+           mov #spaces10,r1
+           mov #10,r2
+           emt #^O20
+           br 1$
+
+3$:        emt #^O16
+           br 1$
+
+2$:        inc r3
+           bic #1,r3
+           mov #todata,@#pageport
+           rts r3
+
+spaces10:  .ascii "          "
+
 ;printhex .macro
 ;         and #$7f       ;print hex number in AC
 ;         pha
@@ -293,72 +315,79 @@
 ;         sta density
 ;exit     rts
 ;         .bend
-;
-;help     jsr JPRIMM
-;         .byte 144,147
-;         .text "        *** xlife commands ***"
-;         .byte $d,18,28,"!",30
-;         .text " randomize screen"
-;         .byte $d,18,28,"%",30
-;         .text " set random density - default 42%"
-;         .byte $d,18,28,"+",30,"/",28,"-",30
-;         .null " zoom in/out"
-;         jsr JPRIMM
-;         .byte $d,18,28,".",30,"/",28,"h","o","m","e",30
-;         .text " center/home cursor"
-;         .byte $d,18,28,"?",30
-;         .text " show this help"
-;         .byte $d,28,146,"b",18,30
-;         .text " benchmark"
-;         .byte $d,28,146,"c",18,30
-;         .text " clear screen"
-;         .byte $d,28,146,"e",18,30
-;         .text " toggle pseudocolor mode"
-;         .byte $d,18,28,"g",30
-;         .text " toggle run/stop mode"
-;         .byte $d,18,28,"h",30
-;         .text " toggle hide mode - about 70% faster"
-;         .byte $d,18,28,"l",30
-;         .null " load and transform file"
-;         jsr JPRIMM
-;         .byte $d,28,146,"l",18,30
-;         .text " reload pattern"
-;         .byte $d,18,28,"o",30
-;         .text " one step"
-;         .byte $d,28,146,"q",18,30
-;         .text " quit"
-;         .byte $d,28,146,"r",18,30
-;         .text " set the rules"
-;         .byte $d,28,146,"s",18,30
-;         .text " save"
-;         .byte $d,28,146,"t",18,30
-;         .text " toggle plain/torus topology"
-;         .byte $d,28,18,"v",30
-;         .text " show some info"
-;         .byte $d,28,146,"v",18,30
-;         .text " show comments to the pattern"
-;         .byte $d,28,146,"x",30,"/",28,"z",18,30
-;         .null " reload/set&save palette"
-;         jsr JPRIMM
-;         .byte $d,$d,144,146,"u",18
-;         .text "se "
-;         .byte 28
-;         .text "cursor keys "
-;         .byte 144
-;         .text "to set the position and "
-;         .byte 28
-;         .text "space key"
-;         .byte 144
-;         .text " to toggle the current cell."
-;         .byte $d,146,"u",18
-;         .text "se "
-;         .byte 28
-;         .text "shift"
-;         .byte 144
-;         .text " to speed up the movement"
-;         .byte 146,0
-;         jmp getkey
-;
+
+help:    mov @#yscroll,@#yshift    
+         ;jsr r3,@#printstr
+         ;.byte 155,0
+         call @#clrscn
+         jsr r3,@#printstr
+         .ascii "    "
+         .byte 146,159
+         .ascii "*** XLIFE COMMANDS ***"
+         .byte 159,155,10,9,156,'!,156
+         .ascii " randomize screen"
+         .byte 10,9,137,156,'%,156
+         .ascii " set random density - default=42%"
+         .byte 10,9,156,'+,156,'/,156,'-,156
+         .ascii " zoom in/out"
+         .byte 10,9,156,'.,156,'/,156,'H,156
+         .ascii " center/home cursor"
+         .byte 10,9,156,'?,156
+         .ascii " show this help"
+         .byte 10,9,156,'B,156
+         .ascii " benchmark"
+         .byte 10,9,156,'C,156
+         .ascii " clear screen"
+         .byte 10,9,156,'E,156
+         .ascii " toggle pseudocolor mode"
+         .byte 10,9,156,'g,156
+         .ascii " toggle run/stop mode"
+         .byte 10,9,156,'h,156
+         .ascii " toggle hide mode - about 20% faster"
+         .byte 10,9,156,'l,156
+         .ascii " load and transform file"
+         .byte 10,9,156,'L,156
+         .ascii " reload pattern"
+         .byte 10,9,156,'o,156
+         .ascii " one step"
+         .byte 10,9,156,'Q,156
+         .ascii " quit"
+         .byte 10,9,156,'R,156
+         .ascii " set the rules"
+         .byte 10,9,156,"S",156
+         .ascii " save"
+         .byte 10,9,156,"t",156
+         .ascii " toggle plain/torus topology"
+         .byte 10,9,156,"v",156
+         .ascii " show some info"
+         .byte 10,9,156,"V",156
+         .ascii " show comments to the pattern"
+         .byte 10,9,156,"X",156,"/",156,"Z",156
+         .ascii " reload/set&save palette"
+         .byte 10,10,159
+         .ascii "Use "
+         .byte 159,156
+         .ascii "cursor keys "
+         .byte 156,159
+         .ascii "to set the position and "
+         .byte 159,156
+         .ascii "space key"
+         .byte 156,159
+         .ascii " to toggle the current cell. "
+         .ascii "Use "
+         .byte 159,156
+         .ascii "shift"
+         .byte 156,159
+         .ascii " to speed up the movement"
+         .byte 159,0 ;word align
+         mov @#yshift,@#yscroll
+         add #14,@#yshift
+         call @#getkey
+         jsr r3,@#printstr
+         .byte 12,155,0,0
+         mov #^O1330,@#yshift
+         jmp @#clrscn
+
 ;setcolor .block
 ;         ldy bordertc
 ;         lda topology

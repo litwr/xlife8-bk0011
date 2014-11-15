@@ -1,3 +1,9 @@
+getkey:  movb @#kbdstport,r0
+         bpl getkey
+
+         mov @#kbddtport,r0
+         return
+
 dispatcher:
          movb @#kbdstport,r0
          bmi 1$
@@ -69,11 +75,13 @@ dispat0: cmpb #'g,r0
 ;*         lda mode
 ;*         cmp #2
 ;*         beq cont8
-;*
+         cmpb #2,@#mode
+         beq 8$
+
 ;*         jsr totext
 ;*         jsr curoff
-;*         jsr help
-;*         jmp finish
+         call @#help
+         br 200$ ;finish
 
 8$:      cmpb #'C,r0
          bne 10$
@@ -195,13 +203,17 @@ dispat0: cmpb #'g,r0
 ;*         ldx #0
 ;*         jsr setrconst
 ;*         jsr fillrt
-;*finish   jsr tograph
-;*         jsr showrules
+200$:    ;jsr tograph
 ;*         jsr calccells    ;for load sequence
-;*         jsr showscn
+         call @#clrscn
+         call @#initxt
+         call @#showscn
+         call @#showmode
+         call @#showtopology
+         call @#xyout
 ;*         jsr crsrset      ;showscn also calls crsrset! but crsrset is fast now...
 ;*         jmp crsrcalc
-;*
+         return
 ;*cont16   cmp #$1d   ;cursor right
 ;*         bne cont16x
 16$:     cmpb #25,r0

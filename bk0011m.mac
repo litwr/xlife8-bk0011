@@ -1,7 +1,8 @@
-pageport  = ^O177716
-kbdstport = ^O177660
-kbddtport = ^O177662
-timerport = ^O177706
+kbdstport = ^O177660            ;kbd state, $ffb0
+kbddtport = ^O177662            ;kbd data, palette, timer, $ffb2
+yshift    = ^O177664            ;y-scroller, $ffb4
+timerport = ^O177706            ;$ffc6
+pageport  = ^O177716            ;$ffce
 todata    = ^B10101100000000    ;open pages 2 and 3
 tovideo   = ^B01111100000000    ;show both video pages 1 (soft 5), 7 (soft 6)
 toandos   = ^B01110000000000    ;open pages 1 (soft 5) and 4 (AnDOS)

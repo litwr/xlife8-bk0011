@@ -15,10 +15,8 @@
 
 start:   mov #nokbirq,@#kbdstport
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
-         mov #155,r0    ;32 chars in line
-         emt #^O16
-         mov #154,r0    ;no cursor
-         emt #^O16
+         jsr r3,@#printstr
+         .byte 155,154,0,0
          call @#clrscn
          call @#initxt
          ;;lda 174     ;current device #
@@ -30,7 +28,6 @@ start:   mov #nokbirq,@#kbdstport
          ;!call @#loadcf
          ;!call @#copyr
          ;!call @#help
-
 
          ;;#iniram
          ;!call @#setcolor
@@ -288,7 +285,7 @@ generate:
          add r4,count1+2(r2)
          mov ul(r0),r5          ;adjcell2=r5
          add r4,count7+2(r5)
-         call @#chkadd2         
+         call @#chkadd2
 7$:      mov 2(r0),r1               ;2 rows
          bpl 8$
 
@@ -707,6 +704,7 @@ tilecnt:  .word 0
 viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
+yscroll:  .word ^O1330
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
