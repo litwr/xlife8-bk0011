@@ -72,16 +72,13 @@ dispat0: cmpb #'g,r0
 7$:      cmpb #'?,r0
          bne 8$
 
-;*         lda mode
-;*         cmp #2
-;*         beq cont8
          cmpb #2,@#mode
          beq 8$
 
 ;*         jsr totext
 ;*         jsr curoff
-         call @#help
-         br 200$ ;finish
+         jmp @#help
+         ;br 200$ ;finish
 
 8$:      cmpb #'C,r0
          bne 10$
@@ -205,12 +202,12 @@ dispat0: cmpb #'g,r0
 ;*         jsr fillrt
 200$:    ;jsr tograph
 ;*         jsr calccells    ;for load sequence
-         call @#clrscn
-         call @#initxt
-         call @#showscn
-         call @#showmode
-         call @#showtopology
-         call @#xyout
+         ;call @#clrscn
+         ;call @#initxt
+         ;call @#showscn
+         ;call @#showmode
+         ;call @#showtopology
+         ;call @#xyout
 ;*         jsr crsrset      ;showscn also calls crsrset! but crsrset is fast now...
 ;*         jmp crsrcalc
          return

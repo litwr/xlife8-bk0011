@@ -17,8 +17,6 @@ start:   mov #nokbirq,@#kbdstport
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
-         call @#clrscn
-         call @#initxt
          ;;lda 174     ;current device #
          ;;bne nochg
 
@@ -48,11 +46,8 @@ start:   mov #nokbirq,@#kbdstport
    mov #1,next(r0)
    mov #1,@#tilecnt
    call @#setviewport
-   call @#showscn
-   call @#showmode
-   call @#showtopology
-   call @#xyout
-
+   
+         call @#tograph
          call @#infoout
          ;!call @#showrules
          ;!call @#crsrset       ;unite with the next!
@@ -67,7 +62,7 @@ mainloop:
          bne 3$
 
          ;*jmp WARMRESTART
-         halt
+         halt    ;directly to ANDOS?
 
 3$:      tst @#tilecnt
          bne 4$

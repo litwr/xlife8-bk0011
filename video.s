@@ -1,5 +1,17 @@
-printstr:  mov #toandos,@#pageport
-1$:        movb (r3)+,r0
+totext:    call @#clrscn
+           mov @#yscroll,@#yshift
+           mov #toandos,@#pageport    
+           return
+
+tograph:   mov #^O1330,@#yshift
+           call @#clrscn
+           call @#initxt
+           call @#showscn
+           call @#showmode
+           call @#showtopology
+           jmp @#xyout
+
+printstr:  movb (r3)+,r0
            beq 2$
 
            cmp #9,r0
@@ -8,14 +20,13 @@ printstr:  mov #toandos,@#pageport
            mov #spaces10,r1
            mov #10,r2
            emt #^O20
-           br 1$
+           br printstr
 
 3$:        emt #^O16
-           br 1$
+           br printstr
 
 2$:        inc r3
            bic #1,r3
-           mov #todata,@#pageport
            rts r3
 
 spaces10:  .ascii "          "
@@ -316,8 +327,7 @@ spaces10:  .ascii "          "
 ;exit     rts
 ;         .bend
 
-help:    mov @#yscroll,@#yshift    
-         call @#clrscn
+help:    call @#totext
          jsr r3,@#printstr
          .byte 12
          .ascii "    "
@@ -384,8 +394,7 @@ help:    mov @#yscroll,@#yshift
          call @#getkey
          jsr r3,@#printstr
          .byte 155,0
-         mov #^O1330,@#yshift
-         jmp @#clrscn
+         jmp @#tograph
 
 ;setcolor .block
 ;         ldy bordertc
