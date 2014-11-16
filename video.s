@@ -2876,6 +2876,5 @@ showbline2:
          jsr r3,@#printstr
          .byte 's,10
          .asciz "SPEED: "
-         ;br shownum
-         return
+         br shownum
 

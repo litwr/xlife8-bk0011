@@ -121,8 +121,10 @@ dispat0: cmpb #'g,r0
 ;*cont14   cmp #"B"-"A"+$c1
 ;*         bne cont15
 14$:     cmpb #'B,r0
-         bne 15$
+         beq 159$
+         jmp @#15$
 
+159$:
 ;*         jsr zerocnt
          call @#insteps
          mov @#temp2,r0
@@ -188,27 +190,52 @@ dispat0: cmpb #'g,r0
          adc r4             ;r4:r3 - time in ms
          call @#todec
          call @#showbline1
-         call @#showbline2
-;         mov @#temp2,r0     ;r4:r3/r0 in decimal
-;         mov #stringbuf,r1
-;         mov #10,r2
-;149$:    clrb (r1)+
-;         sob r2,149$
+         mov @#temp2,r1
+         clr r2
+         mov #6,r0
+157$:    asl r1
+         rol r2
+         sob r0,157$
+         call @#mul5
+         call @#mul5
+         call @#mul5
+156$:    tst r4
+         beq 155$
 
-;         mov r1,r2
-;153$:    sub r0,r3
-;         sbc r4
-;         bcs 150$
+         ror r4
+         ror r3
+         clc
+         ror r2
+         ror r1
+         br 156$
 
-;         call @#incben
-;         br 153$
+155$:    call @#mul5
+         call @#mul5
+         call @#mul5
+         mov r3,r0     ;r2:r1/r0 in decimal
+         mov r1,r3
+         mov r2,r4
+         mov #stringbuf,r1
+         mov #10,r2
+149$:    movb #'0,(r1)+
+         sob r2,149$
 
-;150$:    clc
-;         ror r0
-;         add r0,r3
-;         bcc 142$
+         mov r1,r2
+153$:    sub r0,r3
+         sbc r4
+         bcs 150$
+
+         call @#incben
+         mov r2,r1
+         br 153$
+
+150$:    clc
+         ror r0
+         add r0,r3
+         bcc 152$
  
-;         call @#incben
+         call @#incben
+152$:    call @#showbline2
          br 142$
 
 ;*bexit    jsr exitbench
