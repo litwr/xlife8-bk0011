@@ -1,6 +1,7 @@
 ;calcspd
 ;zerocnt
 ;zerocc
+;todec
 
 zerocc:   inibcd cellcnt,4
           return
@@ -8,6 +9,42 @@ zerocc:   inibcd cellcnt,4
 zerogc:   inibcd gencnt,6
           return
 
+incben:   movb -(r1),r5
+          inc r5
+          cmp #'0+10,r5
+          bne 1$
+
+          movb #'0,@r1
+          br incben
+         
+1$:       movb r5,@r1
+          return
+
+todec:    mov r3,-(sp)
+          mov r4,-(sp)
+          mov #10,r0     ;r4:r3/r0 in decimal
+          mov #stringbuf,r1
+          mov #10,r2
+1$:       movb #'0,(r1)+
+          sob r2,1$
+
+          dec r1
+          mov r1,r2
+2$:       sub r0,r3
+          sbc r4
+          bcs 3$
+
+          call @#incben
+          mov r2,r1
+          br 2$
+
+3$:       add r0,r3
+          add #'0,r3
+          mov r3,@r1
+4$:       mov (sp)+,r4
+          mov (sp)+,r3
+          return
+         
 ;calcspd .block
 ;        lda #<eval1
 ;        sta $3b

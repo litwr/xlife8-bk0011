@@ -125,52 +125,92 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr zerocnt
          call @#insteps
-         tst @#temp
-         bne 142$
-;*         beq qbexit
-         return
-142$:    return
-;*         lda #<decben
-;*         sta m1+1
-;*         sta m2+1
-;*         lda #>decben
-;*         sta m1+2
-;*         sta m2+2
-;*bl4      cpy #7
-;*         beq bl5
-;*
-;*         clc
-;*         lda m1+1
-;*         adc #$d
-;*         sta m1+1
-;*         sta m2+1
-;*         bcc bl6
-;*
-;*         inc m1+2
-;*         inc m2+2
-;*bl6      iny
-;*         bne bl4
-;*
-;*bl5      lda #$39
-;*m1       jsr decben
-;*         beq qbexit
-;*
-;*         jsr setbench
-;*bloop    lda tilecnt
-;*         bne bl7
-;*
-;*         lda tilecnt+1
-;*         bne bl7
-;*
-;*         jsr incgen
-;*         jmp bl8
-;*
-;*bl7      jsr generate
-;*         jsr cleanup
-;*bl8      lda #$39
-;*m2       jsr decben
-;*         bne bloop
-;*
+         mov @#temp2,r0
+         beq 142$
+
+         mov r0,@#temp
+         clr @#lowbench
+         clr @#highbench
+         mov #benchirq,@#^O100
+         mov #todata,@#pageport
+         mov @#timerport2,@#saved
+         clr @#kbddtport    ;use saved palette!!!, start raster interrupt
+146$:    tst @#tilecnt
+         bne 147$
+
+         call @#incgen
+         br 148$
+
+142$:    call @#getkey
+         call @#zerocc
+;*         jsr calccells
+         jmp @#tograph
+
+147$:    call @#generate
+         call @#cleanup
+148$:    dec @#temp
+         bne 146$
+
+         mov #^O102,@#^O100
+         mov #^B100000000000000,@#kbddtport   ;use saved palette!!!, stop raster interrupt
+         call @#benchirq0
+         mov #toandos,@#pageport
+         mov @#lowbench,r0
+         mov @#highbench,r1
+         asl r0
+         rol r1
+         asl r0
+         rol r1
+         mov #125*256,r2
+         clr r3
+         clr r4
+143$:    sub r2,r0
+         sbc r1
+         bcs 141$
+
+         add #256,r3
+         adc r4
+         br 143$
+
+141$:    add r2,r0
+         adc r1
+         swab r2
+144$:    sub r2,r0
+         sbc r1
+         bcs 145$
+
+         add #1,r3
+         adc r4
+         br 144$
+
+145$:    add #62,r0
+         adc r3
+         adc r4             ;r4:r3 - time in ms
+         call @#todec
+         call @#showbline1
+         call @#showbline2
+;         mov @#temp2,r0     ;r4:r3/r0 in decimal
+;         mov #stringbuf,r1
+;         mov #10,r2
+;149$:    clrb (r1)+
+;         sob r2,149$
+
+;         mov r1,r2
+;153$:    sub r0,r3
+;         sbc r4
+;         bcs 150$
+
+;         call @#incben
+;         br 153$
+
+;150$:    clc
+;         ror r0
+;         add r0,r3
+;         bcc 142$
+ 
+;         call @#incben
+         br 142$
+
 ;*bexit    jsr exitbench
 ;*         jsr showbench
 ;*         jsr calcspd
@@ -545,51 +585,7 @@ dispat0: cmpb #'g,r0
 ;*         sec
 ;*         rts
 ;*         .bend
-;*
-;*decben   dec scrbench+6   ;ac = $39
-;*         ldy scrbench+6
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench+6
-;*         dec scrbench+5
-;*         ldy scrbench+5
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench+5
-;*         dec scrbench+4
-;*         ldy scrbench+4
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench+4
-;*         dec scrbench+3
-;*         ldy scrbench+3
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench+3
-;*         dec scrbench+2
-;*         ldy scrbench+2
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench+2
-;*         dec scrbench+1
-;*         ldy scrbench+1
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench+1
-;*         dec scrbench
-;*         ldy scrbench
-;*         cpy #$2f
-;*         bne dbexit
-;*
-;*         sta scrbench   ;zf is set at 9999999
-;*dbexit   rts
-;*
+
 ;*setbench .block
 ;*         jsr restbl
 ;*         lda mode

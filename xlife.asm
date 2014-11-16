@@ -15,6 +15,7 @@
 
 start:   mov #nokbirq,@#kbdstport
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
+         mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
          ;;lda 174     ;current device #
@@ -699,6 +700,10 @@ tilecnt:  .word 0
 viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
+temp2:    .word 0
+saved:    .word 0
+lowbench: .word 0
+highbench: .word 0
 tobin:    .word 1,10,100,1000,10000
 yscroll:  .word ^O1330
 i1:       .byte 0,0
@@ -745,12 +750,12 @@ ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0
-msgstop: .asciz /STOP/
-msgrun:  .asciz /RUN /
 msghide: .asciz /HIDE/
 msgtore: .asciz /TORUS/
 msgplan: .asciz /PLAIN/
-stringbuf: .blkb 5
+msgrun:  .asciz /RUN /
+msgstop: .asciz /STOP/
+stringbuf: .blkb 10
 
          .even   ;high area
          .include interface.s

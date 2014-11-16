@@ -1,6 +1,21 @@
+benchirq0: mov @#saved,r0
+           mov @#timerport2,r1
+           mov r1,@#saved
+           sub r1,r0
+           add r0,@#lowbench
+           adc @#highbench
+           return
+
+benchirq:  mov r0,-(sp)
+           mov r1,-(sp)
+           call @#benchirq0
+           mov (sp)+,r1
+           mov (sp)+,r0
+           rti
+
 totext:    call @#clrscn
            mov @#yscroll,@#yshift
-           mov #toandos,@#pageport    
+           mov #toandos,@#pageport
            return
 
 tograph:   jsr r3,@#printstr
@@ -123,7 +138,7 @@ insteps: call @#totext
 
 20$:     jsr r3,@#printstr
          .byte 154,0
-         jmp @#tograph
+         return
 
 ;         cp $7f       ;backspace
 ;         jr z,cont2
@@ -161,7 +176,7 @@ insteps: call @#totext
          movb r0,(r2)+
 ;cont4    call TXT_PLACE_CURSOR
 ;         jr loop1
-          br 1$
+         br 1$
 
 ;cont2    dec de
 ;         dec c
@@ -206,7 +221,7 @@ insteps: call @#totext
 34$:     sub #2,r1
          bpl 33$
 
-         mov r4,@#temp
+         mov r4,@#temp2
          br 20$
 
 ;scrborn = $d1f
@@ -2813,4 +2828,54 @@ spt1:    mov #255,r2
 showtxt:     ;IN: R1 - msg
          mov #toandos,@#pageport
          br spt1
+
+shownum: mov #stringbuf,r0
+         mov r0,r2
+         mov #stringbuf+10,r1
+2$:      cmpb #'0,(r0)+
+         bne 1$
+
+         cmp r2,r0
+         bne 2$
+
+1$:      dec r0
+5$:      cmpb #'0,-(r1)
+         bne 4$
+
+         cmp r0,r1
+         bne 5$
+
+4$:      cmp r0,#stringbuf+7
+         bcs 3$
+
+         mov r0,r5
+         sub #stringbuf+7,r5
+         sub r5,r0
+8$:      movb #'.,(r2)+
+7$:      movb (r0)+,(r2)+
+         cmp r1,r0
+         bcc 7$
+
+         mov #stringbuf,r1
+         sub r1,r2
+         emt #^O20
+         return
+
+3$:      movb (r0)+,(r2)+
+         cmp r0,#stringbuf+7
+         beq 8$
+         br 3$
+
+showbline1:
+         jsr r3,@#printstr
+         .byte 12
+         .asciz "TIME: "
+         br shownum
+
+showbline2:
+         jsr r3,@#printstr
+         .byte 's,10
+         .asciz "SPEED: "
+         ;br shownum
+         return
 
