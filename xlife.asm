@@ -49,6 +49,7 @@ start:   mov #nokbirq,@#kbdstport
    call @#setviewport
    
          call @#tograph
+         call @#calccells
          call @#infoout
          ;!call @#showrules
          ;!call @#crsrset       ;unite with the next!

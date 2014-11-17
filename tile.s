@@ -446,58 +446,31 @@ addnode2:                 ;in: R5
 ;cont5
 ;         .bend
 
-;calccells
-;         .block
-;         lda tilecnt
-;         bne cont2
+calccells:
+         tst @#tilecnt
+         bne 12$
+         return
 
-;         lda tilecnt+1
-;         bne cont2
+12$:     mov @#startp,r0
+2$:      mov #8,r5
+         clr r4
+4$:      movb (r0)+,r1
+         bic #^B1111111100000000,r1
+         beq 5$
 
-;         rts
-;cont2
-;         jsr zerocc
-;         #assign16 currp,startp
-;loop2    ldy #sum
-;         lda #0
-;         sta (currp),y
-;         ldy #0
-;loop4    lda (currp),y
-;         tax
-;         lda tab3,x
-;         pha
-;         sty t1
-;         ldy #sum
-;         clc
-;         adc (currp),y
-;         sta (currp),y
-;         pla
-;         jsr inctsum
-;         ldy t1
-;         iny
-;         cpy #8
-;         bne loop4
+         movb tab3(r1),r2
+         inc r4
+         call @#inctsum
+5$:      sob r5,4$
+         movb r4,sum-8(r0)
+         mov next-8(r0),r0
+         cmp #1,r0
+         bne 2$
+         jmp @#infoout
 
-;         ldy #next
-;         lda (currp),y
-;         tax
-;         iny
-;         lda (currp),y
-;         bne cont1
-
-;         cpx #1
-;         bne cont1
-
-;         jmp infoout
-
-;cont1    sta currp+1
-;         stx currp
-;         jmp loop2
-;         .bend
-
-;inctsum  ;in: AC, CY
-;         #cellsum
-;         rts
+inctsum:            ;in: r2
+         cellsum 1$
+1$:      return
 
 ;dectsum  .block
 ;         ldx #4

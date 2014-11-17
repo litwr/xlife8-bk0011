@@ -144,9 +144,9 @@ dispat0: cmpb #'g,r0
          br 148$
 
 142$:    call @#getkey
+         call @#tograph
          call @#zerocc
-;*         jsr calccells
-         jmp @#tograph
+         jmp @#calccells
 
 147$:    call @#generate
          call @#cleanup

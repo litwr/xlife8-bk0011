@@ -144,7 +144,7 @@ sum      .byte 0        ;+60
 ll:
          .endm
 
-         .macro cellsum cond2,?l1      ;in: r2
+         .macro cellsum cond2,?l1      ;in: r2; use: r1,r3
          mov #<cellcnt+4>,r1
          movb (r1),r3
          add r2,r3
@@ -155,7 +155,7 @@ ll:
          br cond2
 
 l1:      sub #10,r3
-         movb r3,(r1)
+         movb r3,@r1
          movb -(r1),r3
          incbcd cond2
          incbcd cond2
