@@ -35,7 +35,7 @@ incben:   movb -(r1),r5
 
 todec:    mov r3,-(sp)
           mov r4,-(sp)
-          mov #10,r0     ;r4:r3/r0 in decimal
+          mov #10,r0     ;r4:r3/10 in decimal
           mov #stringbuf,r1
           mov #10,r2
 1$:       movb #'0,(r1)+

@@ -707,6 +707,7 @@ lowbench: .word 0
 highbench: .word 0
 tobin:    .word 1,10,100,1000,10000
 yscroll:  .word ^O1330
+
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0

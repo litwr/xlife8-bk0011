@@ -213,29 +213,34 @@ dispat0: cmpb #'g,r0
          call @#mul5
          call @#mul5
          mov r3,r0     ;r2:r1/r0 in decimal
-         mov r1,r3
-         mov r2,r4
-         mov #stringbuf,r1
-         mov #10,r2
-149$:    movb #'0,(r1)+
-         sob r2,149$
+         clr r3
+         clr r4
+         swab r0
+183$:    sub r0,r2
+         bcs 182$
 
-         mov r1,r2
-153$:    sub r0,r3
-         sbc r4
+         inc r4
+         br 183$
+
+182$:    add r0,r2
+         swab r0
+153$:    sub r0,r1
+         sbc r2
          bcs 150$
 
-         call @#incben
-         mov r2,r1
+         add #1,r3
+         adc r4
          br 153$
 
 150$:    clc
          ror r0
-         add r0,r3
+         add r0,r1
          bcc 152$
  
-         call @#incben
-152$:    call @#showbline2
+         add #1,r3
+         adc r4
+152$:    call @#todec
+         call @#showbline2
          br 142$
 
 ;*bexit    jsr exitbench
