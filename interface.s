@@ -191,22 +191,32 @@ dispat0: cmpb #'g,r0
          call @#todec
          call @#showbline1
          mov @#temp2,r1
-         clr r2
          mov #6,r0
+         mov r1,r5
+75$:     cmp r5,#4295
+         bcs 154$
+
+         ror r5
+         asr r4
+         ror r3
+         dec r0
+         br 75$
+
+154$:    clr r2
 157$:    asl r1
          rol r2
          sob r0,157$
+
          call @#mul5
          call @#mul5
          call @#mul5
-156$:    tst r4
+156$:    tst r4     ;sets CY=0
          beq 155$
 
-         ror r4
-         ror r3
-         clc
          ror r2
          ror r1
+         asr r4
+         ror r3
          br 156$
 
 155$:    call @#mul5
