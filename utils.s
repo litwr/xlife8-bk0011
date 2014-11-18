@@ -33,15 +33,29 @@ incben:   movb -(r1),r5
 1$:       movb r5,@r1
           return
 
-todec:    mov r3,-(sp)
+todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
           mov r4,-(sp)
-          mov #10,r0     ;r4:r3/10 in decimal
           mov #stringbuf,r1
           mov #10,r2
 1$:       movb #'0,(r1)+
           sob r2,1$
 
-          dec r1
+          mov #10000,r0
+          sub #4,r1
+          mov r1,r2
+5$:       sub r0,r3
+          sbc r4
+          bcs 6$
+
+          call @#incben
+          mov r2,r1
+          br 5$
+
+6$:       add r0,r3
+          adc r4
+          mov #10,r0
+          add #3,r1
+
           mov r1,r2
 2$:       sub r0,r3
           sbc r4

@@ -215,7 +215,6 @@ dispat0: cmpb #'g,r0
          mov r3,r0     ;r2:r1/r0 in decimal
          clr r3
          clr r4
-         swab r0
 183$:    sub r0,r2
          bcs 182$
 
@@ -223,7 +222,6 @@ dispat0: cmpb #'g,r0
          br 183$
 
 182$:    add r0,r2
-         swab r0
 153$:    sub r0,r1
          sbc r2
          bcs 150$
