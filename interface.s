@@ -260,7 +260,7 @@ dispat0: cmpb #'g,r0
 ;*         ;lda #0
 ;*         ;sta mode
 ;*         jmp showscn
-;*
+
 ;*cont15   cmp #"R"-"A"+$c1
 ;*         bne cont16
 15$:     cmpb #'R,r0
@@ -288,13 +288,18 @@ dispat0: cmpb #'g,r0
 ;*         jsr crsrset      ;showscn also calls crsrset! but crsrset is fast now...
 ;*         jmp crsrcalc
          return
+
 ;*cont16   cmp #$1d   ;cursor right
 ;*         bne cont16x
 16$:     cmpb #25,r0
          bne 160$
 
 ;*         jsr crsrclr
+         call @#crsrclr
+
 ;*         ldy #right
+         mov #right,r1
+
 ;*         jsr shift
 ;*         bcc cright
 ;*
@@ -306,13 +311,21 @@ dispat0: cmpb #'g,r0
 ;*         lda crsrbit
 ;*         cmp #1
 ;*         beq cxright
-;*
+
 ;*         lsr crsrbit
 ;*         jmp cont17u
-;*
+         movb @#crsrbit,r0
+         cmpb r0,#1
+         beq 71$
+
+         rorb @#crsrbit    ;CY=0 by CMPB
+         br 270$
+
 ;*cxright  lda #$80
 ;*         bne cm6
-;*
+71$:   mov #128,r0
+        br 72$
+
 ;*cont16x  cmp #$9d   ;cursor left
 ;*         bne cont16b
 160$:    cmpb #8,r0
@@ -335,7 +348,7 @@ dispat0: cmpb #'g,r0
 ;*
 ;*         asl crsrbit
 ;*         jmp cont17u
-;*
+
 ;*cxleft   lda #1
 ;*cm6      ldx #0
 ;*cm1      sta t1
@@ -349,19 +362,28 @@ dispat0: cmpb #'g,r0
 ;*
 ;*         cpx #<plainbox
 ;*         bne cm4
-;*
+72$:     mov @#crsrtile,r2
+         add r1,r2
+         cmp @r2,#plainbox
+         bne 73$
+
 ;*         ldx i2
 ;*         lda crsrbit,x
 ;*         sta t1
 ;*         bcs cm5
-;*
+         movb @#crsrbit,r0
+         br 74$
+         
 ;*cm4      sta crsrtile+1
 ;*         stx crsrtile
 ;*cm5      lda t1
 ;*         ldx i2
 ;*         sta crsrbit,x
 ;*         jmp cont17u
-;*
+73$:     mov @r2,@#crsrtile
+74$:     movb r0,@#crsrbit
+         br 270$
+
 ;*cont16b  cmp #$91   ;cursor up
 ;*         bne cont16c
 161$:    cmpb #26,r0
@@ -461,7 +483,10 @@ dispat0: cmpb #'g,r0
 ;*         jsr showscnz
 ;*cont17u  jsr crsrset
 ;*         jmp crsrcalc
-;*
+270$:    call @#crsrset
+         ;jmp @#crsrcalc
+         return
+
 ;*cont17f  cmp #19        ;home
 ;*         bne cont17a
 171$:    cmpb #12,r0

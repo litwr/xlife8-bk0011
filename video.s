@@ -1960,7 +1960,7 @@ clrscn:   mov #tovideo,@#pageport
 crsrset1:
          mov @#crsrtile,r0     ;sets r0,r1
          movb @#crsrbyte,r1
-         ror r1
+         asr r1
          rorb r1
          rorb r1
          add video(r0),r1
@@ -2292,16 +2292,38 @@ crsrset: call @#crsrset1
          tst @#zoom
          bne gexit2
 
-pixel11: mov #tovideo,@#pageport   ;it should be after crsrset
-         ;mov @r1,r3   ;IN: r0 - crsrbit, r1 - addr of video tile line
+pixel11: mov #tovideo,@#pageport   ;it should be after crsrset, IN: r0 - crsrbit, r1 - addr of video tile line
          asl r0
          mov vistab(r0),r2
          mov r2,r0
          asl r2
          bis r0,r2
          bis r2,@r1
-         mov #todata,@#pageport
+gexit3:  mov #todata,@#pageport
 gexit2:  return
+
+crsrclr: tstb @#zoom
+         bne 1$
+
+         mov @#crsrtile,r0
+         movb @#crsrbyte,r1
+         mov r1,r2
+         add r0,r2
+         movb @r2,r2
+         ror r1
+         rorb r1
+         rorb r1
+         add video(r0),r1
+         mov #tovideo,@#pageport
+         tstb @#pseudoc
+         bne 2$
+
+         asl r2
+         mov vistab(r2),@r1
+         br gexit3
+
+2$:
+1$:
 
 ;crsrcalc .block      ;its call should be after crsrset!
 ;         lda i1+1    ;start of coorditates calculation
