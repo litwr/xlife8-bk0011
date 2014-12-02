@@ -1,17 +1,37 @@
-benchirq0: mov @#saved,r0
-           mov @#timerport2,r1
-           mov r1,@#saved
-           sub r1,r0
-           add r0,@#lowbench
-           adc @#highbench
-           return
-
-benchirq:  mov r0,-(sp)
-           mov r1,-(sp)
-           call @#benchirq0
-           mov (sp)+,r1
-           mov (sp)+,r0
-           rti
+initxt:  mov #tovideo,@#pageport
+         mov #<statusline*64+16384>,r0
+         mov #1365,r1    ;$555
+         mov #1285,r2    ;$505
+         mov #1360,r3    ;$550
+         mov r1,@r0
+         mov r2,48(r0)
+         mov r2,56(r0)
+         movb r2,64(r0)
+         mov r2,100(r0)
+         mov r2,112(r0)
+         mov r2,120(r0)
+         movb r2,128(r0)
+         movb r2,165(r0)
+         movb r3,176(r0)
+         mov r2,184(r0)
+         mov r2,192(r0)
+         movb r3,228(r0)
+         movb r3,240(r0)
+         movb r3,248(r0)
+         mov r2,256(r0)
+         movb r3,292(r0)
+         mov r2,304(r0)
+         movb r3,312(r0)
+         mov r2,320(r0)
+         movb r2,356(r0)
+         mov r2,368(r0)
+         movb r3,376(r0)
+         mov r1,384(r0)
+         mov r2,420(r0)
+         mov r2,432(r0)
+         movb r3,440(r0)
+         mov #todata,@#pageport
+         return
 
 totext:    call @#clrscn
            mov @#yscroll,@#yshift
@@ -1936,57 +1956,24 @@ clrscn:   mov #tovideo,@#pageport
 ;         ldy y8byte
 ;         rts
 ;         .bend
-;
-;crsrset1 .block
-;         ldy #video
-;         lda (crsrtile),y
-;         sta i1
-;         iny
-;         lda (crsrtile),y
-;         sta i1+1
-;         ldx crsrc
-;         ldy crsrbyte
-;         lda (crsrtile),y
-;         and crsrbit
-;         bne cont3
-;
-;         ldx crsrocc
-;cont3    stx $ff16
-;         lda crsrbit
-;         and #$f
-;         bne xcont4
-;
-;         lda crsrbit
-;         .bend
-;
-;xcont3   lsr
-;         lsr
-;         lsr
-;         lsr
-;         bpl xcont1
-;
-;xcont4   tax
-;         lda #8
-;         eor i1
-;         sta i1
-;         txa
-;xcont1   tax
-;         rts
-;
-;pixel11  lda vistab,x
-;         asl
-;         ora vistab,x
-;         ora (i1),y
-;         sta (i1),y
-;         rts
-;
+
+crsrset1:
+         mov @#crsrtile,r0     ;sets r0,r1
+         movb @#crsrbyte,r1
+         ror r1
+         rorb r1
+         rorb r1
+         add video(r0),r1
+         movb @#crsrbit,r0
+         return
+
 ;crsrset0 jsr crsrset1
 ;         lda vistab,x
 ;         asl
 ;         eor (i1),y
 ;         sta (i1),y
 ;         rts
-;
+
 ;setdirmsk
 ;         .block
 ;         jsr JPRIMM
@@ -2301,13 +2288,20 @@ setviewport:
 ;         ld (ix),a
 ;         ret
 
+crsrset: call @#crsrset1
+         tst @#zoom
+         bne gexit2
 
-;;crsrset  jsr crsrset1
-crsrset: return
-;         lda zoom
-;         bne gexit2
-
-;         jmp pixel11
+pixel11: mov #tovideo,@#pageport   ;it should be after crsrset
+         ;mov @r1,r3   ;IN: r0 - crsrbit, r1 - addr of video tile line
+         asl r0
+         mov vistab(r0),r2
+         mov r2,r0
+         asl r2
+         bis r0,r2
+         bis r2,@r1
+         mov #todata,@#pageport
+gexit2:  return
 
 ;crsrcalc .block      ;its call should be after crsrset!
 ;         lda i1+1    ;start of coorditates calculation

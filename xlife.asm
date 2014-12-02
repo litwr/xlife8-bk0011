@@ -762,40 +762,20 @@ stringbuf: .blkb 10
          .even   ;high area
          .include interface.s
 
-initxt:  mov #tovideo,@#pageport
-         mov #<statusline*64+16384>,r0
-         mov #1365,r1    ;$555
-         mov #1285,r2    ;$505
-         mov #1360,r3    ;$550
-         mov r1,@r0
-         mov r2,48(r0)
-         mov r2,56(r0)
-         movb r2,64(r0)
-         mov r2,100(r0)
-         mov r2,112(r0)
-         mov r2,120(r0)
-         movb r2,128(r0)
-         movb r2,165(r0)
-         movb r3,176(r0)
-         mov r2,184(r0)
-         mov r2,192(r0)
-         movb r3,228(r0)
-         movb r3,240(r0)
-         movb r3,248(r0)
-         mov r2,256(r0)
-         movb r3,292(r0)
-         mov r2,304(r0)
-         movb r3,312(r0)
-         mov r2,320(r0)
-         movb r2,356(r0)
-         mov r2,368(r0)
-         movb r3,376(r0)
-         mov r1,384(r0)
-         mov r2,420(r0)
-         mov r2,432(r0)
-         movb r3,440(r0)
-         mov #todata,@#pageport
-         return
+benchirq0: mov @#saved,r0
+           mov @#timerport2,r1
+           mov r1,@#saved
+           sub r1,r0
+           add r0,@#lowbench
+           adc @#highbench
+           return
+
+benchirq:  mov r0,-(sp)
+           mov r1,-(sp)
+           call @#benchirq0
+           mov (sp)+,r1
+           mov (sp)+,r0
+           rti
 
          . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:
