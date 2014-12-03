@@ -723,7 +723,7 @@ clncnt:   .byte 0
 pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 crsrbit:  .byte 128    ;x bit position
-crsrbyte: .byte 0      ;y%8
+crsrbyte: .byte 4      ;y%8
 crsrx:    .byte 0      ;x/4 -  not at pseudographics
 crsry:    .byte 0      ;y/8
 zoom:     .byte 0

@@ -295,9 +295,9 @@ dispat0: cmpb #'g,r0
          bne 160$
 
 ;*         jsr crsrclr
-         call @#crsrclr
-
 ;*         ldy #right
+         call @#crsrclr
+         mov #crsrbit,r4
          mov #right,r1
 
 ;*         jsr shift
@@ -314,7 +314,7 @@ dispat0: cmpb #'g,r0
 
 ;*         lsr crsrbit
 ;*         jmp cont17u
-         movb @#crsrbit,r0
+         movb @r4,r0
          cmpb r0,#1
          beq 71$
 
@@ -323,7 +323,7 @@ dispat0: cmpb #'g,r0
 
 ;*cxright  lda #$80
 ;*         bne cm6
-71$:   mov #128,r0
+71$:    mov #128,r0
         br 72$
 
 ;*cont16x  cmp #$9d   ;cursor left
@@ -333,9 +333,13 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr crsrclr
 ;*         ldy #left
+         call @#crsrclr
+         mov #crsrbit,r4
+         mov #left,r1
+
 ;*         jsr shift
 ;*         bcc cleft
-;*
+
 ;*         lda vptilecx
 ;*         sbc #8
 ;*qleft    sta vptilecx
@@ -345,11 +349,19 @@ dispat0: cmpb #'g,r0
 ;*         lda crsrbit
 ;*         cmp #$80
 ;*         beq cxleft
-;*
+
 ;*         asl crsrbit
 ;*         jmp cont17u
+         movb @r4,r0
+         cmpb #128,r0
+         beq 76$
+
+         aslb @#crsrbit
+         br 270$
 
 ;*cxleft   lda #1
+76$:     mov #1,r0
+
 ;*cm6      ldx #0
 ;*cm1      sta t1
 ;*         stx i2
@@ -371,7 +383,7 @@ dispat0: cmpb #'g,r0
 ;*         lda crsrbit,x
 ;*         sta t1
 ;*         bcs cm5
-         movb @#crsrbit,r0
+         movb @r4,r0
          br 74$
          
 ;*cm4      sta crsrtile+1
@@ -381,7 +393,7 @@ dispat0: cmpb #'g,r0
 ;*         sta crsrbit,x
 ;*         jmp cont17u
 73$:     mov @r2,@#crsrtile
-74$:     movb r0,@#crsrbit
+74$:     movb r0,@r4
          br 270$
 
 ;*cont16b  cmp #$91   ;cursor up
@@ -391,9 +403,13 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr crsrclr
 ;*         ldy #up
+         call @#crsrclr
+         mov #crsrbyte,r4
+         mov #up,r1
+
 ;*         jsr shift
 ;*         bcc cup
-;*
+
 ;*         lda vptilecy
 ;*         sbc #8
 ;*qup      sta vptilecy
@@ -402,14 +418,20 @@ dispat0: cmpb #'g,r0
 ;*cup      dec vptilecy
 ;*         lda crsrbyte
 ;*         beq cxup
-;*
+         tstb @r4
+         beq 77$
+
 ;*         dec crsrbyte
 ;*         jmp cont17u
-;*
+         decb @r4
+         br 270$ 
+
 ;*cxup     lda #7
 ;*cm3      ldx #1
 ;*         bpl cm1
-;*
+77$:     mov #7,r0
+         br 72$
+
 ;*cont16c  cmp #$11   ;cursor down
 ;*         bne cont17
 162$:     cmpb #27,r0
@@ -417,24 +439,34 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr crsrclr
 ;*         ldy #down
+         call @#crsrclr
+         mov #crsrbyte,r4
+         mov #down,r1
+
 ;*         jsr shift
 ;*         bcc cdown
 ;*
 ;*         lda vptilecy
 ;*         adc #7
 ;*         bcc qup
-;*
+
 ;*cdown    inc vptilecy
 ;*         lda crsrbyte
 ;*         cmp #7
 ;*         beq cxdown
-;*
+         cmpb #7,@r4
+         beq 78$
+
 ;*         inc crsrbyte
 ;*         bne cont17u
-;*
+         incb @r4
+         br 270$
+
 ;*cxdown   lda #0
 ;*         beq cm3
-;*
+78$:     clr r0
+         br 72$
+
 ;*cont17   cmp #$20   ;space
 ;*         bne cont17c
 17$:     cmpb #32,r0

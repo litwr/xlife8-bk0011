@@ -1960,9 +1960,12 @@ clrscn:   mov #tovideo,@#pageport
 crsrset1:
          mov @#crsrtile,r0     ;sets r0,r1
          movb @#crsrbyte,r1
-         asr r1
-         rorb r1
-         rorb r1
+         asl r1
+         asl r1
+         asl r1
+         asl r1
+         asl r1
+         asl r1
          add video(r0),r1
          movb @#crsrbit,r0
          return
@@ -2310,9 +2313,12 @@ crsrclr: tstb @#zoom
          mov r1,r2
          add r0,r2
          movb @r2,r2
-         ror r1
-         rorb r1
-         rorb r1
+         asl r1
+         asl r1
+         asl r1
+         asl r1
+         asl r1
+         asl r1
          add video(r0),r1
          mov #tovideo,@#pageport
          tstb @#pseudoc
