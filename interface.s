@@ -473,27 +473,51 @@ dispat0: cmpb #'g,r0
          bne 170$
 
 ;*         #assign16 adjcell,crsrtile
+         mov @#crsrtile,r2
+         movb r0,sum(r2)        ;always writes no-zero value
+
 ;*         jsr chkadd
+         call @#chkadd
+
 ;*         ldy crsrbyte
+         movb @#crsrbyte,r0
+
 ;*         lda (crsrtile),y
+         add r2,r0
+
 ;*         eor crsrbit
 ;*         sta (crsrtile),y
+         movb @#crsrbit,r1
+         movb @r0,r2
+         xor r1,r2
+         movb r2,@r0
+
 ;*         ldy #sum
 ;*         and crsrbit
 ;*         beq lsp1
-;*
+         bitb r1,r2
+         beq 79$
+         
 ;*         jsr inctsum
 ;*lsp2     sta (crsrtile),y  ;always writes no-zero value, so must be AC != 0
+         mov #1,r2
+         call @#inctsum
+
 ;*         lda zoom
 ;*         beq lsp3
 ;*
 ;*         jsr showscnz
 ;*lsp3     jsr infoout
 ;*         jmp cont17u
-;*
+         call @#infoout
+         br 270$
+
 ;*lsp1     jsr dectsum
 ;*         bne lsp2
-;*
+79$:     call @#zerocc
+         call @#calccells
+         br 270$
+
 ;*cont17c  cmp #"."
 ;*         bne cont17f
 170$:    cmpb #'.,r0
