@@ -514,7 +514,7 @@ dispat0: cmpb #'g,r0
 
 ;*lsp1     jsr dectsum
 ;*         bne lsp2
-79$:     call @#zerocc
+79$:     call @#zerocc      ;instead of dectsum
          call @#calccells
          br 270$
 

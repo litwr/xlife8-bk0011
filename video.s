@@ -1960,12 +1960,9 @@ clrscn:   mov #tovideo,@#pageport
 crsrset1:
          mov @#crsrtile,r0     ;sets r0,r1
          movb @#crsrbyte,r1
-         asl r1
-         asl r1
-         asl r1
-         asl r1
-         asl r1
-         asl r1
+         swab r1
+         asr r1
+         asr r1
          add video(r0),r1
          movb @#crsrbit,r0
          return
@@ -2313,22 +2310,54 @@ crsrclr: tstb @#zoom
          mov r1,r2
          add r0,r2
          movb @r2,r2
-         asl r1
-         asl r1
-         asl r1
-         asl r1
-         asl r1
-         asl r1
+         swab r1
+         asr r1
+         asr r1
          add video(r0),r1
-         mov #tovideo,@#pageport
          tstb @#pseudoc
          bne 2$
 
+         mov #tovideo,@#pageport
          asl r2
          mov vistab(r2),@r1
          br gexit3
 
-2$:
+2$:      movb @#crsrbyte,r3
+         asl r3
+         asl r3
+         add r0,r3
+         bitb #15,@#crsrbit
+         bne 3$
+
+         mov count0(r3),r3
+         bic #^B1110011100111111,r3
+         mov r3,r4
+         swab r4
+         aslb r4   ;sets CY=0
+         bis r3,r4
+         rorb r2    ;uses CY=0
+         asrb r2
+         asrb r2
+         asrb r2
+4$:      bisb r4,r2
+         bic #^B1111111100000000,r2
+         mov #tovideo,@#pageport
+         movb vistabpc(r2),@r1
+         br gexit3
+
+3$:      inc r1
+         mov count0+2(r3),r3
+         bic #^B1111110011100111,r3
+         asl r3
+         asl r3
+         asl r3
+         mov r3,r4
+         swab r4
+         asl r4
+         bis r3,r4
+         bic #^B1111111111110000,r2
+         br 4$
+
 1$:
 
 ;crsrcalc .block      ;its call should be after crsrset!
