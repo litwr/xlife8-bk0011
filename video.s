@@ -657,6 +657,9 @@ calcx:       ;$80 -> 0, $40 -> 1, ...
 
 crsrpg:
          clrb @#i1
+         tstb @#crsrpgmk
+         beq 1$
+
          push r0
          mov #85,r0
          xor r0,63(r1)
@@ -668,7 +671,7 @@ crsrpg:
          movb r0,383(r1)
          movb r0,-65(r1)
          pop r0
-         return
+1$:      return
 
 showscnzp:
 ;loop3    ld iyl,5
@@ -2289,7 +2292,7 @@ setviewport:
 ;         ret
 
 crsrset: call @#crsrset1
-         tst @#zoom
+         tstb @#zoom
          bne gexit2
 
 pixel11: mov #tovideo,@#pageport   ;it should be after crsrset, IN: r0 - crsrbit, r1 - addr of video tile line
@@ -2358,97 +2361,73 @@ crsrclr: tstb @#zoom
          bic #^B1111111111110000,r2
          br 4$
 
-1$:
+1$:      clrb @#crsrpgmk
+         call @#showscnz
+         incb @#crsrpgmk
+         ;mov @#crsrtile,r0   ;do not remove! ???
+         return
 
-;crsrcalc .block      ;its call should be after crsrset!
-;         lda i1+1    ;start of coorditates calculation
-;         sec
-;         sbc #$20
-;         sta i1+1
-;         lsr i1+1
-;         ror i1
-;         lsr i1+1
-;         ror i1
-;         lsr i1+1
-;         ror i1
-;         ldy #0
-;cont7    sec
-;         lda i1
-;         sbc #$28
-;         tax
-;         lda i1+1
-;         sbc #0
-;         bmi cont6
-;
-;         sta i1+1
-;         stx i1
-;         iny
-;         bne cont7
-;
-;cont6    sty crsry
-;         lda ctab,y
-;         sed
-;         clc
-;         adc crsrbyte
-;         sta t1
-;         ldx #$30
-;         bcs l2
-;
-;         cpy #$d
-;         bcc l1
-;
-;l2       inx
-;l1       stx ycrsr
-;         lda t1
-;         and #$f
-;         eor #$30
-;         sta ycrsr+2
-;         lda t1
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         eor #$30
-;         sta ycrsr+1
-;         ldx #8
-;         lda crsrbit
-;cont8    dex
-;         lsr
-;         bcc cont8
-;
-;         lda i1
-;         sta crsrx
-;         lsr
-;         tay
-;         txa
-;         clc
-;         adc ctab,y
-;         sta t1
-;         ldx #$30
-;         bcs l4
-;
-;         cpy #$d
-;         bcc l3
-;
-;l4       inx
-;l3       stx xcrsr
-;         lda t1
-;         and #$f
-;         eor #$30
-;         sta xcrsr+2
-;         lda t1
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         eor #$30
-;         sta xcrsr+1
-;         cld
-;         lda zoom
-;         bne l8
-;
-;         rts
-;
+crsrcalc:
+        mov @#crsrtile,r0
+        mov video(r0),r0     ;start of coorditates calculation
+        sub #videostart,r0
+        asl r0
+        asl r0
+        mov r0,@#crsrx
+        clr r1
+        movb @#crsrbit,r2
+10$:    aslb r2
+        bcs 8$
+
+        inc r1
+        br 10$
+
+8$:     add r1,r0
+        clr r1
+        cmpb r0,#100
+        bcs 1$
+
+        inc r1
+        sub #100,r0
+1$:     movb r1,@#xcrsr
+        clr r1
+3$:     cmpb r0,#10
+        bcs 2$
+
+        inc r1
+        sub #10,r0
+        br 3$
+
+2$:     movb r1,@#xcrsr+1
+        movb r0,@#xcrsr+2
+        swab r0
+        movb @#crsrbyte,r2
+        add r2,r0
+        clr r1
+        cmpb r0,#100
+        bcs 5$
+
+        inc r1
+        sub #100,r0
+5$:     movb r1,@#ycrsr
+        clr r1
+7$:     cmpb r0,#10
+        bcs 6$
+
+        inc r1
+        sub #10,r0
+        br 7$
+
+6$:     movb r1,@#ycrsr+1
+        movb r0,@#ycrsr+2
+        call @#xyout
+
+        tstb @#zoom
+        bne 18$
+
+        return
+
+18$:
 ;l8       ldy #up
 ;         ldx #7
 ;         lda vptilecy

@@ -52,8 +52,6 @@ start:   mov #nokbirq,@#kbdstport
          call @#calccells
          call @#infoout
          ;!call @#showrules
-         ;!call @#crsrset       ;unite with the next!
-         ;!call @#crsrcalc
 
 mainloop:
          call @#dispatcher
@@ -121,9 +119,6 @@ ttab:    .byte 0,1,2,3,3,4,5,6,7,8,8,9,16,17,18,19,19,20
          .byte 117,118,119,120,120,121,128,129,130,131,131,132
          .byte 133,134,135,136,136,137,144,145,146,147,147,148
          .byte 149,150,151,152,152,153
-
-ctab:    .byte 0,8,22,36,50,64,72,86,100,114,128,136,150
-         .byte 4,18,32,40,54,68,82,96,104,118,132
 
 bittab:  .byte 1,2,4,8,16,32,64,128
 
@@ -711,6 +706,8 @@ yscroll:  .word ^O1330
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
+crsrx:    .byte 0      ;x, word aligned!
+crsry:    .byte 0      ;y
 xcrsr:    .byte 0,0,0
 ycrsr:    .byte 0,0,0
 tinfo:    .byte 0,0,0  ;even alignment for BK!
@@ -724,8 +721,6 @@ pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 crsrbit:  .byte 128    ;x bit position
 crsrbyte: .byte 0      ;y%8
-crsrx:    .byte 0      ;x/4 -  not at pseudographics
-crsry:    .byte 0      ;y/8
 zoom:     .byte 0
 fnlen:    .byte 0
 ;;fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -737,9 +732,6 @@ dirnlen:  .byte 0
 live:     .byte 12,0
 born:     .byte 8,0
 density:  .byte 3
-;;eval1    .byte 196,"("              ;str$(ddddddd/dddddd.dd)
-;;bencnt   .byte 0,0,0,0,0,0,0,173
-;;irqcnt   .byte 0,0,0,0,0,0,".", 0,0,")",0
 vptilecx: .byte 0
 vptilecy: .byte 0
 ;;borderpc .byte 40    ;plain
@@ -748,6 +740,7 @@ palette:  .byte 0
 topology: .byte 0      ;0 - torus
 copyleft: .ascii /cr.txt/
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
+crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
 ;;curdev   .byte 8
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"

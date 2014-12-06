@@ -540,8 +540,7 @@ dispat0: cmpb #'g,r0
 ;*cont17u  jsr crsrset
 ;*         jmp crsrcalc
 270$:    call @#crsrset
-         ;jmp @#crsrcalc
-         return
+         jmp @#crsrcalc
 
 ;*cont17f  cmp #19        ;home
 ;*         bne cont17a

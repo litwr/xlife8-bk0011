@@ -4,6 +4,7 @@ total    = <hormax*vermax>+1
 tilesize = 62
 plainbox = <hormax*vermax*tilesize>+tiles
 statusline = 192
+videostart = 16396
 
 left     = 8      ;all directions
 ul       = 10     ;not zero!
