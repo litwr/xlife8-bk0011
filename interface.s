@@ -314,6 +314,7 @@ dispat0: cmpb #'g,r0
 
 ;*         lsr crsrbit
 ;*         jmp cont17u
+         incb @#vptilecx
          movb @r4,r0
          cmpb r0,#1
          beq 71$
@@ -352,6 +353,7 @@ dispat0: cmpb #'g,r0
 
 ;*         asl crsrbit
 ;*         jmp cont17u
+         decb @#vptilecx
          movb @r4,r0
          cmpb #128,r0
          beq 76$
@@ -418,13 +420,14 @@ dispat0: cmpb #'g,r0
 ;*cup      dec vptilecy
 ;*         lda crsrbyte
 ;*         beq cxup
+         decb @#vptilecy
          tstb @r4
          beq 77$
 
 ;*         dec crsrbyte
 ;*         jmp cont17u
          decb @r4
-         br 270$ 
+         br 270$
 
 ;*cxup     lda #7
 ;*cm3      ldx #1
@@ -434,7 +437,7 @@ dispat0: cmpb #'g,r0
 
 ;*cont16c  cmp #$11   ;cursor down
 ;*         bne cont17
-162$:     cmpb #27,r0
+162$:    cmpb #27,r0
          bne 17$
 
 ;*         jsr crsrclr
@@ -454,6 +457,7 @@ dispat0: cmpb #'g,r0
 ;*         lda crsrbyte
 ;*         cmp #7
 ;*         beq cxdown
+         incb @#vptilecy
          cmpb #7,@r4
          beq 78$
 
@@ -611,17 +615,35 @@ dispat0: cmpb #'g,r0
 ;*         jsr xclrscn
 ;*         jsr setviewport
 ;*         jmp finish
-;*
+         tstb @#zoom
+         bne 100$
+
+         call @#clrscn
+         incb @#zoom
+         call @#setviewport
+271$:    call @#clrscn
+         call @#initxt
+         call @#showscn
+         ;call @#showrules
+         jmp @#xyout
+
+100$:    return
+
 ;*cont17e  cmp #"-"
 ;*         bne cont17g
 175$:    cmpb #'-,r0
          bne 176$
 
+         tstb @#zoom
+         beq 100$
+
 ;*zoomout  lda #0
 ;*         sta zoom
 ;*         jsr savebl
 ;*         jmp finish
-;*
+         clrb @#zoom
+         br 271$
+
 ;*cont17g  cmp #"V"-"A"+$c1
 ;*         bne cont17h
 176$:    cmpb #'V,r0
