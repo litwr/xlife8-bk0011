@@ -708,6 +708,8 @@ cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
 crsrx:    .byte 0      ;x, word aligned!
 crsry:    .byte 0      ;y
+vptilecx: .byte 0
+vptilecy: .byte 0
 xcrsr:    .byte 0,0,0
 ycrsr:    .byte 0,0,0
 tinfo:    .byte 0,0,0  ;even alignment for BK!
@@ -732,8 +734,6 @@ dirnlen:  .byte 0
 live:     .byte 12,0
 born:     .byte 8,0
 density:  .byte 3
-vptilecx: .byte 0
-vptilecy: .byte 0
 ;;borderpc .byte 40    ;plain
 ;;bordertc .byte 69    ;torus
 palette:  .byte 0

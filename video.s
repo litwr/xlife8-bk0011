@@ -2040,256 +2040,194 @@ crsrset1:
 ;         .bend
 
 setviewport:
-          mov @#crsrtile,@#viewport
-          return
-
 ;         ld hl,(crsrtile)
 ;         ld (viewport),hl
 ;         ld ix,vptilecx
-;;*         ldx #2
-;;*         stx vptilecx
-;;*         dex
-;;*         stx vptilecy
+        mov #viewport,r3
+        mov @#crsrtile,@r3
+        mov #vptilecx,r0
+        movb @#crsry,r1
+
 ;         ld a,2
 ;         ld (vptilecx),a
 ;         dec a
 ;         ld (vptilecy),a
-;;*         lda $fe5
-;;*         ora $fe6
-;;*         eor #$30
-;;*         bne cont1
+        mov #258,@r0      ;$102
+
 ;         ld hl,(ycrsr)
 ;         ld a,l
 ;         or h
 ;         jr nz,cont1
  
-;;*         lda $fe7
-;;*         cmp #$38
-;;*         bcs cont1
 ;         ld a,(ycrsr+2)
 ;         cp 8
 ;         jr nc,cont1
+        cmpb r1,#8
+        bcc 1$
 
-;;*         dec vptilecy
 ;         dec (ix+1)
-;;*         lda viewport          ;up
-;;*         adc #<tilesize*20     ;CY=0
-;;*         sta viewport
-;;*         lda viewport+1
-;;*         adc #>tilesize*20
-;;*         sta viewport+1
-;;*         bne cont2
+        decb @#vptilecy
+
 ;         ld hl,(viewport)      ;up
 ;         ld de,tilesize*20
 ;         add hl,de
 ;         ld (viewport),hl
 ;         jr cont2
+        add #tilesize*20,@r3
+        br 2$
 
-;;*cont1    lda $fe5
-;;*         cmp #$31
-;;*         bne cont2
 ;cont1    ld a,(ycrsr)
 ;         dec a
 ;         jr nz,cont2
 
-;;*         lda $fe6
-;;*         cmp #$38
-;;*         bcc cont2
-;;*         bne cont4
 ;         ld a,(ycrsr+1)
 ;         cp 8
 ;         jr c,cont2
 ;         jr nz,cont4
 
-;;*         lda $fe7
-;;*         cmp #$34
-;;*         bcc cont2
 ;         ld a,(ycrsr+2)
 ;         cp 4
 ;         jr c,cont2
+1$:     cmpb r0,#184
+        bcs 2$
 
-;;*cont4    inc vptilecy
-;;*         lda viewport          ;down
-;;*         sbc #<tilesize*20     ;CY=1
-;;*         sta viewport
-;;*         lda viewport+1
-;;*         sbc #>tilesize*20
-;;*         sta viewport+1
 ;cont4    inc (ix+1)
 ;         ld hl,(viewport)      ;down
 ;         ld de,(~(tilesize*20))+1
 ;         add hl,de
 ;         ld (viewport),hl
+        incb @#vptilecy
+        sub #tilesize*20,@r3
 
-;;*cont2    lda $fe0
-;;*         ora $fe1
-;;*         eor #$30
-;;*         bne cont3
 ;cont2    ld hl,(xcrsr)
 ;         ld a,l
 ;         or h
 ;         jr nz,cont3
 
-;;*         lda $fe2
-;;*         cmp #$38
-;;*         bcs cont3
 ;         ld a,(xcrsr+2)
 ;         cp 8
 ;         jr nc,cont3
+2$:     movb @#crsrx,r1
+        cmpb r1,#8
+        bcc 3$
 
-;;*         dec vptilecx
-;;*         dec vptilecx
 ;         dec (ix)
 ;         dec (ix)
-;;*         lda viewport          ;left2
-;;*         adc #<tilesize*2      ;CY=0
-;;*         sta viewport
-;;*         lda viewport+1
-;;*         adc #>tilesize*2
-;;*         sta viewport+1
-;;*         bne cont5
 ;         ld hl,(viewport)      ;left2
 ;         ld de,tilesize*2
 ;         add hl,de
 ;         ld (viewport),hl
 ;         jr cont5
+        decb @r0
+        decb @r0
+        add #tilesize*2,@r3
+        br 5$
 
-;;*cont3    lda $fe0
-;;*         eor #$30
-;;*         bne cont6
 ;cont3    ld a,(xcrsr)
 ;         or a
 ;         jr nz,cont6
 
-;;*         lda $fe1
-;;*         cmp #$31
-;;*         bcc cont7
-;;*         bne cont6
 ;         ld a,(xcrsr+1)
 ;         cp 1
 ;         jr c,cont7
 ;         jr nz,cont6
 
-;;*         lda $fe2
-;;*         cmp #$36
-;;*         bcs cont6
 ;         ld a,(xcrsr+2)
 ;         cp 6
 ;         jr nc,cont6
+3$:     cmpb r1,#16
+        bcc 6$
 
-;;*cont7    dec vptilecx
 ;cont7    dec (ix)
-;;*         lda viewport          ;left1
-;;*         adc #<tilesize        ;CY=0
-;;*         sta viewport
-;;*         lda viewport+1
-;;*         adc #>tilesize
-;;*         sta viewport+1
-;;*         bne cont5
 ;         ld hl,(viewport)      ;left1
 ;         ld de,tilesize
 ;         add hl,de
 ;         ld (viewport),hl
 ;         jr cont5
+        decb @r0
+        add #tilesize,@r3
+        br 5$
 
-;;*cont6    lda $fe0
-;;*         cmp #$31
-;;*         bne cont8
 ;cont6    ld a,(xcrsr)
 ;         dec a
 ;         jr nz,cont8
 
-;;*         lda $fe1
-;;*         cmp #$35
-;;*         bne cont8
 ;         ld a,(xcrsr+1)
 ;         cp 5
 ;         jr nz,cont8
 
-;;*         lda $fe2
-;;*         cmp #$32
-;;*         bcc cont8
 ;         ld a,(xcrsr+2)
 ;         cp 2
 ;         jr c,cont8
+6$:     cmpb r1,#152
+        bcs 8$
 
-;;*         inc vptilecx
-;;*         inc vptilecx
 ;         inc (ix)
 ;         inc (ix)
-;;*         lda viewport          ;right2
-;;*         sbc #<tilesize*2      ;CY=1
-;;*         sta viewport
-;;*         lda viewport+1
-;;*         sbc #>tilesize*2
-;;*         sta viewport+1
-;;*         bne cont5
 ;         ld hl,(viewport)      ;right2
 ;         ld de,(~(tilesize*2))+1
 ;         add hl,de
 ;         ld (viewport),hl
 ;         jr cont5
+        decb @r0
+        decb @r0
+        sub #tilesize*2,@r3
+        br 5$
 
-;;*cont8    lda $fe0
-;;*         cmp #$31
-;;*         bne cont5
 ;cont8    ld a,(xcrsr)
 ;         dec a
 ;         jr nz,cont5
 
-;;*         lda $fe1
-;;*         cmp #$34
-;;*         bcc cont5
-;;*         bne cont10
 ;         ld a,(xcrsr+1)
 ;         cp 4
 ;         jr c,cont5
 ;         jr nz,cont10
 
-;;*         lda $fe2
-;;*         cmp #$34
-;;*         bcc cont5
 ;         ld a,(xcrsr+2)
 ;         cp 4
 ;         jr c,cont5
+8$:     cmpb r1,#144
+        bcs 5$
 
-;;*cont10   inc vptilecx
 ;cont10   inc (ix)
-;;*         lda viewport          ;right1
-;;*         sbc #<tilesize        ;CY=1
-;;*         sta viewport
-;;*         lda viewport+1
-;;*         sbc #>tilesize
-;;*         sta viewport+1
 ;         ld hl,(viewport)      ;right1
 ;         ld de,(~tilesize)+1
 ;         add hl,de
 ;         ld (viewport),hl
+        incb @r0
+        sub #tilesize,@r3
 
-;;*cont5    ldy #ul
-;;*         lda (viewport),y
-;;*         tax
-;;*         iny
-;;*         lda (viewport),y
-;;*         sta viewport+1
-;;*         stx viewport
 ;cont5    ld iy,(viewport)
 ;         ld hl,fixvp
 ;         call calllo
 ;         ld (viewport),hl
+5$:     mov @r3,r4
+        mov ul(r4),r4
+        mov left(r4),@r3
+
 ;         ld b,3
 ;loop12   sla (ix)
 ;         sla (ix+1)
 ;         djnz loop12
+        asl @r0
+        asl @r0
+        asl @r0
 
 ;         ld a,(crsrbyte)
 ;         add a,(ix+1)
 ;         ld (ix+1),a
+        movb @#crsrbyte,r4
+        add r4,@#vptilecy
+
 ;         ld a,(crsrbit)
 ;         call calcx
 ;         add a,(ix)
 ;         ld (ix),a
 ;         ret
+        movb @#crsrbit,r1
+        call @#calcx
+        add r1,@r0
+        return
 
 crsrset: call @#crsrset1
          tstb @#zoom
@@ -2427,49 +2365,77 @@ crsrcalc:
 
         return
 
-18$:
 ;l8       ldy #up
 ;         ldx #7
 ;         lda vptilecy
 ;         bmi cont3
-;
+18$:    mov #up,r1
+        mov #7,r3
+        movb @#vptilecy,r2
+        bmi 33$
+
 ;         ldy #down
 ;         cmp #24
 ;         bcc cont4
-;
+        mov #down,r1
+        cmpb r2,#24
+        bcs 34$
+
 ;         ldx #16
 ;cont3    stx vptilecy
 ;         bne cont1
-;
+        mov #16,r3
+33$:    movb r3,@#vptilecy
+        br 31$
+
 ;cont4    ldy #left
 ;         lda vptilecx
 ;         bmi cont5
-;
+34$:    mov #left,r1
+        movb @#vptilecx,r2
+        bmi 35$
+ 
 ;         ldy #right
 ;         cmp #40
 ;         bcc cont2
-;
+        mov #right,r1
+        cmpb r0,#40
+        bcs 30$
+
 ;         ldx #32
 ;cont5    stx vptilecx
 ;cont1    lda (viewport),y
 ;         tax
 ;         iny
 ;         lda (viewport),y
+        mov #32,r3
+35$:    movb r3,@#vptilecx
+31$:    add @#viewport,r1
+        
 ;         sta viewport+1
 ;         sta adjcell+1
 ;         stx viewport
 ;         stx adjcell
+        mov r1,@#viewport
+
 ;         ldy #down
 ;         jsr nextcell
 ;         dey
 ;         jsr nextcell
+        mov down(r1),r1
+        mov dr(r1),r1
+
 ;         lda #4
 ;         sta i2
 ;loopx    ldy #right
 ;         jsr nextcell
 ;         dec i2
 ;         bne loopx
-;
+        mov right(r1),r1
+        mov right(r1),r1
+        mov right(r1),r1
+        mov right(r1),r1
+
 ;         lda viewport
 ;         clc
 ;         adc #<44*tilesize
@@ -2478,12 +2444,19 @@ crsrcalc:
 ;         adc #>44*tilesize
 ;         cmp adjcell+1
 ;         bne l7
-;
+
 ;         cpx adjcell
 ;         beq cont0
-;
+        mov #viewport+<44*tilesize>,r3
+        cmp r1,r3
+        beq 30$
+
 ;l7       jsr setviewport
-;cont0    jsr showscnpg
+        call @#setviewport
+
+;cont0    jsr showscnz
+30$:    jmp @#showscnz
+
 ;cont2    lda #0
 ;         sta t1
 ;         lda vptilecy
@@ -2502,7 +2475,7 @@ crsrcalc:
 ;         sta $ff0c
 ;exit     rts
 ;         .bend
-;
+
 ;infov    .block
 ;         jsr JPRIMM
 ;         .byte 147,144,0
