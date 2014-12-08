@@ -661,17 +661,28 @@ crsrpg:
          beq 1$
 
          push r0
+         push r1
          mov #85,r0
-         xor r0,63(r1)
+         movb r0,383(r1)
+         movb r0,-65(r1)
+         bit #1,r1
+         bne 2$
+
+         dec r1
+         swab r0
+2$:      xor r0,63(r1)
          xor r0,127(r1)
          xor r0,191(r1)
          xor r0,255(r1)
          xor r0,319(r1)
          xor r0,-1(r1)
-         movb r0,383(r1)
-         movb r0,-65(r1)
+         pop r1
          pop r0
-1$:      return
+         return
+
+1$:      clrb 383(r1)
+         clrb -65(r1)
+         return
 
 showscnzp:
 ;loop3    ld iyl,5
