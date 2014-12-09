@@ -706,8 +706,8 @@ yscroll:  .word ^O1330
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
-crsrx:    .byte 0      ;x, word aligned!
-crsry:    .byte 0      ;y
+crsrx:    .byte 0      ;[x/8]*8, word aligned!
+crsry:    .byte 0      ;[y/8]*8
 vptilecx: .byte 0
 vptilecy: .byte 0
 xcrsr:    .byte 0,0,0

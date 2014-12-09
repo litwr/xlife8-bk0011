@@ -2099,7 +2099,7 @@ setviewport:
 ;         ld a,(ycrsr+2)
 ;         cp 4
 ;         jr c,cont2
-1$:     cmpb r0,#184
+1$:     cmpb r1,#184
         bcs 2$
 
 ;cont4    inc (ix+1)
@@ -2228,7 +2228,8 @@ setviewport:
 ;         add a,(ix+1)
 ;         ld (ix+1),a
         movb @#crsrbyte,r4
-        add r4,@#vptilecy
+        swab r4
+        add r4,@#vptilecx    ;vptilecy
 
 ;         ld a,(crsrbit)
 ;         call calcx
@@ -2427,14 +2428,15 @@ crsrcalc:
 ;         sta adjcell+1
 ;         stx viewport
 ;         stx adjcell
-        mov r1,@#viewport
+        mov @r1,r3
+        mov r3,@#viewport
 
 ;         ldy #down
 ;         jsr nextcell
 ;         dey
 ;         jsr nextcell
+        mov down(r3),r1
         mov down(r1),r1
-        mov dr(r1),r1
 
 ;         lda #4
 ;         sta i2
@@ -2458,7 +2460,7 @@ crsrcalc:
 
 ;         cpx adjcell
 ;         beq cont0
-        mov #viewport+<44*tilesize>,r3
+        add #44*tilesize,r3
         cmp r1,r3
         beq 30$
 
