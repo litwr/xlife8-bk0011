@@ -548,7 +548,7 @@ dispat0: cmpb #'g,r0
 ;*         lda zoom
 ;*         beq exit0
          tstb @#zoom
-         beq 273$
+         beq 100$
 
 ;*         jsr setviewport
 ;*         jsr showscnz
@@ -604,7 +604,7 @@ dispat0: cmpb #'g,r0
 ;*         bne zoomin
 ;*
 ;*exit0    rts
-273$:     return
+100$:    return
 
 ;*cont17b  cmp #"L"-"A"+$c1
 ;*         bne cont17d
@@ -644,13 +644,7 @@ dispat0: cmpb #'g,r0
          call @#clrscn
          incb @#zoom
          call @#setviewport
-271$:    call @#clrscn
-         call @#initxt
-         call @#showscn
-         ;call @#showrules
-         jmp @#xyout
-
-100$:    return
+271$:    jmp @#tograph0
 
 ;*cont17e  cmp #"-"
 ;*         bne cont17g
@@ -699,7 +693,7 @@ dispat0: cmpb #'g,r0
 ;*         jsr chgcolors
 ;*l2       jsr setcolor
 ;*         jmp finish
-;*
+
 ;*cont17j  cmp #"X"-"A"+$c1
 ;*         bne cont18
 179$:    cmpb #'X,r0
@@ -711,7 +705,7 @@ dispat0: cmpb #'g,r0
 ;*
 ;*         jsr showds
 ;*         bne l2
-;*
+
 ;*cont18   cmp #"S"-"A"+$c1
 ;*         bne cont20
 18$:     cmpb #'S,r0
@@ -726,7 +720,7 @@ dispat0: cmpb #'g,r0
 ;*
 ;*         jsr savepat
 ;*exitsave jmp finish
-;*
+
 ;*cont20   clc
 ;*         rts
 20$:     return
@@ -751,58 +745,3 @@ dispat0: cmpb #'g,r0
 ;*         rts
 ;*         .bend
 
-;*setbench .block
-;*         jsr restbl
-;*         lda mode
-;*         sta temp+1
-;*         lda #2
-;*         sta mode
-;*         lda #$b
-;*         sta $ff06
-;*         sei
-;*         sta $ff3f
-;*         lda #<irqbench
-;*         sta $fffe
-;*         ldx #<8850  ;0.01 sec
-;*         ldy #>8850
-;*         lda ntscmask
-;*         beq cont1
-;*
-;*         ldx #<8940
-;*         ldy #>8940
-;*cont1    stx $ff00
-;*         sty $ff01
-;*         lda #$a8
-;*         sta $ff0a
-;*         cli
-;*         rts         
-;*         .bend
-;*
-;*exitbench
-;*         .block
-;*         jsr savebl
-;*         lda #$1b
-;*         sta $ff06
-;*         lda #$a2
-;*         sta $ff0a
-;*         sta $ff3e
-;*         lda temp+1
-;*         sta mode
-;*         rts         
-;*         .bend
-;*
-;*zerocnt  .block
-;*;prepares/zeros benchmark counters
-;*         lda #$30
-;*         ldy #5
-;*loop1    sta irqcnt,y
-;*         sta bencnt,y
-;*         dey
-;*         bpl loop1
-;*
-;*         sta irqcnt+7
-;*         sta irqcnt+8
-;*         sta bencnt+6
-;*         rts
-;*         .bend
-;*

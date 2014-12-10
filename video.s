@@ -41,9 +41,10 @@ totext:    call @#clrscn
 tograph:   jsr r3,@#printstr
            .byte 145,0
            mov #^O1330,@#yshift
-           call @#clrscn
+tograph0:  call @#clrscn
            call @#initxt
            call @#showscn
+           ;call @#showrules
            call @#showmode
            call @#showtopology
            jmp @#xyout
