@@ -425,7 +425,7 @@ help:    call @#totext
          .ascii " set random density - default=42%"
          .byte 10,9,156,'+,156,'/,156,'-,156
          .ascii " zoom in/out"
-         .byte 10,9,156,'.,156,'/,156,'H,156
+         .byte 10,9,156,'.,156,'/,156,'C,226,'P,156
          .ascii " center/home cursor"
          .byte 10,9,156,'?,156
          .ascii " show this help"

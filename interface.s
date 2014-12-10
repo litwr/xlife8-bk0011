@@ -528,19 +528,33 @@ dispat0: cmpb #'g,r0
          bne 171$
 
 ;*         jsr crsrclr
+         call @#crsrclr
+
 ;*         lda #<tiles+(tilesize*249)
 ;*         sta crsrtile
 ;*         lda #>tiles+(tilesize*249)
 ;*         sta crsrtile+1
+         mov #tiles+<tilesize*249>,@#crsrtile
+
 ;*         lda #1
 ;*         sta crsrbyte
+         mov #1,r1
+         movb r1,@#crsrbyte
 ;*cont17t  sta crsrbit
 ;*         jsr cont17u
+272$:    movb r1,@#crsrbit
+         call @#270$
+
 ;*         lda zoom
 ;*         beq exit0
-;*
+         tstb @#zoom
+         beq 273$
+
 ;*         jsr setviewport
 ;*         jsr showscnz
+         call @#setviewport
+         call @#showscnz
+
 ;*cont17u  jsr crsrset
 ;*         jmp crsrcalc
 270$:    call @#crsrset
@@ -552,15 +566,23 @@ dispat0: cmpb #'g,r0
          bne 172$
 
 ;*         jsr crsrclr
+         call @#crsrclr
+
 ;*         lda #<tiles
 ;*         sta crsrtile
 ;*         lda #>tiles
 ;*         sta crsrtile+1
+         mov #tiles,@#crsrtile
+
 ;*         lda #0
 ;*         sta crsrbyte
+         clrb @#crsrbyte
+
 ;*         lda #$80
 ;*         bne cont17t
-;*
+         mov #128,r1
+         br 272$
+
 ;*cont17a  cmp #"L"-"A"+$41
 ;*         bne cont17b
 172$:    cmpb #'l,r0
@@ -582,7 +604,8 @@ dispat0: cmpb #'g,r0
 ;*         bne zoomin
 ;*
 ;*exit0    rts
-;*
+273$:     return
+
 ;*cont17b  cmp #"L"-"A"+$c1
 ;*         bne cont17d
 173$:     cmpb #'L,r0
