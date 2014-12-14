@@ -472,7 +472,7 @@ help:    call @#totext
          .ascii " to toggle the current cell. "
          .ascii "Use "
          .byte 159,156
-         .ascii "shift"
+         .ascii "AP2"
          .byte 156,159
          .ascii " to speed up the movement"
          .byte 159,0,0 ;word align

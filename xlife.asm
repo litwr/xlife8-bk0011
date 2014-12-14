@@ -13,11 +13,18 @@
          .asect
          .=768
 
-start:   mov #nokbirq,@#kbdstport
+start:   ;clr @#kbdstport         ;enable kbdirq
          mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
          mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
+
+         ;mov @#^O60,@#irq60s      ;save kbd interrupt vectors
+         ;mov @#^O274,@#irq274s
+         ;call @#setdata
+         mov #keyirq,@#^O60
+         mov #key2irq,@#^O274
+
          ;;lda 174     ;current device #
          ;;bne nochg
 
@@ -33,20 +40,7 @@ start:   mov #nokbirq,@#kbdstport
 
          mov #tiles,@#crsrtile
 
-   mov #tiles,r0
-   mov r0,@#startp
-   ;movb #14,2(r0)
-   movb #4,0(r0) ;glider
-   movb #3,1(r0)
-   movb #6,2(r0)
-
-   ;movb #3,0(r0) ;r-pentamino
-   ;movb #6,1(r0)
-   ;movb #2,2(r0)
-   mov #3,sum(r0)
-   mov #1,next(r0)
-   mov #1,@#tilecnt
-   call @#setviewport
+   ;call @#setviewport
    
          call @#tograph
          call @#calccells
@@ -697,6 +691,9 @@ viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
 temp2:    .word 0
+;irq60s:   .word 0
+;irq274s:  .word 0
+kbdbuf:   .word 0
 saved:    .word 0
 lowbench: .word 0
 highbench: .word 0
@@ -769,6 +766,23 @@ benchirq:  mov r0,-(sp)
            mov (sp)+,r1
            mov (sp)+,r0
            rti
+
+key2irq:   mov @#kbddtport,@#kbdbuf
+           bis #32768,@#kbdbuf
+           rti
+        
+keyirq:    mov @#kbddtport,@#kbdbuf
+           rti
+
+;setandos:  mov @#irq60s,@#^O60
+;           mov @#irq274s,@#^O274
+;           mov #toandos,@#pageport
+;           return
+
+;setdata:   mov #keyirq,@#^O60
+;           mov #key2irq,@#^O274
+;           mov #todata,@#pageport
+;           return
 
          . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:

@@ -1,17 +1,14 @@
-getkey:  movb @#kbdstport,r0
-         bpl getkey
+getkey:  mov @#kbdbuf,r0
+         beq getkey
 
-         mov @#kbddtport,r0
-         return
+         clr @#kbdbuf
+exit11:  return
 
 dispatcher:
-         movb @#kbdstport,r0
-         bmi 1$
+         movb @#kbdbuf,r0
+         beq exit11
 
-         return
-
-1$:      mov @#kbddtport,r0
-
+         clr @#kbdbuf
 dispat0: cmpb #'g,r0
          bne 3$
 
@@ -124,9 +121,7 @@ dispat0: cmpb #'g,r0
          beq 159$
          jmp @#15$
 
-159$:
-;*         jsr zerocnt
-         call @#insteps
+159$:    call @#insteps
          mov @#temp2,r0
          beq 142$
 
