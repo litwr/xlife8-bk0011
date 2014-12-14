@@ -1,14 +1,14 @@
-getkey:  mov @#kbdbuf,r0
+getkey:  movb @#kbdbuf,r0
          beq getkey
 
-         clr @#kbdbuf
+         clrb @#kbdbuf
 exit11:  return
 
 dispatcher:
          movb @#kbdbuf,r0
          beq exit11
 
-         clr @#kbdbuf
+         clrb @#kbdbuf
 dispat0: cmpb #'g,r0
          bne 3$
 
@@ -297,11 +297,15 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr shift
 ;*         bcc cright
-;*
+         call @#shift
+         beq 80$
+
 ;*         lda vptilecx
 ;*         adc #7
 ;*         jmp qleft
-;*
+         add #8,@#vptilecx
+         br 273$
+
 ;*cright   inc vptilecx
 ;*         lda crsrbit
 ;*         cmp #1
@@ -309,13 +313,13 @@ dispat0: cmpb #'g,r0
 
 ;*         lsr crsrbit
 ;*         jmp cont17u
-         incb @#vptilecx
+80$:     incb @#vptilecx
          movb @r4,r0
          cmpb r0,#1
          beq 71$
 
          rorb @#crsrbit    ;CY=0 by CMPB
-         br 270$
+         br 273$
 
 ;*cxright  lda #$80
 ;*         bne cm6
@@ -335,12 +339,16 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr shift
 ;*         bcc cleft
+         call @#shift
+         beq 81$
 
 ;*         lda vptilecx
 ;*         sbc #8
 ;*qleft    sta vptilecx
 ;*         jmp cont17u
-;*
+         sub #8,@#vptilecx
+273$:    br 270$
+
 ;*cleft    dec vptilecx
 ;*         lda crsrbit
 ;*         cmp #$80
@@ -348,7 +356,7 @@ dispat0: cmpb #'g,r0
 
 ;*         asl crsrbit
 ;*         jmp cont17u
-         decb @#vptilecx
+81$:     decb @#vptilecx
          movb @r4,r0
          cmpb #128,r0
          beq 76$
@@ -406,16 +414,20 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr shift
 ;*         bcc cup
+         call @#shift
+         beq 82$
 
 ;*         lda vptilecy
 ;*         sbc #8
 ;*qup      sta vptilecy
 ;*         jmp cont17u
-;*
+         sub #8*256,@#vptilecx
+         br 270$
+
 ;*cup      dec vptilecy
 ;*         lda crsrbyte
 ;*         beq cxup
-         decb @#vptilecy
+82$:     decb @#vptilecy
          tstb @r4
          beq 77$
 
@@ -443,16 +455,20 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr shift
 ;*         bcc cdown
-;*
+         call @#shift
+         beq 83$
+
 ;*         lda vptilecy
 ;*         adc #7
 ;*         bcc qup
+         add #8*256,@#vptilecx
+         br 270$
 
 ;*cdown    inc vptilecy
 ;*         lda crsrbyte
 ;*         cmp #7
 ;*         beq cxdown
-         incb @#vptilecy
+83$:     incb @#vptilecy
          cmpb #7,@r4
          beq 78$
 
@@ -739,4 +755,14 @@ dispat0: cmpb #'g,r0
 ;*         sec
 ;*         rts
 ;*         .bend
+shift:   tst @#kbdbuf+1
+         beq 20$
+
+         mov @#crsrtile,r0
+         add r1,r0
+         cmp #plainbox,@r0
+         beq 20$
+
+         mov @r0,@#crsrtile
+20$:     return
 

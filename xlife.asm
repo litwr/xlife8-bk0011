@@ -768,7 +768,7 @@ benchirq:  mov r0,-(sp)
            rti
 
 key2irq:   mov @#kbddtport,@#kbdbuf
-           bis #32768,@#kbdbuf
+           incb @#kbdbuf+1
            rti
         
 keyirq:    mov @#kbddtport,@#kbdbuf
