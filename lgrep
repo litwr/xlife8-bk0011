@@ -1,1 +1,1 @@
-grep -i $1 *.s xlife.asm *.mac -n
+grep -i $1 *.s xlife*.asm *.mac -n

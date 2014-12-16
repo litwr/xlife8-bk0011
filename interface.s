@@ -79,10 +79,7 @@ dispat0: cmpb #'g,r0
          cmpb #2,@#mode
          beq 8$
 
-;*         jsr totext
-;*         jsr curoff
          jmp @#help
-         ;br 200$ ;finish
 
 8$:      cmpb #'C,r0
          bne 10$

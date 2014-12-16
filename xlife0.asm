@@ -28,7 +28,7 @@ fa:      .word 0
          .=768
 start:   mov #^B11110000000000,@#pageport  ;open pages 3 and 4 (AnDOS)
          mov #data,r1
-         emt #^O36     ;load XLIFE2.COM
+         emt ^O36     ;load XLIFE2.COM
 
          mov #start,@#<data+2> 
          decb @#<fn+5>

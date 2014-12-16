@@ -44,9 +44,9 @@ tograph:   jsr r3,@#printstr
 tograph0:  call @#clrscn
            call @#initxt
            call @#showscn
-           ;call @#showrules
            call @#showmode
            call @#showtopology
+           call @#showrules2
            jmp @#xyout
 
 printstr:  movb (r3)+,r0
@@ -57,10 +57,10 @@ printstr:  movb (r3)+,r0
 
            mov #spaces10,r1
            mov #10,r2
-           emt #^O20
+           emt ^O20
            br printstr
 
-3$:        emt #^O16
+3$:        emt ^O16
            br printstr
 
 2$:        inc r3
@@ -2831,10 +2831,10 @@ showmode:
 showptxt:     ;IN: R1 - X, R2 - Y, R3 - msg
          mov #toandos,@#pageport
          ;mov @#yscroll,@#yshift 
-         emt #^O24
+         emt ^O24
          mov r3,r1
 spt1:    mov #255,r2
-         emt #^O20
+         emt ^O20
          ;mov @#yshift,@#yscroll
          ;mov #^O1330,@#yshift
          mov #todata,@#pageport
@@ -2873,7 +2873,7 @@ shownum: mov #stringbuf,r0
 
          mov #stringbuf,r1
          sub r1,r2
-         emt #^O20
+         emt ^O20
          return
 
 3$:      movb (r0)+,(r2)+

@@ -21,7 +21,6 @@ start:   ;clr @#kbdstport         ;enable kbdirq
 
          ;mov @#^O60,@#irq60s      ;save kbd interrupt vectors
          ;mov @#^O274,@#irq274s
-         ;call @#setdata
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
 
@@ -33,19 +32,15 @@ start:   ;clr @#kbdstport         ;enable kbdirq
          ;;sta curdev
          ;!call @#loadcf
          ;!call @#copyr
-         ;!call @#help
+         ;call @#help
 
          ;;#iniram
          ;!call @#setcolor
 
          mov #tiles,@#crsrtile
-
-   ;call @#setviewport
-   
          call @#tograph
          call @#calccells
          call @#infoout
-         ;!call @#showrules
 
 mainloop:
          call @#dispatcher
@@ -144,7 +139,7 @@ digifont:   ;8th columns are free
          .include tile.s
          .include utils.s
          ;!.include "io.s"
-         ;!.include "rules.s"
+         .include rules.s
          ;!.include "ramdisk.s"
          .include video.s
          .include tab12.s
