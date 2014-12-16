@@ -742,7 +742,7 @@ msgtore: .asciz /TORUS/
 msgplan: .asciz /PLAIN/
 msgrun:  .asciz /RUN /
 msgstop: .asciz /STOP/
-stringbuf: .blkb 10
+stringbuf: .blkb 19
 
          .even   ;high area
          .include interface.s

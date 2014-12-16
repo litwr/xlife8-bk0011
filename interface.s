@@ -265,25 +265,20 @@ dispat0: cmpb #'g,r0
 15$:     cmpb #'R,r0
          bne 16$
 
-;*         jsr totext
-;*         jsr inborn
-;*         cpx #27
-;*         beq finish
-;*
-;*         ldx #2
-;*         jsr setrconst
-;*         jsr instay
-;*         ldx #0
-;*         jsr setrconst
+         call @#totext
+         call @#inborn
+         cmpb #9,r5
+         beq 200$
+
+         mov #live,r5
+         call @#setrconst
+         call @#instay
+         mov #born,r5
+         call @#setrconst
+
 ;*         jsr fillrt
-200$:    ;jsr tograph
+200$:    call @#tograph
 ;*         jsr calccells    ;for load sequence
-         ;call @#clrscn
-         ;call @#initxt
-         ;call @#showscn
-         ;call @#showmode
-         ;call @#showtopology
-         ;call @#xyout
 ;*         jsr crsrset      ;showscn also calls crsrset! but crsrset is fast now...
 ;*         jmp crsrcalc
          return

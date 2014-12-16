@@ -88,52 +88,6 @@ spaces10:  .ascii "          "
 ;l1       jsr BSOUT
 ;         .endm
 
-;totext   sta $ff3e
-;totext0  lda #$88
-;         jsr set_ntsc
-;         lda #8
-;         sta $ff14
-;         lda #$1b
-;         sta $ff06
-;         lda #$c4
-;         sta $ff12
-;         lda #$71
-;         sta $ff15
-;         jmp savebl
-
-;tograph  lda zoom
-;         beq tographx
-;
-;         jsr restbl
-;         lda livcellc
-;         ldy #0
-;s1loop   sta $800,y
-;         sta $900,y
-;         sta $a00,y
-;         sta $ac0,y
-;         iny
-;         bne s1loop
-;
-;         sei
-;         sta $ff3f
-;         lda #<irq210x
-;         sta $fffe
-;         cli
-;         bne totext0
-;
-;tographx jsr tograph0
-;         jmp restbl
-;
-;showbench
-;         .block
-;         jsr JPRIMM
-;         .byte 147
-;         .text "time:"
-;         .byte $d
-;         .null "speed:"
-;         rts
-;         .bend
-
 insteps: call @#totext
          jsr r3,@#printstr
          .byte 154,0
@@ -168,12 +122,12 @@ insteps: call @#totext
 
 ;         cp $3a
 ;         jr nc,loop1
-         cmp r0,#'0+10
+         cmpb r0,#'0+10
          bcc 1$
 
 ;         cp "0"
 ;         jr c,loop1
-         cmp r0,#'0
+         cmpb r0,#'0
          bcs 1$
 
 ;         ld b,a
@@ -181,8 +135,8 @@ insteps: call @#totext
 ;         cp c
 ;         ld a,b
 ;         jr z,loop1
-          cmp #5,r1
-          beq 1$
+         cmpb #5,r1
+         beq 1$
 
 ;         ld (de),a
 ;         inc de
@@ -245,131 +199,103 @@ insteps: call @#totext
          mov r4,@#temp2
          br 20$
 
-;scrborn = $d1f
-;inborn  .block
-;         jsr JPRIMM
-;         .byte 147,30
-;         .text "the rules are defined by "
-;         .byte 31
-;         .text "born"
-;         .byte 30
-;         .text " and "
-;         .byte 31
-;         .text "stay"
-;         .byte 30
-;         .text " values.  for example, "
-;         .byte $9c
-;         .text "conways's life"
-;         .byte 30
-;         .text " has born=3 and stay=23, "
-;         .byte $9c
-;         .text "seeds"
-;         .byte 30
-;         .text " - born=2 and empty stay, "
-;         .byte $9c
-;         .text "highlife"
-;         .byte 30
-;         .text " - born=36 and stay=23, "
-;         .byte $9c
-;         .text "life without death"
-;         .byte 30
-;         .text " - born=3 and stay=012345678, ..."
-;         .byte 144,$d,$d
-;         .null "born = "
-;loop3    ldy #1
-;         sty $ff0c
-;         dey
-;loop1    tya
-;         clc
-;         adc #<scrborn
-;         sta $ff0d
-;         jsr getkey
+bornstay:
+         mov #stringbuf,r4
+3$:      mov r4,r2
+1$:      call @#getkey
+
 ;         cmp #$d
 ;         beq cont1
-;
+         cmpb #10,r0
+         beq 11$
+
 ;         cmp #$14   ;backspace
 ;         beq cont2
-;
+         cmpb #24,r0    ;backspace=zaboy
+         beq 12$
+
+         cmp #'0,r5
+         beq 40$
+
 ;         cmp #27    ;esc
 ;         beq cont1
-;
-;         cmp #$31   ;1
-;         bcc loop1
-;
-;         cmp #$39   ;9
-;         bcs loop1
-;
-;         ldx #0
-;loop4    cmp scrborn,x
-;         beq loop1
-;
-;         stx t1
-;         inx
-;         cpy t1
-;         bne loop4
-;
-;         sta scrborn,y  ;temp area
-;         iny
-;         bne loop1
-;
-;cont1    tax
-;         jmp curoff   ;return yr=len
-;
-;cont2    dey
-;         bmi loop3
-;
-;         lda #$20     ;space
-;         sta scrborn,y
-;         bne loop1
-;         .bend
-;
-;scrstay = $d47
-;instay  .block
-;         jsr JPRIMM
-;         .byte $d
-;         .null "stay = "
-;loop3    ldy #1
-;         sty $ff0c
-;         dey
-;loop1    tya
-;         clc
-;         adc #<scrstay
-;         sta $ff0d
-;         jsr getkey
-;         cmp #$d
-;         beq cont1
-;
-;         cmp #$14   ;backspace
-;         beq cont2
-;
-;         cmp #$30   ;0
-;         bcc loop1
-;
-;         cmp #$39   ;9
-;         bcs loop1
-;
-;         ldx #0
-;loop4    cmp scrstay,x
-;         beq loop1
-;
-;         stx t1
-;         inx
-;         cpy t1
-;         bne loop4
-;
-;         sta scrstay,y  ;temp area
-;         iny
-;         bne loop1
-;
-;cont1    jmp curoff   ;return yr=len
-;
-;cont2    dey
-;         bmi loop3
-;
-;         lda #$20     ;space
-;         sta scrstay,y
-;         bne loop1
-;         .bend
+         cmpb #9,r0    ;tab
+         beq 11$
+
+40$:     cmpb r0,r5
+         bcs 1$
+
+         cmpb r0,#'9
+         bcc 1$
+
+         mov r4,r3
+4$:      cmp r3,r2
+         beq 5$
+
+         cmpb (r3)+,r0
+         beq 1$
+         br 4$
+
+5$:      movb r0,(r2)+
+         emt ^O16
+         br 1$
+
+11$:     mov r0,r5
+         jsr r3,@#printstr
+         .byte 154,0
+
+         return
+
+12$:     dec r2
+         cmp r2,r4
+         bmi 3$
+
+         jsr r3,@#printstr
+         .byte 8,32,8,0
+         br 1$
+
+inborn:  jsr r3,@#printstr
+         .byte 154
+         .byte 12,147
+         .ascii "THE RULES ARE DEFINED BY "
+         .byte 156,
+         .ascii "BORN"
+         .byte 156
+         .ascii " AND "
+         .byte 156
+         .ascii "STAY"
+         .byte 156
+         .ascii " VALUES.  FOR EXAMPLE, "
+         .byte 159
+         .ascii "CONWAYS'S LIFE"
+         .byte 159
+         .ascii " HAS BORN=3 AND STAY=23, "
+         .byte 159
+         .ascii "SEEDS"
+         .byte 159
+         .ascii " - BORN=2 AND EMPTY STAY, "
+         .byte 159
+         .ascii "HIGHLIFE"
+         .byte 159
+         .ascii " - BORN=36 AND STAY=23, "
+         .byte 159
+         .ascii "LIFE WITHOUT DEATH"
+         .byte 159
+         .ascii " - BORN=3 AND STAY=012345678, ..."
+         .byte 146,10,10
+         .ascii "BORN = "
+         .byte 0
+
+         mov #'1,r5
+         jmp @#bornstay
+
+instay:  jsr r3,@#printstr
+         .byte 154,10
+         .ascii "STAY = "
+         .byte 0
+
+         mov #'0,r5
+         jmp @#bornstay
 
 indens:  call @#totext
          jsr r3,@#printstr
@@ -1199,19 +1125,19 @@ clrscn:   mov #tovideo,@#pageport
 ;scrfn    = $c00+123
 ;         jsr JPRIMM
 ;         .byte 147,30
-;         .text "input filename, an empty string means toshow directory. press "
+;         .ascii "input filename, an empty string means toshow directory. press "
 ;         .byte 28
-;         .text "run/stop"
+;         .ascii "run/stop"
 ;         .byte 30
-;         .text " to use ramdisk, "
+;         .ascii " to use ramdisk, "
 ;         .byte 28
-;         .text "*"
+;         .ascii "*"
 ;         .byte 30
-;         .text " to change unit, "
+;         .ascii " to change unit, "
 ;         .byte 28
-;         .text "esc"
+;         .ascii "esc"
 ;         .byte 30
-;         .text " to exit"
+;         .ascii " to exit"
 ;         .byte $d,144
 ;         .null "u0 "
 ;         lda curdev
@@ -1285,15 +1211,15 @@ clrscn:   mov #tovideo,@#pageport
 ;
 ;         jsr JPRIMM
 ;         .byte 147,30
-;         .text "use "
+;         .ascii "use "
 ;         .byte 28
-;         .text "run/stop"
+;         .ascii "run/stop"
 ;         .byte 30
-;         .text " and "
+;         .ascii " and "
 ;         .byte 28
-;         .text "cbm key"
+;         .ascii "cbm key"
 ;         .byte 30
-;         .text " as usual"
+;         .ascii " as usual"
 ;         .byte $d,0
 ;         jsr showdir
 ;         lda $c00
@@ -1305,7 +1231,7 @@ clrscn:   mov #tovideo,@#pageport
 ;cont10   jsr JPRIMM
 ;         .byte 19,27,"w",30
 ;msglen  = 20
-;         .text "enter file# or "
+;         .ascii "enter file# or "
 ;         .byte 28,"e","s","c",30,":"," ",144,0
 ;loop3a   ldy #0
 ;         sty $ff0c
@@ -1378,13 +1304,13 @@ clrscn:   mov #tovideo,@#pageport
 ;scrfn    = $c00+43
 ;         jsr JPRIMM
 ;         .byte 147,30
-;         .text "enter filename ("
+;         .ascii "enter filename ("
 ;         .byte 28
-;         .text "esc"
+;         .ascii "esc"
 ;         .byte 30
-;         .text " - exit, "
+;         .ascii " - exit, "
 ;         .byte 28, "*", 30
-;         .text " - unit)"
+;         .ascii " - unit)"
 ;         .byte 144,$d
 ;         .null "u0 "
 ;         lda curdev
@@ -1451,17 +1377,17 @@ clrscn:   mov #tovideo,@#pageport
 ;         jsr PLOT        ;set position for the text
 ;         jsr JPRIMM
 ;         .byte 30
-;         .text "move, "
+;         .ascii "move, "
 ;         .byte 28,"r",30
-;         .text "otate, "
+;         .ascii "otate, "
 ;         .byte 28,"f",30
-;         .text "lip, "
+;         .ascii "lip, "
 ;         .byte 28
-;         .text "enter"
+;         .ascii "enter"
 ;         .byte 30
-;         .text ", "
+;         .ascii ", "
 ;         .byte 28
-;         .text "esc"
+;         .ascii "esc"
 ;         .byte 144,0
 ;         lda #0
 ;         sta xdir
@@ -1994,11 +1920,11 @@ crsrset1:
 ;         jsr JPRIMM
 ;         .byte 147
 ;msglen   = 40
-;         .text "set directory mask ("
+;         .ascii "set directory mask ("
 ;         .byte 28
-;         .text "enter"
+;         .ascii "enter"
 ;         .byte 30
-;         .text " = *)"
+;         .ascii " = *)"
 ;         .byte $d,144,0
 ;loop3    ldy #0
 ;         sty $ff0c
@@ -2598,12 +2524,12 @@ crsrcalc:
 ;         stx i1
 ;         jsr JPRIMM
 ;         .byte 147,30
-;         .text "press "
+;         .ascii "press "
 ;         .byte 28
-;         .text "enter"
+;         .ascii "enter"
 ;         .byte 30
-;         .text " to use default color or input hexadecimal number of color. the"
-;         .text " firstdigit of this number means luminance andthe second - color."
+;         .ascii " to use default color or input hexadecimal number of color. the"
+;         .ascii " firstdigit of this number means luminance andthe second - color."
 ;         .byte $d,144
 ;         .null "the plain border ("
 ;         jsr chgclrs1
