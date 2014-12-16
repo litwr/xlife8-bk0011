@@ -8,7 +8,14 @@ dispatcher:
          movb @#kbdbuf,r0
          beq exit11
 
-         clrb @#kbdbuf
+         mov #12000,r1
+1$:      bit #64,@#pageport
+         bne 2$
+
+         sob r1,1$
+         br dispat0
+
+2$:      clrb @#kbdbuf
 dispat0: cmpb #'g,r0
          bne 3$
 
@@ -755,7 +762,7 @@ dispat0: cmpb #'g,r0
 ;*         sec
 ;*         rts
 ;*         .bend
-shift:   tst @#kbdbuf+1
+shift:   tstb @#kbdbuf+1
          beq 20$
 
          mov @#crsrtile,r0
