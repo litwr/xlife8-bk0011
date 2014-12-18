@@ -270,13 +270,13 @@ dispat0: cmpb #'g,r0
          cmpb #9,r5
          beq 200$
 
-         mov #live,r5
-         call @#setrconst
-         call @#instay
          mov #born,r5
          call @#setrconst
+         call @#instay
+         mov #live,r5
+         call @#setrconst
 
-;*         jsr fillrt
+         call @#fillrt
 200$:    call @#tograph
 ;*         jsr calccells    ;for load sequence
 ;*         jsr crsrset      ;showscn also calls crsrset! but crsrset is fast now...

@@ -201,7 +201,7 @@ insteps: call @#totext
 
 bornstay:
          mov #stringbuf,r4
-3$:      mov r4,r2
+3$:      mov r4,r3
 1$:      call @#getkey
 
 ;         cmp #$d
@@ -228,15 +228,15 @@ bornstay:
          cmpb r0,#'9
          bcc 1$
 
-         mov r4,r3
-4$:      cmp r3,r2
+         mov r4,r2
+4$:      cmp r2,r3
          beq 5$
 
-         cmpb (r3)+,r0
+         cmpb (r2)+,r0
          beq 1$
          br 4$
 
-5$:      movb r0,(r2)+
+5$:      movb r0,(r3)+
          emt ^O16
          br 1$
 
@@ -246,8 +246,8 @@ bornstay:
 
          return
 
-12$:     dec r2
-         cmp r2,r4
+12$:     dec r3
+         cmp r3,r4
          bmi 3$
 
          jsr r3,@#printstr
@@ -512,7 +512,7 @@ showtinfo:  mov #tinfo,r0
             mov @#tilecnt,r3
             asr r3
             asr r3
-            cmp r3,#120
+            cmp #120,r3   ;sets CY=0
             bne 1$
 
 ;           ld a,1
@@ -539,15 +539,15 @@ showtinfo:  mov #tinfo,r0
 ;           rrca
 ;           rrca
 ;           jr z,cont2
-1$:         mov #2570,@r0
+1$:         mov #2570,@r0      ;$a0a
             movb ttab(r3),r1
             mov r1,r2
             bic #^B11110000,r1
             movb r1,2(r0)
-            asr r2
-            asr r2
-            asr r2
-            asr r2
+            rorb r2   ;uses CY=0
+            asrb r2
+            asrb r2
+            asrb r2
             beq 2$
             
 ;           ld (tinfo+1),a
@@ -557,7 +557,6 @@ showtinfo:  mov #tinfo,r0
 ;           ld hl,tinfo
 ;           ld de,$c79e
 ;           jp digiout
-;           endp
 2$:         mov #3,r1
             mov #<statusline*64+16384+30>,r2
             call @#digiout

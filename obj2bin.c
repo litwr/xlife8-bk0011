@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
    }
    for (;;) {
       fgets(buf, 80, stdin);
-      line++; 
+      line++;
       l = sscanf(buf, "TEXT ADDR=%o LEN=%o\n", &addr, &len_sum);
       if (addr%2) {
           fprintf(stderr, "Odd start address\n");
