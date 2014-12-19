@@ -293,7 +293,7 @@ instay:  jsr r3,@#printstr
 
 indens:  call @#totext
          jsr r3,@#printstr
-         .byte 146
+         .byte 12,146
          .ascii "SELECT DENSITY OR PRESS "
          .byte 145
          .ascii "TAB"
@@ -319,7 +319,7 @@ indens:  call @#totext
          .ascii " - 95%"
          .byte 10,9,145,'9,147
          .ascii " - 100%"
-         .byte 0
+         .byte 0,0
 1$:      call @#getkey
          cmpb #9,r0
          beq 2$
@@ -2504,20 +2504,11 @@ crsrcalc:
 ;         ldx i1
 ;         sta borderpc,x
 ;         rts
-;
-;chgcolors             ;t1,i1
-;         .block
-;curpos1  = 183
-;curpos2  = 223
-;curpos3  = 272
-;curpos4  = 313
-;curpos5  = 340
-;curpos6  = 379
-;curpos7  = 426
-;curpos8  = 464
-;curpos9  = 508
+
+chgcolors:
 ;         ldx #$ff
 ;         stx i1
+
 ;         jsr JPRIMM
 ;         .byte 147,30
 ;         .ascii "press "
@@ -2528,6 +2519,8 @@ crsrcalc:
 ;         .ascii " firstdigit of this number means luminance andthe second - color."
 ;         .byte $d,144
 ;         .null "the plain border ("
+          jsr r3,@#printstr
+          
 ;         jsr chgclrs1
 ;         lda #>curpos1
 ;         ldy #<curpos1
