@@ -1,37 +1,31 @@
-initxt:  mov #tovideo,@#pageport
-         mov #<statusline*64+16384>,r0
-         mov #1365,r1    ;$555
-         mov #1285,r2    ;$505
-         mov #1360,r3    ;$550
-         mov r1,@r0
-         mov r2,48(r0)
-         mov r2,56(r0)
-         movb r2,64(r0)
-         mov r2,100(r0)
-         mov r2,112(r0)
-         mov r2,120(r0)
-         movb r2,128(r0)
-         movb r2,165(r0)
-         movb r3,176(r0)
-         mov r2,184(r0)
-         mov r2,192(r0)
-         movb r3,228(r0)
-         movb r3,240(r0)
-         movb r3,248(r0)
-         mov r2,256(r0)
-         movb r3,292(r0)
-         mov r2,304(r0)
-         movb r3,312(r0)
-         mov r2,320(r0)
-         movb r2,356(r0)
-         mov r2,368(r0)
-         movb r3,376(r0)
-         mov r1,384(r0)
-         mov r2,420(r0)
-         mov r2,432(r0)
-         movb r3,440(r0)
-         mov #todata,@#pageport
-         return
+initxt:   mov #toandos,@#pageport
+          clr r1
+          mov #18,r2
+          emt ^O24
+          jsr r3,@#printstr
+          .byte 147,'G,0,0
+
+          mov #18,r1
+          emt ^O24
+          jsr r3,@#printstr
+          .byte '%,32,32,32,32,32,'X,32,32,32,'Y,145,0,0
+
+          mov #65535,r2
+          mov #20,r3
+          mov #16384+12+64,r1
+          mov #16384+12+<64*194>,r0
+1$:       mov r2,(r1)+
+          mov r2,(r0)+
+          sob r3,1$
+
+          mov #194,r3
+          mov #16384+11+64,r1
+2$:       movb #192,@r1
+          movb #3,41(r1)
+          add #64,r1
+          sob r3,2$
+          mov #todata,@#pageport
+          return
 
 totext:    call @#clrscn
            mov @#yscroll,@#yshift
@@ -734,7 +728,7 @@ showscnz:
 
 ;         ld hl,$c800
 ;         ld iyh,3
-         mov #16384+64+12,r1
+         mov #16384+64+12+<64*2>,r1
          mov #65280+3,r2    ;65280=$ff03
          tstb @#pseudoc
          beq 3$
