@@ -58,7 +58,6 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
 
           mov r1,r2
 2$:       sub r0,r3
-          sbc r4
           bcs 3$
 
           call @#incben
@@ -67,7 +66,7 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
 
 3$:       add r0,r3
           add #'0,r3
-          mov r3,@r1
+          movb r3,@r1
 4$:       mov (sp)+,r4
           mov (sp)+,r3
           return

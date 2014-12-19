@@ -142,11 +142,6 @@ dispat0: cmpb #'g,r0
          call @#incgen
          br 148$
 
-142$:    call @#getkey
-         call @#tograph
-         call @#zerocc
-         jmp @#calccells
-
 147$:    call @#generate
          call @#cleanup
 148$:    dec @#temp
@@ -172,6 +167,11 @@ dispat0: cmpb #'g,r0
          add #256,r3
          adc r4
          br 143$
+
+142$:    call @#getkey
+         call @#tograph
+         call @#zerocc
+         jmp @#calccells
 
 141$:    add r2,r0
          adc r1
