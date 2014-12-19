@@ -101,9 +101,12 @@ addnode2:                 ;in: R5
 ;l1       rts
 ;         .bend
 
-;torus    .block
+torus:
 ;         jsr totiles     ;top border
 ;         ldx #hormax
+         mov #tiles,r0
+         mov #hormax,r1
+
 ;l5       ldy #ul
 ;         lda i1
 ;         clc
@@ -113,6 +116,10 @@ addnode2:                 ;in: R5
 ;         adc #>(hormax*(vermax-1)-1)*tilesize
 ;         iny
 ;         sta (i1),y
+5$:      mov r0,r2
+         add #<hormax*<vermax-1>-1>*tilesize,r2
+         mov r2,ul(r0)
+
 ;         lda i1
 ;         adc #<hormax*(vermax-1)*tilesize
 ;         iny		;up
@@ -121,6 +128,10 @@ addnode2:                 ;in: R5
 ;         adc #>hormax*(vermax-1)*tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         add #hormax*<vermax-1>*tilesize,r2
+         mov r2,up(r0)
+
 ;         lda i1
 ;         adc #<(hormax*(vermax-1)+1)*tilesize
 ;         iny		;ur
@@ -129,15 +140,24 @@ addnode2:                 ;in: R5
 ;         adc #>(hormax*(vermax-1)+1)*tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         add #<hormax*<vermax-1>+1>*tilesize,r2
+         mov r2,ur(r0)
+
 ;         jsr inctiles
 ;         dex
 ;         bne l5
+         add #tilesize,r0
+         sob r1,5$
 
 ;         lda #<tiles+((vermax-1)*hormax*tilesize)  ;bottom border
 ;         sta i1
 ;         lda #>tiles+((vermax-1)*hormax*tilesize)
 ;         sta i1+1
 ;         ldx #hormax
+         mov #tiles+<<vermax-1>*hormax*tilesize>,r0
+         mov #hormax,r1
+
 ;l4       ldy #dr
 ;         lda i1
 ;         sec
@@ -146,7 +166,11 @@ addnode2:                 ;in: R5
 ;         lda i1+1
 ;         sbc #>((vermax-1)*hormax-1)*tilesize
 ;         iny
-;         sta (i1),y       
+;         sta (i1),y
+4$:      mov r0,r2
+         sub #<<vermax-1>*hormax-1>*tilesize,r2
+         mov r2,dr(r0)
+
 ;         lda i1
 ;         sbc #<(vermax-1)*hormax*tilesize
 ;         iny		;down
@@ -154,7 +178,11 @@ addnode2:                 ;in: R5
 ;         lda i1+1
 ;         sbc #>(vermax-1)*hormax*tilesize
 ;         iny
-;         sta (i1),y    
+;         sta (i1),y
+         mov r0,r2
+         sub #<vermax-1>*hormax*tilesize,r2
+         mov r2,down(r0)
+
 ;         lda i1
 ;         sbc #<((vermax-1)*hormax+1)*tilesize
 ;         iny		;dl
@@ -163,12 +191,21 @@ addnode2:                 ;in: R5
 ;         sbc #>((vermax-1)*hormax+1)*tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         sub #<<vermax-1>*hormax+1>*tilesize,r2
+         mov r2,dl(r0)
+
 ;         jsr inctiles
 ;         dex
 ;         bne l4
+         add #tilesize,r0
+         sob r1,4$
 
 ;         jsr totiles    ;left border
 ;         ldx #vermax
+         mov #tiles,r0
+         mov #vermax,r1
+
 ;l3       ldy #left
 ;         lda i1
 ;         clc
@@ -178,6 +215,10 @@ addnode2:                 ;in: R5
 ;         adc #>(hormax-1)*tilesize
 ;         iny
 ;         sta (i1),y
+3$:      mov r0,r2
+         add #<hormax-1>*tilesize,r2
+         mov r2,left(r0)
+
 ;         lda i1
 ;         sec
 ;         sbc #<tilesize
@@ -187,6 +228,10 @@ addnode2:                 ;in: R5
 ;         sbc #>tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         sub #tilesize,r2
+         mov r2,ul(r0)
+
 ;         lda i1
 ;         clc
 ;         adc #<(2*hormax-1)*tilesize
@@ -196,6 +241,10 @@ addnode2:                 ;in: R5
 ;         adc #>(2*hormax-1)*tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         add #<2*hormax-1>*tilesize,r2
+         mov r2,dl(r0)
+
 ;         lda i1
 ;         adc #<tilesize*hormax
 ;         sta i1
@@ -204,12 +253,17 @@ addnode2:                 ;in: R5
 ;         sta i1+1
 ;         dex
 ;         bne l3
+         add #hormax*tilesize,r0
+         sob r1,3$
 
 ;         lda #<tiles+((hormax-1)*tilesize)  ;right border
 ;         sta i1
 ;         lda #>tiles+((hormax-1)*tilesize)
 ;         sta i1+1
 ;         ldx #vermax
+         mov #tiles+<<hormax-1>*tilesize>,r0
+         mov #vermax,r1
+
 ;l2       ldy #ur
 ;         lda i1
 ;         sec
@@ -219,6 +273,10 @@ addnode2:                 ;in: R5
 ;         sbc #>(2*hormax-1)*tilesize
 ;         iny
 ;         sta (i1),y
+2$:      mov r0,r2
+         sub #<2*hormax-1>*tilesize,r2
+         mov r2,ur(r0)
+
 ;         lda i1
 ;         sec
 ;         sbc #<(hormax-1)*tilesize
@@ -228,6 +286,10 @@ addnode2:                 ;in: R5
 ;         sbc #>(hormax-1)*tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         sub #<hormax-1>*tilesize,r2
+         mov r2,right(r0)
+
 ;         lda i1
 ;         clc
 ;         adc #<tilesize
@@ -237,14 +299,21 @@ addnode2:                 ;in: R5
 ;         adc #>tilesize
 ;         iny
 ;         sta (i1),y
+         mov r0,r2
+         add #tilesize,r2
+         mov r2,dr(r0)
+
 ;         lda i1
 ;         adc #<tilesize*hormax
 ;         sta i1
 ;         lda i1+1
 ;         adc #>tilesize*hormax
 ;         sta i1+1
+         add #hormax*tilesize,r0
+
 ;         dex
 ;         bne l2
+         sob r1,2$
 
 ;         ldy #ul    ;top left corner
 ;         lda #<tiles + ((hormax*vermax-1)*tilesize)
@@ -252,6 +321,7 @@ addnode2:                 ;in: R5
 ;         lda #>tiles + ((hormax*vermax-1)*tilesize)
 ;         iny
 ;         sta tiles,y
+         mov #tiles + <<hormax*vermax-1>*tilesize>,@#tiles+ul
 
 ;         ldy #ur    ;top right corner
 ;         lda #<tiles+(hormax*(vermax-1)*tilesize)
@@ -259,6 +329,7 @@ addnode2:                 ;in: R5
 ;         lda #>tiles+(hormax*(vermax-1)*tilesize)
 ;         iny
 ;         sta tiles+((hormax-1)*tilesize),y
+         mov #tiles + <<hormax*<vermax-1>>*tilesize>,@#tiles+ur+<<hormax-1>*tilesize>
 
 ;         ldy #dl   ;bottom left corner
 ;         lda #<tiles+((hormax-1)*tilesize)
@@ -266,6 +337,7 @@ addnode2:                 ;in: R5
 ;         lda #>tiles+((hormax-1)*tilesize)
 ;         iny
 ;         sta tiles+(hormax*(vermax-1)*tilesize),y
+         mov #tiles+<<hormax-1>*tilesize>,@#tiles+dl+<hormax*<vermax-1>*tilesize>
 
 ;         ldy #dr   ;bottom right corner
 ;         lda #<tiles
@@ -273,12 +345,18 @@ addnode2:                 ;in: R5
 ;         lda #>tiles
 ;         iny
 ;         sta tiles+((vermax*hormax-1)*tilesize),y
-;         rts
-;         .bend
+         mov #tiles,@#tiles+dr+<<vermax*hormax-1>*tilesize>
 
-;plain    .block
+;         rts
+         return
+
+plain:
 ;         jsr totiles     ;top border
 ;         ldx #hormax
+         mov #tiles,r0
+         mov #hormax,r1
+         mov #plainbox,r2
+
 ;l5       ldy #ul
 ;         lda #<plainbox
 ;         sta (i1),y
@@ -300,12 +378,20 @@ addnode2:                 ;in: R5
 ;         jsr inctiles
 ;         dex
 ;         bne l5
-
+5$:      mov r2,ul(r0)
+         mov r2,up(r0)
+         mov r2,ur(r0)
+         add #tilesize,r0
+         sob r1,5$
+         
 ;         lda #<tiles+((vermax-1)*hormax*tilesize)  ;bottom border
 ;         sta i1
 ;         lda #>tiles+((vermax-1)*hormax*tilesize)
 ;         sta i1+1
 ;         ldx #hormax
+         mov #tiles+<<vermax-1>*hormax*tilesize>,r0
+         mov #hormax,r1
+
 ;l4       ldy #dr
 ;         lda #<plainbox
 ;         sta (i1),y
@@ -327,9 +413,17 @@ addnode2:                 ;in: R5
 ;         jsr inctiles
 ;         dex
 ;         bne l4
+4$:      mov r2,dr(r0)
+         mov r2,down(r0)
+         mov r2,dl(r0)
+         add #tilesize,r0
+         sob r1,4$
 
 ;         jsr totiles    ;left border
 ;         ldx #vermax
+         mov #tiles,r0
+         mov #vermax,r1
+
 ;l3       ldy #left
 ;         lda #<plainbox
 ;         sta (i1),y
@@ -356,12 +450,20 @@ addnode2:                 ;in: R5
 ;         sta i1+1
 ;         dex
 ;         bne l3
+3$:      mov r2,left(r0)
+         mov r2,ul(r0)
+         mov r2,dl(r0)
+         add #tilesize*hormax,r0
+         sob r1,3$
 
 ;         lda #<tiles+((hormax-1)*tilesize)  ;right border
 ;         sta i1
 ;         lda #>tiles+((hormax-1)*tilesize)
 ;         sta i1+1
 ;         ldx #vermax
+         mov #tiles+<<hormax-1>*tilesize>,r0
+         mov #vermax,r1
+
 ;l2       ldy #ur
 ;         lda #<plainbox
 ;         sta (i1),y
@@ -388,9 +490,14 @@ addnode2:                 ;in: R5
 ;         sta i1+1
 ;         dex
 ;         bne l2
+2$:      mov r2,ur(r0)
+         mov r2,right(r0)
+         mov r2,dr(r0)
+         add #tilesize*hormax,r0
+         sob r1,2$
 
 ;         rts
-;         .bend
+         return
 
 ;random   .block
 ;uses: adjcell:2, adjcell2:2, i1:2, i2, t1, t2, t3, x0

@@ -52,7 +52,16 @@ dispat0: cmpb #'g,r0
 4$:      cmpb #'T,r0
          bne 6$
 
-;*         #chgtopology
+         tstb @#topology
+         beq 84$
+
+         call @#torus
+         clrb @#topology
+         br 86$
+
+84$:     call @#plain
+         incb @#topology
+86$:     jmp @#showtopology
 
 6$:      cmpb #'o,r0
          bne 7$
