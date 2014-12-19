@@ -700,16 +700,15 @@ dispat0: cmpb #'g,r0
 ;*         jsr curoff
 ;*         jsr infov
 ;*         jmp finish
-;*
+
 ;*cont17i  cmp #"Z"-"A"+$c1
 ;*         bne cont17j
 178$:    cmpb #'Z,r0
          bne 179$
 
-;*         jsr totext
-;*         jsr chgcolors
-;*l2       jsr setcolor
-;*         jmp finish
+         call @#totext
+         call @#chgcolors
+         jmp @#tograph
 
 ;*cont17j  cmp #"X"-"A"+$c1
 ;*         bne cont18

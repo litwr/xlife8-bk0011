@@ -15,6 +15,7 @@
 
 start:   ;clr @#kbdstport         ;enable kbdirq
          ;mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
+         ;mov #emptyirq,@#4             ;empty halt
          mov #emptyirq,@#^O100         ;empty timer irq
          mov #128,@#^O102
          clr @#kbddtport              ;page 1(5) - active video, timer irq, 0th pal
@@ -54,7 +55,6 @@ mainloop:
          cmpb #3,r0
          bne 3$
 
-         ;*jmp WARMRESTART
          halt    ;directly to ANDOS?
 
 3$:      tst @#tilecnt

@@ -403,55 +403,6 @@ help:    call @#totext
          .byte 155,0
          jmp @#tograph
 
-;setcolor .block
-;         ldy bordertc
-;         lda topology
-;         beq cont
-;
-;         ldy borderpc
-;cont     sty $ff19
-;         lda livcellc
-;         tax
-;         asl
-;         asl
-;         asl
-;         asl
-;         sta t1
-;         lda newcellc
-;         pha
-;         and #$f
-;         ora t1
-;         sta i1        ;colors
-;         pla
-;         asl
-;         asl
-;         asl
-;         asl
-;         sta t1
-;         txa
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         ora t1
-;         sta i2       ;lums
-;
-;         ldy #0
-;loop     lda i1
-;         sta $1c00,y
-;         sta $1d00,y
-;         sta $1e00,y
-;         sta $1ec0,y
-;         lda i2
-;         sta $1800,y
-;         sta $1900,y
-;         sta $1a00,y
-;         sta $1ac0,y
-;         iny
-;         bne loop
-;         rts        ;ZF=1
-;         .bend
-
 digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
 1$:      movb (r0)+,r3
          asl r3
@@ -2506,141 +2457,94 @@ crsrcalc:
 ;         rts
 
 chgcolors:
-;         ldx #$ff
-;         stx i1
+         jsr r3,@#printstr
+        .byte 154,0
+2$:     jsr r3,@#printstr
+        .byte 12,146
+        .ascii "PRESS "
+        .byte 145
+        .ascii "ENTER"
+        .byte 146
+        .ascii " TO USE DEFAULT PALETTE OR INPUT DECIMAL NUMBER OF PALETTE "
+        .byte 147,0
 
-;         jsr JPRIMM
-;         .byte 147,30
-;         .ascii "press "
-;         .byte 28
-;         .ascii "enter"
-;         .byte 30
-;         .ascii " to use default color or input hexadecimal number of color. the"
-;         .ascii " firstdigit of this number means luminance andthe second - color."
-;         .byte $d,144
-;         .null "the plain border ("
-          jsr r3,@#printstr
-          
-;         jsr chgclrs1
-;         lda #>curpos1
-;         ldy #<curpos1
-;         jsr inputhex
-;         beq cont1
-;
-;         lda 3072+curpos1
-;         ldy 3073+curpos1
-;         jsr chgclrs2
-;cont1    jsr JPRIMM
-;         .byte $d
-;         .null "the torus border ("
-;         jsr chgclrs1
-;         lda #>curpos2
-;         ldy #<curpos2
-;         jsr inputhex
-;         beq cont2
-;
-;         lda 3072+curpos2
-;         ldy 3073+curpos2
-;         jsr chgclrs2
-;cont2    jsr JPRIMM
-;         .byte $d
-;         .null "the cursor over live cell ("
-;         jsr chgclrs1
-;         lda #>curpos3
-;         ldy #<curpos3
-;         jsr inputhex
-;         beq cont3
-;
-;         lda 3072+curpos3
-;         ldy 3073+curpos3
-;         jsr chgclrs2
-;cont3    jsr JPRIMM
-;         .byte $d
-;         .null "the cursor over empty cell ("
-;         jsr chgclrs1
-;         lda #>curpos4
-;         ldy #<curpos4
-;         jsr inputhex
-;         beq cont4
-;
-;         lda 3072+curpos4
-;         ldy 3073+curpos4
-;         jsr chgclrs2
-;cont4    jsr JPRIMM
-;         .byte $d
-;         .null "the live cell ("
-;         jsr chgclrs1
-;         lda #>curpos5
-;         ldy #<curpos5
-;         jsr inputhex
-;         beq cont5
-;
-;         lda 3072+curpos5
-;         ldy 3073+curpos5
-;         jsr chgclrs2
-;cont5    jsr JPRIMM
-;         .byte $d
-;         .null "the new cell ("
-;         jsr chgclrs1
-;         lda #>curpos6
-;         ldy #<curpos6
-;         jsr inputhex
-;         beq cont6
-;
-;         lda 3072+curpos6
-;         ldy 3073+curpos6
-;         jsr chgclrs2
-;cont6    jsr JPRIMM
-;         .byte $d
-;         .null "the edit background ("
-;         jsr chgclrs1
-;         lda #>curpos7
-;         ldy #<curpos7
-;         jsr inputhex
-;         beq cont7
-;
-;         lda 3072+curpos7
-;         ldy 3073+curpos7
-;         jsr chgclrs2
-;cont7    jsr JPRIMM
-;         .byte $d
-;         .null "the go background ("
-;         jsr chgclrs1
-;         lda #>curpos8
-;         ldy #<curpos8
-;         jsr inputhex
-;         beq cont8
-;
-;         lda 3072+curpos8
-;         ldy 3073+curpos8
-;         jsr chgclrs2
-;cont8    jsr JPRIMM
-;         .byte $d
-;         .null "the status background ("
-;         jsr chgclrs1
-;         lda #>curpos9
-;         ldy #<curpos9
-;         jsr inputhex
-;         beq cont9
-;
-;         lda 3072+curpos9
-;         ldy 3073+curpos9
-;         jsr chgclrs2
-;cont9    jsr curoff
-;         jsr JPRIMM
-;         .byte $d
-;         .null "to save this config?"
-;loop     jsr getkey
-;         cmp #"n"
-;         beq exit
-;
-;         cmp #"y"
-;         bne loop
-;
+3$:      mov #stringbuf,r2
+         clr r1
+1$:      call @#getkey
+         cmpb #10,r0
+         beq 11$
+
+         cmpb #24,r0    ;backspace=zaboy
+         beq 12$
+
+         cmpb r0,#'0+10
+         bcc 1$
+
+         cmpb r0,#'0
+         bcs 1$
+
+         cmpb #2,r1
+         beq 1$
+
+         inc r1
+         emt ^O16
+         sub #'0,r0
+         movb r0,(r2)+
+         br 1$
+
+12$:     dec r2
+         dec r1
+         bmi 3$
+
+         jsr r3,@#printstr
+         .byte 8,32,8,0
+         br 1$
+
+11$:      tst r1
+          beq 20$
+
+          dec r1
+          beq 16$
+
+          movb -(r2),r0
+          movb -(r2),r1
+          mov #10,r2
+          cmpb r1,#1
+          beq 4$
+          bcc 2$
+
+          clr r2
+4$:       add r0,r2
+          cmp r2,#16
+          bcc 2$
+
+24$:     movb r2,@#palette
+         swab r2
+         asl r2
+         mov r2,@#kbddtport
+20$:     jsr r3,@#printstr
+         .byte 10
+         .ascii "TO SAVE THIS CONFIG?"
+         .byte 0
+
+8$:      call @#getkey
+         bis #32,r0
+         cmp r0,#'n
+         beq 7$
+
+         cmp r0,#'y
+         bne 8$
+
 ;         jsr savecf
-;exit     rts
-;         .bend
-;
+      
+7$:      jsr r3,@#printstr
+         .byte 154,0
+         
+         return
+          
+16$:     movb -(r2),r2
+         br 24$
+
 ;putpixel2 .block 
 ;         tax
 ;         jsr seti1
