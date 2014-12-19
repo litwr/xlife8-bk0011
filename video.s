@@ -728,7 +728,7 @@ showscnz:
 
 ;         ld hl,$c800
 ;         ld iyh,3
-         mov #16384+64+12+<64*2>,r1
+         mov #videostart+64,r1
          mov #65280+3,r2    ;65280=$ff03
          tstb @#pseudoc
          beq 3$
@@ -2171,7 +2171,10 @@ pixel11: mov #tovideo,@#pageport   ;it should be after crsrset, IN: r0 - crsrbit
          mov r2,r0
          asl r2
          bis r0,r2
+         mov r1,@#crsraddr
+         mov @r1,@#crsrdata
          bis r2,@r1
+         mov r2,@#crsrmask
 gexit3:  mov #todata,@#pageport
 gexit2:  return
 

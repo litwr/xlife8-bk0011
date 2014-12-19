@@ -144,7 +144,6 @@ dispat0: cmpb #'g,r0
          mov #benchirq,@#^O100
          mov #todata,@#pageport
          mov @#timerport2,@#saved
-         clr @#kbddtport    ;use saved palette!!!, start raster interrupt
 146$:    tst @#tilecnt
          bne 147$
 
@@ -156,10 +155,9 @@ dispat0: cmpb #'g,r0
 148$:    dec @#temp
          bne 146$
 
-         mov #^O102,@#^O100
-         mov #^B100000000000000,@#kbddtport   ;use saved palette!!!, stop raster interrupt
-         call @#benchirq0
          mov #toandos,@#pageport
+         mov #crsrirq,@#^O100
+         call @#benchirq0
          mov @#lowbench,r0
          mov @#highbench,r1
          asl r0

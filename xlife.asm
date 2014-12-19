@@ -14,7 +14,10 @@
          .=768
 
 start:   ;clr @#kbdstport         ;enable kbdirq
-         mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
+         ;mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
+         mov #emptyirq,@#^O100         ;empty timer irq
+         mov #128,@#^O102
+         clr @#kbddtport              ;page 1(5) - active video, timer irq, 0th pal
          mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
@@ -41,6 +44,7 @@ start:   ;clr @#kbdstport         ;enable kbdirq
          call @#tograph
          call @#calccells
          call @#infoout
+         mov #crsrirq,@#^O100
 
 mainloop:
          call @#dispatcher
@@ -694,6 +698,9 @@ lowbench: .word 0
 highbench: .word 0
 tobin:    .word 1,10,100,1000,10000
 yscroll:  .word ^O1330
+crsraddr: .word 0
+crsrdata: .word 0
+crsrmask: .word 0
 
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
@@ -730,6 +737,7 @@ density:  .byte 3
 ;;bordertc .byte 69    ;torus
 palette:  .byte 0
 topology: .byte 0      ;0 - torus
+crsrticks: .byte 0
 copyleft: .ascii /cr.txt/
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
@@ -755,12 +763,45 @@ benchirq0: mov @#saved,r0
            adc @#highbench
            return
 
-benchirq:  mov r0,-(sp)
-           mov r1,-(sp)
+benchirq:  push r0
+           push r1
            call @#benchirq0
-           mov (sp)+,r1
-           mov (sp)+,r0
+           pop r1
+           pop r0
            rti
+
+crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
+           bne emptyirq
+
+           push r0
+           mov #crsrticks,r0
+           incb @r0
+           tstb @#zoom
+           bne 1$
+
+           bitb #15,@r0
+           bne 1$
+
+           push r1
+           mov @#crsraddr,r1
+           mov #tovideo,@#pageport
+           bitb #16,@r0
+           beq 2$
+
+           mov @#crsrdata,r0       ;clear
+           cmp @#crsrmask,r0
+           bne 4$
+
+           clr r0
+4$:        mov r0,@r1
+           br 3$
+
+2$:        mov @#crsrmask,r0
+           bis r0,@r1
+3$:        mov #todata,@#pageport
+           pop r1
+1$:        pop r0
+emptyirq:  rti
 
 key2irq:   mov @#kbddtport,@#kbdbuf
            incb @#kbdbuf+1
