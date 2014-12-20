@@ -2434,30 +2434,19 @@ crsrcalc:
 ;         jsr showrules2
 ;         jmp getkey
 ;         .bend
-;
-;chgclrs1 ldx i1
-;         inx
-;         stx i1
-;         lda borderpc,x
-;         #printhex
-;         jsr JPRIMM
-;         .null "): "
-;         rts
-;
-;chgclrs2 asl
-;         asl
-;         asl
-;         asl
-;         sta t1
-;         tya
-;         and #$f
-;         ora t1
-;         ldx i1
-;         sta borderpc,x
-;         rts
 
 chgcolors:
-         jsr r3,@#printstr
+        movb @#palette,r0
+        movb #'1,r1
+        sub #10,r0
+        bpl 14$
+
+        movb #146,r1
+        add #10,r0
+14$:    add #'0,r0
+        movb r1,@#88$
+        movb r0,@#88$+1
+        jsr r3,@#printstr
         .byte 154,0
 2$:     jsr r3,@#printstr
         .byte 12,146
@@ -2465,7 +2454,8 @@ chgcolors:
         .byte 145
         .ascii "ENTER"
         .byte 146
-        .ascii " TO USE DEFAULT PALETTE OR INPUT DECIMAL NUMBER OF PALETTE "
+        .ascii " TO USE DEFAULT PALETTE OR INPUT DECIMAL NUMBER OF PALETTE ("
+88$:    .ascii "  ): "
         .byte 147,0
 
 3$:      mov #stringbuf,r2
@@ -2524,8 +2514,7 @@ chgcolors:
          mov r2,@#kbddtport
 20$:     jsr r3,@#printstr
          .byte 10
-         .ascii "TO SAVE THIS CONFIG?"
-         .byte 0
+         .asciz "TO SAVE THIS CONFIG?"
 
 8$:      call @#getkey
          bis #32,r0
