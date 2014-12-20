@@ -2251,50 +2251,31 @@ crsrcalc:
 
         return
 
-;l8       ldy #up
-;         ldx #7
-;         lda vptilecy
-;         bmi cont3
 18$:    mov #up,r1
-        mov #7,r3
+        movb @#vptilecy,r3
+        add #8,r3
         movb @#vptilecy,r2
         bmi 33$
 
-;         ldy #down
-;         cmp #24
-;         bcc cont4
         mov #down,r1
+        sub #16,r3
         cmpb r2,#24
         bcs 34$
 
-;         ldx #16
-;cont3    stx vptilecy
-;         bne cont1
-        mov #16,r3
 33$:    movb r3,@#vptilecy
         br 31$
 
-;cont4    ldy #left
-;         lda vptilecx
-;         bmi cont5
 34$:    mov #left,r1
+        movb @#vptilecx,r3
+        add #8,r3
         movb @#vptilecx,r2
         bmi 35$
  
-;         ldy #right
-;         cmp #40
-;         bcc cont2
         mov #right,r1
+        sub #16,r3
         cmpb r2,#40
         bcs 30$
 
-;         ldx #32
-;cont5    stx vptilecx
-;cont1    lda (viewport),y
-;         tax
-;         iny
-;         lda (viewport),y
-        mov #32,r3
 35$:    movb r3,@#vptilecx
 31$:    add @#viewport,r1
         
