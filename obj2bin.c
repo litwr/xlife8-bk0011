@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
                pc = mod/2 + 2 - addr/2;
                continue;
             }
-            if (mod%1) goto l1;
+            l = sscanf(buf, " Internal displaced %o=%*o ", &mod);
          }
          break;
       }
@@ -50,9 +50,9 @@ int main(int argc, char **argv) {
    }
    prg[0] = addr;
    prg[1] = (pc - 2)*2;
-l1:fprintf(stderr, "@%x %x>=%x lines=%d\n", addr, (pc - 2)*2, len_sum, line);
+   fprintf(stderr, "@%x %x>=%x lines=%d\n", addr, (pc - 2)*2, len_sum, line);
    if (!strstr(buf, "ENDMOD")) {
-      fprintf(stderr, "Possible wrong relocation!\n");
+      fprintf(stderr, "Possible wrong relocation @%x/%o!\n", mod, mod);
       return 2;
    }
    fwrite(prg, pc, 2, stdout);
