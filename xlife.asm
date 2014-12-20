@@ -13,18 +13,13 @@
          .asect
          .=768
 
-start:   ;clr @#kbdstport         ;enable kbdirq
-         ;mov #^O40000,@#kbddtport     ;page 1(5) - active video, no timer irq, 0th pal
-         ;mov #emptyirq,@#4             ;empty halt
-         mov #emptyirq,@#^O100         ;empty timer irq
-         mov #128,@#^O102
+start:   mov #128,@#^O102
+         ;!call @#copyr
          clr @#kbddtport              ;page 1(5) - active video, timer irq, 0th pal
          mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
 
-         ;mov @#^O60,@#irq60s      ;save kbd interrupt vectors
-         ;mov @#^O274,@#irq274s
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
 
@@ -34,18 +29,20 @@ start:   ;clr @#kbdstport         ;enable kbdirq
          ;;lda curdev
 ;;nochg:
          ;;sta curdev
-         ;!call @#loadcf
-         ;!call @#copyr
-         ;call @#help
+
+         mov #emptyirq,@#^O100         ;empty timer irq
+         mov #3,r2
+         call @#setpalette         ;inits also timer interrupt, sets active video page
+         incb @#errst
 
          ;;#iniram
-         ;!call @#setcolor
 
          mov #tiles,@#crsrtile
          call @#tograph
          call @#calccells
          call @#infoout
          mov #crsrirq,@#^O100
+         call @#help
 
 mainloop:
          call @#dispatcher
@@ -139,10 +136,9 @@ digifont:   ;8th columns are free
       .word  672,2056,2056,2720,2048, 512, 160, 0
       .word  0, 0, 0, 0, 0, 0, 0, 0   ;space
 
-         .even
          .include tile.s
          .include utils.s
-         ;!.include "io.s"
+         .include io.s
          .include rules.s
          ;!.include "ramdisk.s"
          .include video.s
@@ -728,17 +724,14 @@ fnlen:    .byte 0
 dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
 ;;         .repeat 17,0
-;;cfnlen   = live-cfn-3
-;;cfn      .text "@0:colors-cf"
 live:     .byte 12,0
 born:     .byte 8,0
 density:  .byte 3
-;;borderpc .byte 40    ;plain
-;;bordertc .byte 69    ;torus
 palette:  .byte 0
 topology: .byte 0      ;0 - torus
 crsrticks: .byte 0
-copyleft: .ascii /cr.txt/
+copyleft: .ascii "CR.TXT"
+errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
 ;;curdev   .byte 8
@@ -809,16 +802,6 @@ key2irq:   mov @#kbddtport,@#kbdbuf
         
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
-
-;setandos:  mov @#irq60s,@#^O60
-;           mov @#irq274s,@#^O274
-;           mov #toandos,@#pageport
-;           return
-
-;setdata:   mov #keyirq,@#^O60
-;           mov #key2irq,@#^O274
-;           mov #todata,@#pageport
-;           return
 
          . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:

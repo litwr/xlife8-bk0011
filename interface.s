@@ -80,8 +80,6 @@ dispat0: cmpb #'g,r0
          call @#showscn
          jmp @#cleanup
 
-;*cont7    cmp #"?"
-;*         bne cont8
 7$:      cmpb #'?,r0
          bne 8$
 
@@ -110,16 +108,12 @@ dispat0: cmpb #'g,r0
          movb #1,@#pseudoc
 111$:    jmp @#showscn
 
-;*cont11   cmp #"!"
-;*         bne cont12
 11$:     cmpb #'!,r0
          bne 12$
 
 ;*         jsr random
 ;*         jmp showscn
 
-;*cont12   cmp #"%"
-;*         bne cont14
 12$:     cmpb #'%,r0
          bne 14$
 
@@ -128,8 +122,6 @@ dispat0: cmpb #'g,r0
 
          jmp @#indens
 
-;*cont14   cmp #"B"-"A"+$c1
-;*         bne cont15
 14$:     cmpb #'B,r0
          beq 159$
          jmp @#15$
@@ -257,18 +249,6 @@ dispat0: cmpb #'g,r0
          call @#showbline2
          br 142$
 
-;*bexit    jsr exitbench
-;*         jsr showbench
-;*         jsr calcspd
-;*qbexit   jsr tograph
-;*         jsr zerocc
-;*         jsr calccells
-;*         ;lda #0
-;*         ;sta mode
-;*         jmp showscn
-
-;*cont15   cmp #"R"-"A"+$c1
-;*         bne cont16
 15$:     cmpb #'R,r0
          bne 16$
 
@@ -290,9 +270,7 @@ dispat0: cmpb #'g,r0
 ;*         jmp crsrcalc
          return
 
-;*cont16   cmp #$1d   ;cursor right
-;*         bne cont16x
-16$:     cmpb #25,r0
+16$:     cmpb #25,r0    ;cursor right
          bne 160$
 
 ;*         jsr crsrclr
@@ -332,9 +310,7 @@ dispat0: cmpb #'g,r0
 71$:    mov #128,r0
         br 72$
 
-;*cont16x  cmp #$9d   ;cursor left
-;*         bne cont16b
-160$:    cmpb #8,r0
+160$:    cmpb #8,r0   ;cursor left
          bne 161$
 
 ;*         jsr crsrclr
@@ -407,9 +383,7 @@ dispat0: cmpb #'g,r0
 74$:     movb r0,@r4
          br 270$
 
-;*cont16b  cmp #$91   ;cursor up
-;*         bne cont16c
-161$:    cmpb #26,r0
+161$:    cmpb #26,r0   ;cursor up
          bne 162$
 
 ;*         jsr crsrclr
@@ -448,9 +422,7 @@ dispat0: cmpb #'g,r0
 77$:     mov #7,r0
          br 72$
 
-;*cont16c  cmp #$11   ;cursor down
-;*         bne cont17
-162$:    cmpb #27,r0
+162$:    cmpb #27,r0   ;cursor down
          bne 17$
 
 ;*         jsr crsrclr
@@ -488,9 +460,7 @@ dispat0: cmpb #'g,r0
 78$:     clr r0
          br 72$
 
-;*cont17   cmp #$20   ;space
-;*         bne cont17c
-17$:     cmpb #32,r0
+17$:     cmpb #32,r0   ;space
          bne 170$
 
 ;*         #assign16 adjcell,crsrtile
@@ -539,8 +509,6 @@ dispat0: cmpb #'g,r0
          call @#calccells
          br 270$
 
-;*cont17c  cmp #"."
-;*         bne cont17f
 170$:    cmpb #'.,r0
          bne 171$
 
@@ -577,9 +545,7 @@ dispat0: cmpb #'g,r0
 270$:    call @#crsrset
          jmp @#crsrcalc
 
-;*cont17f  cmp #19        ;home
-;*         bne cont17a
-171$:    cmpb #12,r0
+171$:    cmpb #12,r0      ;home
          bne 172$
 
 ;*         jsr crsrclr
@@ -600,8 +566,6 @@ dispat0: cmpb #'g,r0
          mov #128,r1
          br 272$
 
-;*cont17a  cmp #"L"-"A"+$41
-;*         bne cont17b
 172$:    cmpb #'l,r0
          bne 173$
 
@@ -623,8 +587,6 @@ dispat0: cmpb #'g,r0
 ;*exit0    rts
 100$:    return
 
-;*cont17b  cmp #"L"-"A"+$c1
-;*         bne cont17d
 173$:     cmpb #'L,r0
          bne 174$
 
@@ -643,9 +605,7 @@ dispat0: cmpb #'g,r0
 ;*         jsr BSOUT
 ;*         jsr curoff
 ;*         jmp cont17w
-;*
-;*cont17d  cmp #"+"
-;*         bne cont17e
+
 174$:    cmpb #'+,r0
          bne 175$
 
@@ -663,8 +623,6 @@ dispat0: cmpb #'g,r0
          call @#setviewport
 271$:    jmp @#tograph0
 
-;*cont17e  cmp #"-"
-;*         bne cont17g
 175$:    cmpb #'-,r0
          bne 176$
 
@@ -678,8 +636,6 @@ dispat0: cmpb #'g,r0
          clrb @#zoom
          br 271$
 
-;*cont17g  cmp #"V"-"A"+$c1
-;*         bne cont17h
 176$:    cmpb #'V,r0
          bne 177$
 
@@ -690,9 +646,8 @@ dispat0: cmpb #'g,r0
 ;*         jsr curoff
 ;*         jsr showcomm
 ;*         jmp finish
-;*
-;*cont17h  cmp #"V"-"A"+$41
-;*         bne cont17i
+
+
 177$:    cmpb #'v,r0
          bne 178$
 
@@ -701,29 +656,20 @@ dispat0: cmpb #'g,r0
 ;*         jsr infov
 ;*         jmp finish
 
-;*cont17i  cmp #"Z"-"A"+$c1
-;*         bne cont17j
 178$:    cmpb #'Z,r0
          bne 179$
 
          call @#totext
          call @#chgcolors
-         jmp @#tograph
+220$:    jmp @#tograph
 
-;*cont17j  cmp #"X"-"A"+$c1
-;*         bne cont18
 179$:    cmpb #'X,r0
          bne 18$
 
-;*         jsr totext
-;*         jsr loadcf
-;*         bcc l2
-;*
-;*         jsr showds
-;*         bne l2
+         call @#totext
+         call @#setpalette
+         br 220$
 
-;*cont18   cmp #"S"-"A"+$c1
-;*         bne cont20
 18$:     cmpb #'S,r0
          bne 20$
 
@@ -733,7 +679,7 @@ dispat0: cmpb #'g,r0
 ;*         jsr totext
 ;*         jsr getsvfn
 ;*         beq exitsave
-;*
+
 ;*         jsr savepat
 ;*exitsave jmp finish
 

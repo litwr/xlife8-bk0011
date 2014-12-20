@@ -10,3 +10,8 @@ tovideo    = ^B01111100000000    ;show both video pages 1 (soft 5), 7 (soft 6)
 toandos    = ^B01110000000000    ;open pages 1 (soft 5) and 4 (AnDOS)
 nokbirq    = ^B1000000
 
+io_op      = 256
+io_start   = 258
+io_len     = 260
+io_fn      = 262
+

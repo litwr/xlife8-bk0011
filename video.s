@@ -2525,7 +2525,8 @@ chgcolors:
          bne 8$
 
 ;         jsr savecf
-      
+         mov #2,r2
+         call @#iocf
 7$:      jsr r3,@#printstr
          .byte 154,0
          
@@ -2612,6 +2613,15 @@ chgcolors:
 ;         inc ppmode
 ;         rts
 ;         .bend
+
+setpalette:
+         mov #3,r2
+         call @#iocf
+         movb @#palette,r2
+         swab r2
+         asl r2
+         mov r2,@#kbddtport   ;sets also active video page and enables raster interrupt
+         return
 
 showtopology:
          mov #27,r1
