@@ -549,10 +549,38 @@
 ;*checkst  cmp #$40
 ;*         beq eof
 
+copyr:   mov #toio,@#pageport
+         mov #io_op,r0
+         mov r0,r1
+         mov #3,(r0)+
+         mov #16384,(r0)+
+         clr (r0)+
+         mov #"CR,(r0)+
+         mov #".T,(r0)+
+         mov #"XT,(r0)+
+         mov #5,r2
+1$:      clr (r0)+
+         sob r2,1$
+
+         emt ^O36
+         tstb @#io_op+1
+         bne ioerr1
+
+         mov @#loaded_sz,r2
+         mov #16384,r1
+2$:      mov #toio,@#pageport
+         movb (r1)+,r0
+         mov #toandos,@#pageport
+         emt ^O16
+         sob r2,2$
+
+         call @#getkey
+exit20:  return
+
 ioerror: tstb @#errst
          beq exit20
 
-         jsr r3,@#printstr
+ioerr1:  jsr r3,@#printstr
          .byte 10
          .asciz "IO ERROR"
          jmp @#getkey
@@ -567,13 +595,10 @@ iocf:    mov #io_op,r0    ;IN: R2 - 2/3 - write/read
          mov #"RS,(r0)+
          mov #".C,(r0)+
          mov #"FG,(r0)+
-         clr (r0)+
-         clr (r0)+
          clr @r0
          emt ^O36
          tstb @#io_op+1
          beq exit20
 
          jmp @#ioerror
-exit20:  return
 

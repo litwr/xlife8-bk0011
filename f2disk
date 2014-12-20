@@ -9,10 +9,11 @@ compile xlife0.asm && \
 rungcc cut3.c && \
 bin2com xlife0.bin && \
 sudo ~/bin/mountimg XLIFE.IMG && \
-rm /mnt/loop/xlife?.com && \
+rm -f /mnt/loop/xlife?.com /mnt/loop/cr.txt && \
 cp xlife[012].com /mnt/loop && \
+cp cr.txt /mnt/loop && \
 touch -t 01010016.00 /mnt/loop/xlife0.com && \
-ls /mnt/loop/xlife* && \
-sudo sync && \
+ls /mnt/loop/xlife*
+sudo sync
 sudo umount /mnt/loop
 rm initiles.s gentab.s tab12.s vistab.s

@@ -14,14 +14,12 @@
          .=768
 
 start:   mov #128,@#^O102
-         ;!call @#copyr
-         clr @#kbddtport              ;page 1(5) - active video, timer irq, 0th pal
+         mov #keyirq,@#^O60
+         mov #key2irq,@#^O274
+         call @#copyr
          mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
-
-         mov #keyirq,@#^O60
-         mov #key2irq,@#^O274
 
          ;;lda 174     ;current device #
          ;;bne nochg
