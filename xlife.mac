@@ -238,3 +238,21 @@ cond2:
          mov (sp)+,arg
          .endm
 
+         .macro pushall
+         push r0
+         push r1
+         push r2
+         push r3
+         push r4
+         push r5
+         .endm
+
+         .macro popall
+         pop r5
+         pop r4
+         pop r3
+         pop r2
+         pop r1
+         pop r0
+         .endm
+

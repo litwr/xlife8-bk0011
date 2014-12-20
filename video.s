@@ -383,9 +383,9 @@ help:    call @#totext
          .byte 10,10,159
          .ascii "Use "
          .byte 159,156
-         .ascii "cursor keys "
+         .ascii "cursor keys"
          .byte 156,159
-         .ascii "to set the position and "
+         .ascii " to set the position and "
          .byte 159,156
          .ascii "space key"
          .byte 156,159
@@ -2651,7 +2651,7 @@ showptxt:     ;IN: R1 - X, R2 - Y, R3 - msg
          ;mov @#yscroll,@#yshift 
          emt ^O24
          mov r3,r1
-spt1:    mov #255,r2
+spt1:    clr r2
          emt ^O20
          ;mov @#yshift,@#yscroll
          ;mov #^O1330,@#yshift

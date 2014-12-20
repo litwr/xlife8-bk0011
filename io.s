@@ -517,7 +517,7 @@
 ;*         ldx #<fn
 ;*         ldy #>fn
 ;*         .bend
-;*
+
 ;*showtxt  .block
 ;*         jsr SETNAM
 ;*         lda #8

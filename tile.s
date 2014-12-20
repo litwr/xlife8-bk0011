@@ -27,11 +27,8 @@ chkaddt: tst r3
          ;*iny
          ;*ora (adjcell),y
 chkadd:  tst next(r2)
-
-         ;*bne exit2
          bne exit2
 
-;*addnode  .block
 addnode:                  ;in: R2
          ;*dey
          ;*lda startp
@@ -49,10 +46,6 @@ addnode:                  ;in: R2
 
          ;*inc tilecnt+1
          inc @#tilecnt
-
-         ;*.bend
-
-;*exit2    rts
 exit2:   return
 
 ;*chkadd2  ldy #next
@@ -499,31 +492,48 @@ plain:
 ;         rts
          return
 
-;random   .block
-;uses: adjcell:2, adjcell2:2, i1:2, i2, t1, t2, t3, x0
+random:
+;uses: adjcell:2 - r2, i1:2 - r3/r5, i2 - r4, t1 - r1
 ;         lda #0     ;dir: 0 - left, 1 - right
 ;         sta t1
+         clr r1
+
 ;         lda #<tiles+((hormax*4+3)*tilesize)  ;start random area
 ;         sta adjcell
 ;         lda #>tiles+((hormax*4+3)*tilesize)
 ;         sta adjcell+1
+         mov #tiles+<<hormax*4+3>*tilesize>,r2
+
 ;         lda #right
 ;         sta i1+1
 ;         lda #14    ;hor rnd max
 ;         sta i2
 ;         lda #16    ;ver rnd max
 ;         sta i1
+        mov #16,r3
+        mov #right,r5
+        mov #14,r4
+
 ;cont3    ldy #sum
 ;         sta (adjcell),y
 ;         lda #8
 ;         sta t3
+23$:     mov #1,sum(r2)
+         mov #8,r0
+
 ;loop1    jsr rndbyte
 ;         dec t3
 ;         bne loop1
+1$:      call @#rndbyte
+         sob r0,1$
+         sub #8,r2
 
 ;         jsr chkadd
 ;         dec i2
 ;         beq cont2
+        call @#chkadd
+        dec r4
+        beq 22$
 
 ;         ldy i1+1
 ;cont4    lda (adjcell),y
@@ -533,9 +543,14 @@ plain:
 ;         stx adjcell
 ;         sta adjcell+1
 ;         bne cont3
+         add r5,r2
+24$:     mov @r2,r2
+         br 23$
 
 ;cont2    dec i1
 ;         beq cont5
+22$:     dec r3
+         beq calccells
 
 ;         lda #14    ;hor rnd max
 ;         sta i2
@@ -544,14 +559,19 @@ plain:
 ;         eor #1
 ;         sta t1
 ;         bne cont1
+         mov #14,r4
+         mov #left,r5
+         mov #1,r0
+         xor r0,r1
+         bne 21$
 
 ;         ldy #right
 ;cont1    sty i1+1
 ;         ldy #down
 ;         bne cont4
-
-;cont5
-;         .bend
+         mov #right,r5
+21$:     add #down,r2
+         br 24$
 
 calccells:
          tst @#tilecnt

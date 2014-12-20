@@ -8,7 +8,7 @@ pageport   = ^O177716            ;$ffce
 todata     = ^B10101100000000    ;open pages 2 and 3
 tovideo    = ^B01111100000000    ;show both video pages 1 (soft 5), 7 (soft 6)
 toandos    = ^B01110000000000    ;open pages 1 (soft 5) and 4 (AnDOS)
-toio       = ^B111110000000000    ;open pages 0 (soft 1) and 4 (AnDOS)
+toio       = ^B101110000000000   ;open pages 5 (soft 6) and 4 (AnDOS)
 nokbirq    = ^B1000000
 
 io_op      = 256

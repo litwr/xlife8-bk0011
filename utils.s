@@ -238,40 +238,30 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
 ;         rts
 ;         .bend
 
-;rndbyte  .block
-;         lda #8
-;         sec
-;         sbc t3
-;         sta t2
-;         lda density
-;         sta adjcell2
-;loop1    lda $ff1e
-;         lsr
-;         lsr
-;         sta x0
-;         lda $ff02
-;         asl
-;         asl
-;         eor adjcell2+1
-;         eor x0
-;         sta adjcell2+1
-;         lsr adjcell2+1
-;         and #7
-;         tax
-;         lda bittab,x
-;         sta x0
+rndbyte: push r0   ;IN: R2
+         push r1
+         push r4
+         push r5
+         clr r5
+         movb @#density,r4
+2$:      clr r1
+         mov @#timerport2,r0
+         xor r0,@#temp
+         ror r0    ;uses CY=0 set by clr
+         rol r1
+         asr r0
+         rol r1
+         movb 32768(r0),r0
+         add @#temp,r0
+         asr r0
+         rol r1
+         bisb bittab(r1),r5
+         sob r4,2$
 
-;         ldy t2
-;         ora (adjcell),y
-;         tax
-;         sta (adjcell),y
-;         lda tab3,x
-;         ldy #sum
-;         adc (adjcell),y
-;         sta (adjcell),y
-;         dec adjcell2
-;         bne loop1
-
-;         rts
-;         .bend
+         bisb r5,(r2)+
+         pop r5
+         pop r4
+         pop r1
+         pop r0
+         return
 

@@ -111,15 +111,14 @@ dispat0: cmpb #'g,r0
 11$:     cmpb #'!,r0
          bne 12$
 
-;*         jsr random
-;*         jmp showscn
+         call @#random
+         jmp @#showscn
 
 12$:     cmpb #'%,r0
          bne 14$
 
-           cmpb #2,@#mode
-           beq 14$
-
+         cmpb #2,@#mode
+         beq 14$
          jmp @#indens
 
 14$:     cmpb #'B,r0
@@ -328,7 +327,9 @@ dispat0: cmpb #'g,r0
 ;*         sbc #8
 ;*qleft    sta vptilecx
 ;*         jmp cont17u
-         sub #8,@#vptilecx
+         movb @#vptilecx,r0
+         sub #8,r0
+         movb r0,@#vptilecx
 273$:    br 270$
 
 ;*cleft    dec vptilecx

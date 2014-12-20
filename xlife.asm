@@ -684,8 +684,6 @@ viewport: .word 0
 crsrtile: .word 0
 temp:     .word 0
 temp2:    .word 0
-;irq60s:   .word 0
-;irq274s:  .word 0
 kbdbuf:   .word 0
 saved:    .word 0
 lowbench: .word 0
@@ -701,7 +699,7 @@ cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
 crsrx:    .byte 0      ;[x/8]*8, word aligned!
 crsry:    .byte 0      ;[y/8]*8
-vptilecx: .byte 0
+vptilecx: .byte 0      ;word aligned!
 vptilecy: .byte 0
 xcrsr:    .byte 0,0,0
 ycrsr:    .byte 0,0,0
@@ -736,11 +734,11 @@ crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0
-msghide: .asciz /HIDE/
-msgtore: .asciz /TORUS/
-msgplan: .asciz /PLAIN/
-msgrun:  .asciz /RUN /
-msgstop: .asciz /STOP/
+msghide: .asciz "HIDE"
+msgtore: .asciz "TORUS"
+msgplan: .asciz "PLAIN"
+msgrun:  .asciz "RUN "
+msgstop: .asciz "STOP"
 stringbuf: .blkb 19
 
          .even   ;high area
