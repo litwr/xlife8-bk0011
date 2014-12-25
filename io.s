@@ -36,8 +36,8 @@
 ;*         sta $b9
 ;*         rts
 ;*         .bend
-;*
-;*loadpat  .block
+
+loadpat:
 ;*         lda fnlen
 ;*         ldx #<fn
 ;*         ldy #>fn
@@ -48,7 +48,22 @@
 ;*         ldx #8
 ;*         jsr CHKIN
 ;*         bcs error
-;*
+         mov #toio,@#pageport
+         mov #io_op,r0
+         mov r0,r1
+         mov #3,(r0)+
+         mov #16384,r4
+         mov r4,(r0)+
+         clr (r0)+
+         mov #fn,r2
+         mov #12,r3
+1$:      movb (r2)+,(r0)+
+         sob r3,1$
+
+         emt ^O36
+         tstb @#io_op+1
+         bne 11$
+
 ;*         ldy #0
 ;*loop4    jsr READSS
 ;*         bne checkst
@@ -61,7 +76,10 @@
 ;*         iny
 ;*         cpy #2
 ;*         bne loop4
-;*
+         mov (r4)+,r0
+         movb r0,@#fcount
+         mov (r4)+,@#x0
+
 ;*         ldy #0
 ;*loop2    jsr READSS
 ;*         bne checkst
@@ -85,19 +103,44 @@
 ;*         jsr readtent
 ;*         jsr showrect
 ;*         bcs eof
-;*
+         mov (r4)+,r0
+         mov (r4)+,r1
+         mov r1,r2
+         bis r0,r2
+         cmp r2,#512
+         bcc 3$
+
+         bit #1,r1
+         bne 3$
+
+         ;call @#scrblnk
+         ;call @#readtent
+         ;call @#showrect
+         ;bcs 3$
+
 ;*         jsr scrblnk
 ;*         ldy #3
 ;*loop1    lda live,y
 ;*         cmp $fe8,y
 ;*         bne cont1
-;*
+
 ;*         dey
 ;*         bpl loop1
-;*
+         cmp @#live,@#16384+4
+         bne 4$
+
+         cmp @#born,@#16384+6
+         beq 5$
+
+4$:      mov @#16384+4,@#live
+         mov @#16384+6,@#born
+         call @#fillrt
+
 ;*cont7    jsr puttent
 ;*         bcc eof
-;*
+5$:      ;call @#puttent
+         ;bcc 3$
+
 ;*loop5    ldy #0
 ;*loop6    jsr READSS
 ;*         bne checkst
@@ -110,51 +153,38 @@
 ;*
 ;*         jsr putpixel
 ;*         jmp loop5
-;*
-;*checkst  cmp #$40
-;*         bne error
-;*         beq eof
-;*
-;*error    jsr scrnorm
-;*         jsr showds
-;*         lda #0
-;*         sta fnlen
-;*eof      jmp endio
-;*
-;*cont1    ldy #3
-;*loop3    lda $fe8,y
-;*         sta live,y
-;*         dey
-;*         bpl loop3
-;*
-;*         jsr fillrt   ;sets ZF=1
-;*         beq cont7
-;*         .bend
-;*
-;*showds   .block
-;*         lda #147
-;*         jsr BSOUT
-;*         lda #0
-;*         jsr SETNAM
-;*         lda #15
-;*         ldx $ae
-;*         tay
-;*         jsr SETLFS
-;*         jsr OPEN
-;*         ldx #15
-;*         jsr CHKIN
-;*loop7    jsr READSS
-;*         bne eof15
-;*
-;*         jsr BASIN
-;*         jsr BSOUT
-;*         jmp loop7
-;*
-;*eof15    lda #15
-;*         jsr CLOSE
-;*         jmp getkey
-;*         .bend
-;*
+         mov #16384+8,r0
+9$:      add #16384,@#loaded_sz
+6$:      mov (r0)+,r1
+         push r0
+         mov #todata,@#pageport
+         ;call @#putpixel
+         mov #toio,@#pageport
+         pop r0
+         cmp r0,@#loaded_sz
+         bne 6$
+
+         decb @#fcount
+         bmi 3$
+
+         mov #io_fn+12,r1
+8$:      tstb -(r1)
+         beq 8$
+
+         inc @r1
+         emt ^O36
+         tstb @#io_op+1
+         bne 11$
+
+10$:     mov #16384,r0
+         br 9$
+
+11$:     jmp @#ioerror
+
+3$:      mov #todata,@#pageport
+         ;call @#tograph
+         return     
+
 ;*showdir  .block
 ;*         jsr dirop1
 ;*         BCS error

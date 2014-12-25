@@ -573,33 +573,49 @@ dispat0: cmpb #'g,r0
 ;*         lda zoom
 ;*         pha
 ;*         beq nozoom1
-;*
+         movb @#zoom,r0
+         push r0
+         beq 301$
+
 ;*         jsr zoomout
+         clrb @#zoom
+         
 ;*nozoom1  jsr totext
 ;*         jsr loadmenu
 ;*         beq exitload
-;*
+301$:    ;call @#totext
+         ;call @#loadmenu
+         ;beq 302$
+
 ;*cont17w  jsr loadpat
 ;*         jsr scrnorm
+303$:    call @#loadpat
+         ;call @#scrnorm
+
 ;*exitload jsr finish
 ;*         pla
 ;*         bne zoomin
-;*
+302$:    ;call @#finish
+         pop r0
+         movb r0,@#zoom
+         jmp @#showscn
+
 ;*exit0    rts
-100$:    return
+
 
 173$:     cmpb #'L,r0
          bne 174$
 
 ;*         lda fnlen
 ;*         bne cont17v
-;*
+
 ;*         rts
-;*
+100$:    return
+
 ;*cont17v  lda zoom
 ;*         pha
 ;*         beq nozoom3
-;*
+
 ;*         jsr zoomout
 ;*nozoom3  jsr totext
 ;*         lda #147
@@ -630,10 +646,6 @@ dispat0: cmpb #'g,r0
          tstb @#zoom
          beq 100$
 
-;*zoomout  lda #0
-;*         sta zoom
-;*         jsr savebl
-;*         jmp finish
          clrb @#zoom
          br 271$
 

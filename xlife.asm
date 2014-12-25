@@ -694,6 +694,8 @@ crsraddr: .word 0
 crsrdata: .word 0
 crsrmask: .word 0
 
+x0:       .byte 0   ;word aligned
+y0:       .byte 0
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
@@ -706,8 +708,6 @@ ycrsr:    .byte 0,0,0
 tinfo:    .byte 0,0,0  ;even alignment for BK!
 xdir:     .byte 0      ;linear transformation
 ydir:     .byte 0
-x0:       .byte 0
-y0:       .byte 0
 xchgdir:  .byte 0
 clncnt:   .byte 0
 pseudoc:  .byte 0
@@ -716,7 +716,9 @@ crsrbit:  .byte 128    ;x bit position
 crsrbyte: .byte 0      ;y%8
 zoom:     .byte 0
 fnlen:    .byte 0
-;;fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+fn:       .ascii "BLOCK.8L0"
+          .byte 0,0,0
+;.blkb 12
 dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
 ;;         .repeat 17,0
@@ -724,6 +726,7 @@ live:     .byte 12,0
 born:     .byte 8,0
 density:  .byte 3
 palette:  .byte 0
+fcount:   .byte 0      ;number of file parts
 topology: .byte 0      ;0 - torus
 crsrticks: .byte 0
 copyleft: .ascii "CR.TXT"
