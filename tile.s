@@ -656,6 +656,7 @@ putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0
 ;         ldx ydir
 ;         beq cont3
 2$:      movb @#crsry,r3
+         mov r3,r5
          add @#crsrbyte,r3
          mov r4,r2
          swab r2
@@ -697,7 +698,7 @@ putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0
 ;         sec
 ;         sbc crsry
 ;         sta y8pos
-1$:
+1$:      sub r5,r3
 
 ;         lda x8pos
 ;         and #7
@@ -712,6 +713,8 @@ putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0
 ;         sec
 ;         sbc t2
 ;         sta x8pos
+         movb @#crsrx,r4
+         sub r4,r1
 
 ;         #assign16 adjcell,crsrtile
          mov @#crsrtile,r2     ;r2 for chkadd

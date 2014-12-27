@@ -597,8 +597,9 @@ dispat0: cmpb #'g,r0
 ;*         bne zoomin
 302$:    pop r0
          movb r0,@#zoom
+         call @#zerocc
          call @#calccells
-         jmp @#showscn
+         jmp @#tograph0
 
 173$:     cmpb #'L,r0
          bne 174$

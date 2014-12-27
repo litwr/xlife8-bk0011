@@ -716,8 +716,8 @@ pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 zoom:     .byte 0
 fnlen:    .byte 0
-fn:       .ascii "BLOCK.8L0"
-          .byte 0,0,0
+fn:       .ascii "WHITE-WH.8L0"
+          ;.byte 0,0,0
 ;.blkb 12
 dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
