@@ -15,5 +15,5 @@ io_op      = 256
 io_start   = 258
 io_len     = 260
 io_fn      = 262
-loaded_sz  = ^O266
+loaded_sz  = ^O266              ;$b6
 

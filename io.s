@@ -118,7 +118,6 @@ loadpat:
          ;call @#showrect
          ;bcs 3$
 
-;*         jsr scrblnk
 ;*         ldy #3
 ;*loop1    lda live,y
 ;*         cmp $fe8,y
@@ -171,7 +170,8 @@ loadpat:
 8$:      tstb -(r1)
          beq 8$
 
-         inc @r1
+         incb @r1
+         clrb r1   ;io_op=0x100
          emt ^O36
          tstb @#io_op+1
          bne 11$
@@ -604,16 +604,18 @@ copyr:   mov #toio,@#pageport
          emt ^O16
          sob r2,2$
 
-         call @#getkey
+         br ioerr2
 exit20:  return
 
 ioerror: tstb @#errst
          beq exit20
 
-ioerr1:  jsr r3,@#printstr
+ioerr1:  mov #toandos,@#pageport
+         jsr r3,@#printstr
          .byte 10
          .asciz "IO ERROR"
-         jmp @#getkey
+         mov #todata,@#pageport
+ioerr2:  jmp @#getkey
 
 iocf:    mov #io_op,r0    ;IN: R2 - 2/3 - write/read
          mov r0,r1
