@@ -156,11 +156,11 @@ loadpat:
          mov #16384+8,r0
 9$:      add #16384,@#loaded_sz
 6$:      mov (r0)+,r1
-         push r0
+         ;push r0
          mov #todata,@#pageport
-         ;call @#putpixel
+         call @#putpixel
          mov #toio,@#pageport
-         pop r0
+         ;pop r0
          cmp r0,@#loaded_sz
          bne 6$
 

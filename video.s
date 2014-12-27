@@ -1406,18 +1406,22 @@ clrscn:   mov #tovideo,@#pageport
 ;         plp
 ;         rts
 ;         .bend
-;
-;xchgxy   .block
+
+xchgxy:
 ;         lda xchgdir
 ;         beq exit
-;
+         tstb @#xchgdir
+         beq 1$
+
 ;         lda x0
 ;         ldx y0
 ;         sta y0
 ;         stx x0
 ;exit     rts
-;         .bend
-;
+         swab r1
+1$:      return
+
+
 ;drawrect .block
 ;;uses: adjcell:2, adjcell2:2, currp:2, t1, t2, t3, i1:2, $fd
 ;;calls: pixel11
@@ -2516,7 +2520,7 @@ chgcolors:
 16$:     movb -(r2),r2
          br 24$
 
-;putpixel2 .block 
+putpixel2:
 ;         tax
 ;         jsr seti1
 ;         txa
@@ -2545,8 +2549,8 @@ chgcolors:
 ;         ora t3
 ;         sta (i1),y
 ;         rts
-;         .bend
-;
+         return
+
 ;showtent .block   ;used: 
 ;         lda x0
 ;         pha

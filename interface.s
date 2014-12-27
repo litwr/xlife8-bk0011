@@ -595,13 +595,10 @@ dispat0: cmpb #'g,r0
 ;*exitload jsr finish
 ;*         pla
 ;*         bne zoomin
-302$:    ;call @#finish
-         pop r0
+302$:    pop r0
          movb r0,@#zoom
+         call @#calccells
          jmp @#showscn
-
-;*exit0    rts
-
 
 173$:     cmpb #'L,r0
          bne 174$
@@ -659,7 +656,6 @@ dispat0: cmpb #'g,r0
 ;*         jsr curoff
 ;*         jsr showcomm
 ;*         jmp finish
-
 
 177$:    cmpb #'v,r0
          bne 178$

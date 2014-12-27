@@ -599,33 +599,18 @@ inctsum:            ;in: r2
          cellsum 1$
 1$:      return
 
-;dectsum  .block
-;         ldx #4
-;loop     dec cellcnt,x
-;         lda cellcnt,x
-;         cmp #$2f
-;         bne exit
-
-;         lda #$39
-;         sta cellcnt,x
-;         dex
-;         bpl loop
-
-;exit     rts         ;ZF=0
-;         .bend
-
-;putpixel .block
-;uses: adjcell:2, adjcell2:2, t1, t2, $fd
-;x8pos    = adjcell2
-;x8bit    = adjcell2+1
-;y8pos    = t1
-;y8byte   = $fd    ;connected to seti1
+putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0
+;x8pos    = adjcell2 = R1 low
+;y8pos    = t1  = R3 low
+;x0,y0 - R1
 ;         jsr xchgxy
-;         ldx #8
+         call @#xchgxy
+
 ;         lda crsrbit
-;loop1    dex
-;         lsr
-;         bcc loop1
+;         jsr calcx
+         mov r1,r4
+         movb @#crsrbit,r1
+         call @#calcx
 
 ;         stx m1+1
 ;         lda crsrx
@@ -636,17 +621,31 @@ inctsum:            ;in: r2
 ;m1       adc #0
 ;         ldx xdir
 ;         beq cont4
+         movb r4,r2
+         add @#crsrx,r1
+         tstb @#xdir
+         beq 4$
 
 ;         sec
 ;         sbc x0
 ;         bcc exit
 ;         bcs cont2
+         cmpb r1,r2
+         bcs 100$
+         
+         sub r2,r1
+         br 2$
 
 ;cont4    adc x0
 ;         bcs exit
+4$:      add r2,r1
+         cmpb r1,r2
+         bcs 100$
 
 ;         cmp #160
 ;         bcs exit
+         cmpb r1,#160
+         bcc 100$
 
 ;cont2    sta x8pos
 ;         lda crsry
@@ -656,19 +655,37 @@ inctsum:            ;in: r2
 ;         adc crsrbyte
 ;         ldx ydir
 ;         beq cont3
+2$:      movb @#crsry,r3
+         add @#crsrbyte,r3
+         mov r4,r2
+         swab r2
+         tstb @#ydir
+         beq 3$
 
 ;         sec
 ;         sbc y0
 ;         bcc exit
 ;         bcs cont1
+         cmpb r3,r2
+         bcs 100$
+         
+         sub r2,r3
+         br 1$
 
 ;cont3    adc y0
 ;         bcs exit
 
 ;         cmp #192
 ;         bcc cont1
+3$:      add r2,r3
+         cmpb r3,r2
+         bcs 100$
+
+         cmpb r3,#192
+         bcs 1$
 
 ;exit     rts
+100$:    return
 
 ;cont1    sta y8pos
 ;         and #7
@@ -680,6 +697,8 @@ inctsum:            ;in: r2
 ;         sec
 ;         sbc crsry
 ;         sta y8pos
+1$:
+
 ;         lda x8pos
 ;         and #7
 ;         sta x8bit
@@ -693,17 +712,25 @@ inctsum:            ;in: r2
 ;         sec
 ;         sbc t2
 ;         sta x8pos
+
 ;         #assign16 adjcell,crsrtile
-;         ;sei
+         mov @#crsrtile,r2     ;r2 for chkadd
+
 ;         sta $ff3f
 ;         lda y8pos
 ;loop2    bmi cup
 ;         bne cdown
+22$:     bitb #248,r3
+         bmi 12$
+         bne 11$
 
 ;         lda x8pos
 ;loop3    bmi cleft
 ;         bne cright
-
+23$:     bitb #248,r1
+         bmi 13$
+         bne 10$
+         
 ;         lda #7
 ;         sec
 ;         sbc x8bit
@@ -712,44 +739,56 @@ inctsum:            ;in: r2
 ;         ldy ppmode
 ;         bne putpixel3
 ;         jmp putpixel2
+         mov #7,r4
+         sub r1,r4
+         bic #65528,r4
+         movb bittab(r4),r4
+         tstb @#ppmode
+         bne putpixel3
+         jmp @#putpixel2
 
 ;cright   ldy #right     ;y=0, x=/=0
 ;         jsr nextcell
 ;         dec x8pos
 ;         bpl loop3
+10$:     mov right(r2),r2
+         sub #8,r1
+         br 23$
 
 ;cdown    ldy #down      ;y=/=0
 ;         jsr nextcell
 ;         dec y8pos
 ;         bpl loop2
+11$:     mov down(r2),r2
+         sub #8,r3
+         br 22$
 
 ;cup      ldy #up       ;y=/=0
 ;         jsr nextcell
 ;         inc y8pos
 ;         jmp loop2
+12$:     mov up(r2),r2
+         add #8,r3
+         br 22$
 
 ;cleft    ldy #left      ;y=0, x=/=0
 ;         jsr nextcell
 ;         inc x8pos
 ;         jmp loop3
-;         .bend
+13$:     mov left(r2),r2
+         sub #8,r1
+         br 23$
 
-;putpixel3 .block 
-;y8byte   = $fd      ;connected to seti1, putpixel
+putpixel3:       ;IN: r2,r3,r4
 ;         ldy y8byte
 ;         ora (adjcell),y
 ;         sta (adjcell),y
+         bic #65528,r3
+         add r2,r3
+         bisb r4,@r3
+ 
 ;         jsr chkadd	;uses adjcell!
 ;         sta $ff3e
-;         ;cli
 ;         rts
-;         .bend
-
-;nextcell lda (adjcell),y
-;         tax
-;         iny
-;         lda (adjcell),y
-;         sta adjcell+1
-;         stx adjcell
-;         rts    ;ZF=0
+         jmp @#chkadd
 

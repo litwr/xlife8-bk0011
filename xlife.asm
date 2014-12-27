@@ -696,6 +696,8 @@ crsrmask: .word 0
 
 x0:       .byte 0   ;word aligned
 y0:       .byte 0
+crsrbyte: .byte 0      ;y%8  word aligned
+crsrbit:  .byte 128    ;x bit position
 i1:       .byte 0,0
 cellcnt:  .byte 0,0,0,0,0
 gencnt:   .byte 0,0,0,0,0,0,0
@@ -712,8 +714,6 @@ xchgdir:  .byte 0
 clncnt:   .byte 0
 pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
-crsrbit:  .byte 128    ;x bit position
-crsrbyte: .byte 0      ;y%8
 zoom:     .byte 0
 fnlen:    .byte 0
 fn:       .ascii "BLOCK.8L0"
