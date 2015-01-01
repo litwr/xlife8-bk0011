@@ -139,6 +139,7 @@ digifont:   ;8th columns are free
          .include io.s
          .include rules.s
          ;!.include "ramdisk.s"
+         .include video-base.s
          .include video.s
          .include tab12.s
 
@@ -708,17 +709,16 @@ vptilecy: .byte 0
 xcrsr:    .byte 0,0,0
 ycrsr:    .byte 0,0,0
 tinfo:    .byte 0,0,0  ;even alignment for BK!
-xdir:     .byte 0      ;linear transformation
-ydir:     .byte 0
 xchgdir:  .byte 0
+xdir:     .byte 0      ;linear transformation, word aligned
+ydir:     .byte 0
 clncnt:   .byte 0
 pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 zoom:     .byte 0
 fnlen:    .byte 0
-;fn:       .ascii "XXXXXXXX.8L0"
-fn:       .ascii "VENETIAN.8L0"
-          ;.byte 0,0,0
+fn:       .ascii "BLOCK.8L0"
+          .byte 0,0,0
 ;.blkb 12
 dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
@@ -786,11 +786,11 @@ crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
            bne 4$
 
            clr r0
-4$:        mov r0,@r1
+4$:        ;mov r0,@r1
            br 3$
 
 2$:        mov @#crsrmask,r0
-           bis r0,@r1
+           ;bis r0,@r1
 3$:        mov #todata,@#pageport
            pop r1
 1$:        pop r0

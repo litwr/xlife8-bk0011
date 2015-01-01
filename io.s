@@ -103,6 +103,11 @@ loadpat:
 ;*         jsr readtent
 ;*         jsr showrect
 ;*         bcs eof
+         push r4
+         call @#showrect
+         mov #toio,@#pageport
+         pop r4
+         ;bcs 3$
          mov (r4)+,r0
          mov (r4)+,r1
          mov r1,r2

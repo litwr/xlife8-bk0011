@@ -1,87 +1,3 @@
-initxt:   mov #toandos,@#pageport
-          clr r1
-          mov #18,r2
-          emt ^O24
-          jsr r3,@#printstr
-          .byte 147,'G,0,0
-
-          mov #18,r1
-          emt ^O24
-          jsr r3,@#printstr
-          .byte '%,32,32,32,32,32,'X,32,32,32,'Y,145,0,0
-
-          mov #65535,r2
-          mov #20,r3
-          mov #16384+12+64,r1
-          mov #16384+12+<64*194>,r0
-1$:       mov r2,(r1)+
-          mov r2,(r0)+
-          sob r3,1$
-
-          mov #194,r3
-          mov #16384+11+64,r1
-2$:       movb #192,@r1
-          movb #3,41(r1)
-          add #64,r1
-          sob r3,2$
-          mov #todata,@#pageport
-          return
-
-totext:    call @#clrscn
-           mov @#yscroll,@#yshift
-           mov #toandos,@#pageport
-           return
-
-tograph:   jsr r3,@#printstr
-           .byte 145,0
-           mov #^O1330,@#yshift
-tograph0:  call @#clrscn
-           call @#initxt
-           call @#showscn
-           call @#showmode
-           call @#showtopology
-           call @#showrules2
-           jmp @#xyout
-
-printstr:  movb (r3)+,r0
-           beq 2$
-
-           cmp #9,r0
-           bne 3$
-
-           mov #spaces10,r1
-           mov #10,r2
-           emt ^O20
-           br printstr
-
-3$:        emt ^O16
-           br printstr
-
-2$:        inc r3
-           bic #1,r3
-           rts r3
-
-spaces10:  .ascii "          "
-
-;printhex .macro
-;         and #$7f       ;print hex number in AC
-;         pha
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         eor #$30
-;         jsr BSOUT
-;         pla
-;         and #$f
-;         eor #$30
-;         cmp #"9"+1
-;         bcc l1
-;
-;         adc #6     ;CY=1
-;l1       jsr BSOUT
-;         .endm
-
 insteps: call @#totext
          jsr r3,@#printstr
          .byte 154,0
@@ -403,22 +319,6 @@ help:    call @#totext
          .byte 155,0
          jmp @#tograph
 
-digiout:        ;in: r1 - length, r2 - scrpos, r0 - data
-1$:      movb (r0)+,r3
-         asl r3
-         asl r3
-         asl r3
-         asl r3
-         mov digifont+2(r3),64(r2)
-         mov digifont+4(r3),128(r2)
-         mov digifont+6(r3),192(r2)
-         mov digifont+8(r3),256(r2)
-         mov digifont+10(r3),320(r2)
-         mov digifont+12(r3),384(r2)
-         mov digifont(r3),(r2)+
-         sob r1,1$
-         return
-
 xyout:   mov #tovideo,@#pageport
          mov #xcrsr,r0
          mov #3,r1
@@ -526,8 +426,7 @@ calcx:       ;$80 -> 0, $40 -> 1, ...
          movb r1,r1
          return
 
-crsrpg:
-         clrb @#i1
+crsrpg:  clrb @#i1
          tstb @#crsrpgmk
          beq 1$
 
@@ -756,28 +655,18 @@ showscnz:
          clrb -1(r1)
          br 16$
 
-gexit:   jmp @#crsrset
+gexit:    jmp @#crsrset
 
-showscn: call @#infoout
-         tstb @#zoom
-         bne showscnz
+showscn:  call @#infoout
+          tstb @#zoom
+          bne showscnz
 
-         tst @#tilecnt
-         beq gexit
+          tst @#tilecnt
+          beq gexit
 
-         tstb @#pseudoc
-         beq showscn2
-         br  showscnp
-
-;showscn0 lda zoom
-;         beq rts1
-
-;         lda tilecnt
-;         bne xcont2
-
-;         lda tilecnt+1
-;         bne xcont2
-;         rts
+          tstb @#pseudoc
+          beq showscn2
+          br  showscnp
 
 showscn2: mov @#startp,r0
 1$:       mov video(r0),r5
@@ -1311,14 +1200,17 @@ clrscn:   mov #tovideo,@#pageport
 ;         dey
 ;         jmp loop8
 ;         .bend
-;
-;showrect .block
-;;uses:
-;         jsr restbl
+
+showrect:
 ;         clc
 ;         ldy #0
 ;         ldx #24
 ;         jsr PLOT        ;set position for the text
+         mov #toandos,@#pageport
+         clr r1
+         mov #19,r2
+         emt ^O24
+
 ;         jsr JPRIMM
 ;         .byte 30
 ;         .ascii "move, "
@@ -1333,37 +1225,73 @@ clrscn:   mov #tovideo,@#pageport
 ;         .byte 28
 ;         .ascii "esc"
 ;         .byte 144,0
+         jsr r3,@#printstr
+         .byte 153,146
+         .ascii "MOVE, "
+         .byte 145,'R,146
+         .ascii "OTATE, "
+         .byte 145,'F,146
+         .ascii "LIP, "
+         .byte 145
+         .ascii "ENTER"
+         .byte 146, ',,32,145
+         .ascii "TAB"
+         .byte 0
+       
 ;         lda #0
 ;         sta xdir
 ;         sta ydir
 ;         sta xchgdir
+         clr @#xdir
+         clrb @#xchgdir
+
 ;         jsr tograph0
 ;         jsr showscn0
 ;loop0    jsr drawrect
 ;         jsr showtent
 ;         jsr crsrset0
+10$:     call @#drawrect
+         ;call @#showtent
+         ;call @#crsrset0
+
 ;loop1    jsr getkey
+11$:     call @#getkey
+
 ;         cmp #$9d   ;cursor left
 ;         beq lselect
-;
+         cmpb #8,r0
+         beq 100$
+
 ;         cmp #$1d   ;cursor right
 ;         beq lselect
-;
+         cmpb #25,r0
+         beq 100$
+
 ;         cmp #$91   ;cursor up
 ;         beq lselect
-;
+         cmpb #26,r0
+         beq 100$
+
 ;         cmp #$11   ;cursor down
 ;         beq lselect
-;
+         cmpb #27,r0
+         beq 100$
+
 ;         cmp #"."   ;to center
 ;         beq lselect
-;
+         cmpb #'.,r0
+         beq 100$
+
 ;         cmp #19    ;to home
 ;         beq lselect
-;
+         cmpb #12,r0
+         beq 100$
+
 ;         cmp #"R"-"A"+$41
 ;         bne cont1
-;
+         cmpb #'r,r0
+         bne 1$
+
 ;         jsr clrrect
 ;         lda xchgdir
 ;         eor #1
@@ -1374,30 +1302,49 @@ clrscn:   mov #tovideo,@#pageport
 ;         sta xdir
 ;         stx ydir
 ;         bpl loop0
-;
+         ;call @#clrrect
+         comb @#xchgdir
+         swab @#xdir
+         comb @#xdir
+         br 10$
+
 ;cont1    cmp #"F"-"A"+$41
 ;         bne cont2
-;
+1$:      cmpb #'f,r0
+         bne 2$
+
 ;         jsr clrrect
 ;         lda xdir
 ;         eor #1
 ;         sta xdir
 ;         bpl loop0
-;
+         ;call @#clrrect
+         comb @#xdir
+         br 10$
+
 ;cont2    cmp #$d
 ;         beq finish
-;
+2$:      cmpb #10,r0
+         beq 110$
+
 ;         cmp #$1b
 ;         beq finish0
-;
+
 ;         bne loop1
-;
+         br 11$
+
 ;lselect  pha
 ;         jsr clrrect
 ;         pla
 ;         jsr dispat0
 ;         jmp loop0
-;
+100$:    push r0
+         ;call @#clrrect
+         pop r0
+         call @#dispat0
+         br 10$
+
+110$:
 ;finish   clc
 ;finish0  php
 ;         jsr clrrect
@@ -1405,49 +1352,40 @@ clrscn:   mov #tovideo,@#pageport
 ;         jsr totext
 ;         plp
 ;         rts
-;         .bend
+         return
 
-xchgxy:
-;         lda xchgdir
-;         beq exit
-         tstb @#xchgdir
+xchgxy:  tstb @#xchgdir
          beq 1$
 
-;         lda x0
-;         ldx y0
-;         sta y0
-;         stx x0
-;exit     rts
          swab r1
 1$:      return
 
 
-;drawrect .block
-;;uses: adjcell:2, adjcell2:2, currp:2, t1, t2, t3, i1:2, $fd
-;;calls: pixel11
-;x8pos    = currp
-;x8poscp  = $a7
-;x8bit    = currp+1
-;y8pos    = t1
-;y8poscp  = $a8
-;y8byte   = $fd                ;connected to seti1
-;rectulx  = adjcell2
-;rectuly  = adjcell2+1
-;xcut     = t3
-;ycut     = t2
+drawrect:
+;;calls: pixel11p
+xcut      = temp2
+ycut      = temp2+1
+x8poscp   = temp
+y8poscp   = temp+1
+x8bit     = i1
+y8byte    = saved
 ;         jsr xchgxy
+         call @#xchgxy
+
 ;         lda crsrbyte
 ;         sta y8byte
 ;         lda crsrbit
 ;         sta x8bit
-;         ldx #8
-;loop1    dex
-;         lsr
-;         bcc loop1
-;
+;         jsr calcx
+;         lda #0
 ;         sta xcut        ;0 -> xcut
 ;         sta ycut
 ;         stx m1+1
+         clr @#xcut
+         movb @#crsrbyte,@#y8byte
+         movb @#crsrbit,r1
+         call @#calcx
+
 ;         lda crsrx
 ;         lsr
 ;         asl
@@ -1457,33 +1395,60 @@ xchgxy:
 ;         sta rectulx
 ;         ldx xdir
 ;         beq cont4
-;
+         bis @#crsrx,r1
+         mov r1,r3   ;r1 - rectulx
+         tstb @#xdir
+         beq 4$
+
 ;         sec
 ;         sbc x0
 ;         bcs cont2
-;
+         sub @#x0,r3
+         cmpb r1,r3
+         bcc 2$
+ 
 ;         eor #$ff
 ;         beq cont10
-;
+         comb r3
+         beq 10$ 
+
 ;         inc xcut
 ;cont10   lda rectulx
 ;         adc #1
 ;         bcc cont7
-;
+         incb @#xcut
+10$:     mov r1,r3
+         inc r3
+         br 7$
+
 ;cont4    adc x0
 ;         bcs cont5
-;
+4$:      add @#x0,r3
+         cmpb r3,r1
+         bcs 5$
+
 ;         cmp #161
 ;         bcc cont2
-;
+         cmpb r3,#161
+         bcs 2$
+
 ;cont5    lda #160
 ;         inc xcut
+5$:      mov #160,r3
+         incb @#xcut
+
 ;cont2    sec
 ;         sbc rectulx
 ;         bcs cont7
-;
+2$:      mov r3,r0
+         sub r1,r3
+         cmpb r0,r3
+         bcc 7$
+
 ;         eor #$ff
 ;         adc #1
+         neg r3
+
 ;cont7    sta x8pos
 ;         sta x8poscp
 ;         lda crsry
@@ -1494,40 +1459,80 @@ xchgxy:
 ;         sta rectuly
 ;         ldx ydir
 ;         beq cont3
-;
+7$:      movb r3,@#x8poscp
+         movb @#crsry,r4
+         bisb @#crsrbyte,r4
+         mov r4,r1
+         movb @#y0,r0
+         tstb @#ydir
+         beq 3$
+         
 ;         sec
 ;         sbc y0
 ;         bcs cont1
-;
+         mov r4,r5
+         sub r0,r4
+         cmp r5,r4
+         bcc 1$
+
 ;         eor #$ff
 ;         beq cont12
-;
+         comb r4
+         beq 12$
+
 ;         inc ycut
 ;cont12   lda rectuly
 ;         adc #1
 ;         bcc cont8
-;
+         incb @#ycut
+12$:     mov r1,r4
+         inc r4
+         br 8$
+
 ;cont3    adc y0
 ;         bcs cont6
-;
+3$:      add r0,r4
+         cmpb r4,r0
+         bcs 6$
+
 ;         cmp #193
 ;         bcc cont1
-;
+         cmpb r4,#193
+         bcs 1$
+
 ;cont6    lda #192
 ;         inc ycut
+6$:      mov #192,r4
+         incb @#ycut
+
 ;cont1    sec
 ;         sbc rectuly
 ;         bcs cont8
-;
+1$:      mov r4,r0
+         sub r1,r4
+         cmpb r0,r4
+         bcc 8$
+ 
 ;         eor #$ff
 ;         adc #1
+         neg r4
+
 ;cont8    sta y8pos
 ;         sta y8poscp
+8$:      movb r4,@#y8poscp
+
 ;         #assign16 adjcell,crsrtile
+         mov @#crsrtile,r5
+         mov #todata,@#pageport
+
 ;         jsr ymove
 ;         lda ycut
 ;         bne cont11
-;
+         movb @#crsrbit,r0
+         call @#ymove
+         tstb @#ycut
+         bne 11$
+
 ;         jsr xmove
 ;cont11   lda x8poscp
 ;         sta x8pos
@@ -1537,59 +1542,101 @@ xchgxy:
 ;         sta y8byte
 ;         lda crsrbit
 ;         sta x8bit
+         call @#xmove
+11$:     movb @#x8poscp,r3
+         movb @#y8poscp,r4
+         movb @#crsrbyte,@#y8byte
+         movb @#crsrbit,r0
+
 ;         #assign16 adjcell,crsrtile
 ;         jsr xmove
 ;         lda xcut
 ;         bne exit
-;
+         mov @#crsrtile,r5
+         call @#xmove
+         tstb @#xcut
+         bne exitdrawrect
+
 ;ymove    lda ydir
 ;         bne loopup
-;
+ymove:   tstb @#ydir
+         bne loopup
+
 ;loopdn   jsr drrect1
 ;loop10   jsr pixel11
 ;         iny
 ;         dec y8pos
 ;         beq exit
-;
+loopdn:  call @#drrect1
+10$:     call @#pixel11p
+         decb r4
+         beq exitdrawrect
+
 ;         sty y8byte
 ;         cpy #8
 ;         bne loop10
-;
+         incb @#y8byte
+         cmpb #8,@#y8byte
+         bne loopdn
+
 ;         ldy #down
 ;         jsr nextcell
 ;         lda #0
 ;         sta y8byte
 ;         bpl loopdn
-;
+         mov down(r5),r5
+         clrb @#y8byte
+         br loopdn
+
 ;loopup   jsr drrect1
 ;loop11   jsr pixel11
 ;         dec y8pos
 ;         beq exit
-;
+loopup:  call @#drrect1
+11$:     call @#pixel11p
+         decb r4
+         beq exitdrawrect
+
 ;         dey
 ;         sty y8byte
 ;         bpl loop11
-;
+         decb @#y8byte
+         bpl loopup
+
 ;         ldy #up
 ;         jsr nextcell
 ;         lda #7
 ;         sta y8byte
 ;         bpl loopup
-;
+         mov up(r5),r5
+         movb #7,@#y8byte
+         br loopup
+
 ;exit     rts
-;
+exitdrawrect: return
+
 ;xmove    lda xdir
 ;         bne looplt
-;
+xmove:   tstb @#xdir
+         bne looplt
+
 ;looprt   jsr drrect1
+looprt:  call @#drrect1
+
 ;loop12   jsr pixel11
 ;         dec x8pos
 ;         beq exit
-;
+12$:     call @#pixel11p
+         decb r3
+         beq exitdrawrect
+
 ;         lda x8bit
 ;         lsr
 ;         bcs nextrt
-;
+         bic #65280,r0
+         asr r0
+         bcc 12$
+
 ;         sta x8bit
 ;         txa
 ;         lsr
@@ -1597,28 +1644,38 @@ xchgxy:
 ;         lda x8bit
 ;         cmp #8
 ;         bne loop12
-;
+         
 ;         lda #8
 ;         tax
 ;         eor i1
 ;         sta i1
 ;         bne loop12
-;
+
 ;nextrt   ldy #right
 ;         jsr nextcell
 ;         lda #$80
 ;         sta x8bit
 ;         bne looprt
-;
+         mov right(r5),r5
+         movb #128,r0
+         br looprt
+
 ;looplt   jsr drrect1
 ;loop15   jsr pixel11
 ;         dec x8pos
 ;         beq exit
-;
+looplt:  call @#drrect1
+15$:     call @#pixel11p
+         decb r3
+         beq exitdrawrect
+
 ;         lda x8bit
 ;         asl
 ;         bcs nextlt
-;
+         aslb r0
+         movb r0,r0
+         bcc 15$
+
 ;         sta x8bit
 ;         txa
 ;         asl
@@ -1626,28 +1683,39 @@ xchgxy:
 ;         lda x8bit
 ;         cmp #16
 ;         bne loop15
-;
+
 ;         ldx #1
 ;         lda i1
 ;         sbc #8
 ;         sta i1
 ;         bcs loop15
-;
+
 ;nextlt   ldy #left
 ;         jsr nextcell
 ;         lda #1
 ;         sta x8bit
 ;         bne looplt
-;
+         mov left(r5),r5
+         mov #1,r0
+         br looplt
+
 ;drrect1  jsr seti1
 ;         lda x8bit
 ;         and #$f
 ;         beq cont14
 ;         jmp xcont4
-;
+drrect1: mov video(r5),r1
+         movb @#y8byte,r2
+         asr r2
+         rorb r2
+         rorb r2
+         rorb r2
+         asl r2
+         add r2,r1
+         return
+
 ;cont14   lda x8bit
 ;         jmp xcont3
-;         .bend
 
 ;clrrect  .block   ;in: x8poscp, y8poscp
 ;;uses: adjcell:2, adjcell2:2, currp:2, i1:2, i2, t1, t2, t3, 7, $fd
@@ -2128,10 +2196,20 @@ pixel11: mov #tovideo,@#pageport   ;it should be after crsrset, IN: r0 - crsrbit
          bis r0,r2
          mov r1,@#crsraddr
          mov @r1,@#crsrdata
-         bis r2,@r1
          mov r2,@#crsrmask
+gexit4:  bis r2,@r1
 gexit3:  mov #todata,@#pageport
 gexit2:  return
+
+pixel11p:mov #tovideo,@#pageport   ;IN: r0 - crsrbit, r1 - addr of video tile line
+         push r0
+         asl r0
+         mov vistab(r0),r2
+         mov r2,r0
+         asl r2
+         bis r0,r2
+         pop r0
+         br gexit4
 
 crsrclr: tstb @#zoom
          bne 1$
