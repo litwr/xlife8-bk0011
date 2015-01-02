@@ -590,7 +590,6 @@ dispat0: cmpb #'g,r0
 ;*cont17w  jsr loadpat
 ;*         jsr scrnorm
 303$:    call @#loadpat
-         ;call @#scrnorm
 
 ;*exitload jsr finish
 ;*         pla

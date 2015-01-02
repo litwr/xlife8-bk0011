@@ -1323,10 +1323,13 @@ showrect:
 ;cont2    cmp #$d
 ;         beq finish
 2$:      cmpb #10,r0
-         beq 110$
+         beq exit7
 
 ;         cmp #$1b
 ;         beq finish0
+         cmpb #9,r0
+         sec
+         beq exit7
 
 ;         bne loop1
          br 11$
@@ -1342,21 +1345,11 @@ showrect:
          call @#dispat0
          br 10$
 
-110$:
-;finish   clc
-;finish0  php
-;         jsr clrrect
-;         jsr restbl
-;         jsr totext
-;         plp
-;         rts
-         return
-
 xchgxy:  tstb @#xchgdir
-         beq 1$
+         beq exit7
 
          swab r1
-1$:      return
+exit7:   return
 
 
 drawrect:
