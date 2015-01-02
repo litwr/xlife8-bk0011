@@ -599,16 +599,15 @@ inctsum:            ;in: r2
          cellsum 1$
 1$:      return
 
-putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0,R5
+putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;x8pos    = adjcell2 = R1 low
 ;y8pos    = t1  = R3 low
-;x0,y0 - R1
 ;         jsr xchgxy
          call @#xchgxy
 
 ;         lda crsrbit
 ;         jsr calcx
-         mov r1,r4
+         mov @#x0,r4
          movb @#crsrbit,r1
          call @#calcx
 
@@ -656,7 +655,6 @@ putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         ldx ydir
 ;         beq cont3
 2$:      movb @#crsry,r3
-         mov r3,r5
          add @#crsrbyte,r3
          mov r4,r2
          swab r2
@@ -698,7 +696,8 @@ putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         sec
 ;         sbc crsry
 ;         sta y8pos
-1$:      sub r5,r3
+1$:      movb @#crsry,r4
+         sub r4,r3
 
 ;         lda x8pos
 ;         and #7
@@ -746,6 +745,7 @@ putpixel:     ;IN: R1 = (X,Y); USE: R1, R2, R3, R4; DON'T USE: R0,R5
          sub r1,r4
          bic #65528,r4
          movb bittab(r4),r4
+         bic #65528,r3
          tstb @#ppmode
          bne putpixel3
          jmp @#putpixel2
@@ -786,7 +786,6 @@ putpixel3:       ;IN: r2,r3,r4
 ;         ldy y8byte
 ;         ora (adjcell),y
 ;         sta (adjcell),y
-         bic #65528,r3
          add r2,r3
          bisb r4,@r3
  

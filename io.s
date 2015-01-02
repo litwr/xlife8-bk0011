@@ -1,42 +1,3 @@
-;*readtent .block
-;*         ldy #0
-;*         sty $b8
-;*         lda #8
-;*         sta $b9
-;*loop     jsr READSS
-;*         bne checkst
-;*
-;*         jsr BASIN
-;*         sta ($b8),y
-;*
-;*         jsr READSS
-;*         bne checkst
-;*
-;*         lda $b9
-;*         pha
-;*         eor #4
-;*         sta $b9
-;*         jsr BASIN
-;*         sta ($b8),y
-;*         pla
-;*         sta $b9
-;*         inc $b8
-;*         bne l1
-;*
-;*         inc $b9
-;*l1       cmp #>(960+(8*256))
-;*         bne loop
-;*
-;*         lda $b8
-;*         cmp #<960
-;*         bne loop
-;*
-;*checkst  lda $b9
-;*         eor #8
-;*         sta $b9
-;*         rts
-;*         .bend
-
 loadpat:
 ;*         lda fnlen
 ;*         ldx #<fn
@@ -103,14 +64,9 @@ loadpat:
 ;*         jsr readtent
 ;*         jsr showrect
 ;*         bcs eof
-         push r4
-         call @#showrect
-         pop r4
-         bcs 3$
-
          mov #toio,@#pageport
          mov (r4)+,r0
-         mov (r4)+,r1
+         mov @r4,r1
          mov r1,r2
          bis r0,r2
          cmp r2,#512
@@ -119,10 +75,8 @@ loadpat:
          bit #1,r1
          bne 3$
 
-         ;call @#scrblnk
-         ;call @#readtent
-         ;call @#showrect
-         ;bcs 3$
+         call @#showrect
+         bcs 3$
 
 ;*         ldy #3
 ;*loop1    lda live,y
@@ -131,6 +85,7 @@ loadpat:
 
 ;*         dey
 ;*         bpl loop1
+         mov #toio,@#pageport
          cmp @#live,@#16384+4
          bne 4$
 
@@ -140,11 +95,6 @@ loadpat:
 4$:      mov @#16384+4,@#live
          mov @#16384+6,@#born
          call @#fillrt
-
-;*cont7    jsr puttent
-;*         bcc eof
-5$:      ;call @#puttent
-         ;bcc 3$
 
 ;*loop5    ldy #0
 ;*loop6    jsr READSS
@@ -158,14 +108,12 @@ loadpat:
 ;*
 ;*         jsr putpixel
 ;*         jmp loop5
-         mov #16384+8,r0
+5$:      mov #16384+8,r0
 9$:      add #16384,@#loaded_sz
-6$:      mov (r0)+,r1
-         ;push r0
+6$:      mov (r0)+,@#x0
          mov #todata,@#pageport
          call @#putpixel
          mov #toio,@#pageport
-         ;pop r0
          cmp r0,@#loaded_sz
          bne 6$
 

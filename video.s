@@ -929,28 +929,6 @@ clrscn:   mov #tovideo,@#pageport
 ;cont     sta currp+1
 ;         stx currp
 ;         jmp loop
-;         .bend
-;
-;savebl   .block
-;         ldy #39
-;loop     lda $fc0,y
-;         sta $1fc0,y
-;         dey
-;         bpl loop
-;         rts            ;YR=255 - Y must be not equal to 0
-;         .bend
-;
-;restbl   .block
-;         ldy #39
-;loop     lda $1fc0,y
-;         sta $fc0,y
-;         lda #0
-;         sta $bc0,y
-;         dey
-;         bpl loop
-;
-;         rts
-;         .bend
 
 ;loadmenu .block
 ;scrfn    = $c00+123
@@ -1232,7 +1210,7 @@ showrect:
          .ascii "LIP, "
          .byte 145
          .ascii "ENTER"
-         .byte 146, ',,32,145
+         .byte 146,',,32,145
          .ascii "TAB"
          .byte 0
        
@@ -1249,7 +1227,7 @@ showrect:
 ;         jsr showtent
 ;         jsr crsrset0
 10$:     call @#drawrect
-         ;call @#showtent
+         call @#showtent
          ;call @#crsrset0
 
 ;loop1    jsr getkey
@@ -1348,7 +1326,7 @@ showrect:
 xchgxy:  tstb @#xchgdir
          beq exit7
 
-         swab r1
+         swab @#x0
 exit7:   return
 
 
@@ -2530,37 +2508,36 @@ chgcolors:
          br 24$
 
 putpixel2:
-;         tax
-;         jsr seti1
-;         txa
-;         and #$f
-;         beq l1
-;
-;         tax
-;         lda i1
-;         eor #8
-;         sta i1
-;         bne l2
-;
-;l1       txa
-;         lsr
-;         lsr
-;         lsr
-;         lsr
-;         tax
-;l2       lda vistab,x
-;         sta t2
-;         asl
-;         sta t3
-;         ora t2
-;         eor #$ff
-;         and (i1),y
-;         ora t3
-;         sta (i1),y
-;         rts
+         mov video(r2),r2
+         asl r4
+         mov vistab(r4),r4
+         asr r3
+         rorb r3
+         rorb r3
+         rorb r3
+         asl r3
+         add r3,r2
+22$:    cmp r2,#16384
+        bcs 22$
+        cmp r2,#32768
+        bcc 22$
+         mov #tovideo,@#pageport
+         bic r4,@r2
+         asl r4
+         bis r4,@r2
+         mov #todata,@#pageport
          return
 
-;showtent .block   ;used: 
+showtent:mov #toio,@#pageport
+         mov #16384+8,r0
+         mov @#loaded_sz,r5
+         sub #8,r5
+         cmp r5,#2048
+         bcs 2$
+
+         mov #2048,r5
+2$:      asr r5
+
 ;         lda x0
 ;         pha
 ;         lda y0
@@ -2569,14 +2546,17 @@ putpixel2:
 ;         sta $14
 ;         sta $15
 ;         sta ppmode
+         push @#x0
+         clrb @#ppmode
+
 ;loop     lda $15
 ;         cmp $b9
 ;         bne l1
-;
+
 ;         ldx $14
 ;         cpx $b8
 ;         beq exit
-;
+
 ;l1       eor #8
 ;         sta $15
 ;         ldx #0
@@ -2589,8 +2569,13 @@ putpixel2:
 ;         sta y0
 ;         ora x0
 ;         beq l3
-;
+1$:      mov #toio,@#pageport
+         mov (r0)+,@#x0
+
 ;         jsr putpixel
+         mov #todata,@#pageport
+         call @#putpixel
+
 ;l3       lda $15
 ;         eor #$c
 ;         sta $15
@@ -2599,6 +2584,7 @@ putpixel2:
 ;
 ;         inc $15
 ;         bne loop
+         sob r5,1$
 
 ;exit     pla
 ;         sta y0
@@ -2606,7 +2592,9 @@ putpixel2:
 ;         sta x0
 ;         inc ppmode
 ;         rts
-;         .bend
+         pop @#x0
+         incb @#ppmode
+         return
 
 setpalette:
          mov #3,r2
