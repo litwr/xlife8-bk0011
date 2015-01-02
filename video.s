@@ -764,7 +764,13 @@ showscn2: mov @#startp,r0
 ;         jmp loop
 ;         .bend
 showscnp: mov @#startp,r0
-1$:       mov video(r0),r5
+1$:       call @#showscnp1
+          mov next(r0),r0
+          cmp #1,r0
+          bne 1$
+          jmp @#crsrset
+
+showscnp1:mov video(r0),r5
           mov @r0,r1
           bne 3$
 
@@ -841,15 +847,7 @@ showscnp: mov @#startp,r0
           br 15$
 
 16$:      vidmacp count7,448
-15$:      mov next(r0),r0
-          cmp #1,r0
-          beq 2$
-
-          jmp @#1$
-
-;*         jmp crsrset
-2$:       jmp @#crsrset
-          
+15$:      return
 
 clrscn:   mov #tovideo,@#pageport
           mov #16384,r0
@@ -1717,35 +1715,12 @@ drrect1: mov video(r5),r1
 ;         jmp xcont3
 
 clrrect:  ;in: x8poscp, y8poscp
-;         call xchgxy
          call @#xchgxy
-
-;         ld a,(y8poscp)
-;         ld (y8pos),a
-;         ld a,(crsrbyte)
-;         ld (y8byte),a
-         movb @#y8poscp,r4
-         movb @#crsrbyte,@#y8byte
-
-;         ld a,(crsrbit)
-;         call calcx
-;         ld b,a
-;         ld a,(xdir)
-;         or a
-;         ld a,b
-;         jr z,cl3
          movb @#crsrbit,r1
          call @#calcx
          tstb @#xdir
          beq 3$
 
-;         sub 8
-;         cpl
-;cl3      ld b,a
-;         ld a,(x8poscp)
-;         add a,b
-;         ld (x8pos),a
-;         ld (x8poscp),a
          sub #8,r1
          comb r1
 3$:      add @#x8poscp,r1
@@ -1753,102 +1728,60 @@ clrrect:  ;in: x8poscp, y8poscp
          rorb r1
          asrb r1
          asrb r1
-         movb r1,@#x8poscp
          movb r1,r3
+         inc r3
+         movb r3,@#x8poscp
+         movb @#y8poscp,r4
+         movb @#crsrbyte,@#y8byte
+         tstb @#pseudoc
+         bne clrectpc
 
-;         #assign16 adjcell,crsrtile
          ;mov #todata,@#pageport
          mov @#crsrtile,r5
 
-;         lda ydir
-;         bne loopup
          tstb @#ydir
-         bne loopupc
+         bne loopup2
 
-;loopdn   jsr xclrect
-;         beq exit
-loopdnc: call @#xclrect
-         beq exitclrect
+loopdn2: call @#xclrect2
+         beq exitclrect2
 
-;         inc y8byte
-;         lda y8byte
-;         cmp #8
-;         bne loopdn
          incb @#y8byte
          cmpb #8,@#y8byte
-         bne loopdnc
+         bne loopdn2
 
-;         ldy #down
-;         jsr nextcell
-;         lda #0
-;         sta y8byte
-;         bpl loopdn
          mov down(r5),r5
          clrb @#y8byte
-         br loopdnc
+         br loopdn2
 
-;loopup   jsr xclrect
-;         beq exit
-loopupc: call @#xclrect
-         beq exitclrect
+loopup2: call @#xclrect2
+         beq exitclrect2
 
-;         dec y8byte
-;         bpl loopup
          decb @#y8byte
-         bpl loopupc
+         bpl loopup2
 
-;         ldy #up
-;         jsr nextcell
-;         lda #7
-;         sta y8byte
-;         bpl loopup
          mov up(r5),r5
          movb #7,@#y8byte
-         br loopupc
+         br loopup2
 
-xclrect: push r5
-         call @#xmovec
-         pop r5
+xclrect2: push r5
+         tstb @#xdir
+         bne 2$
+
+1$:      call @#clrect12
+         mov right(r5),r5
+         sob r3,1$
+         br 3$
+
+2$:      call @#clrect12
+         mov left(r5),r5
+         sob r3,2$
+
+3$:      pop r5
          movb @#x8poscp,r3
          decb r4
-exitclrect: return
+exitclrect2: return
 
-;xmove    lda xdir
-;         bne looplt
-xmovec:  tstb @#xdir
-         bne loopltc
-
-looprtc: call @#clrect1
-         tstb @#pseudoc
-         bne lrtpcc
-
-         asl r2
-         mov #tovideo,@#pageport
-         mov vistab(r2),@r1
-         mov #todata,@#pageport
-         mov right(r5),r5
-         decb r3
-         bpl looprtc
-         return
-
-lrtpcc:
-
-loopltc: call @#clrect1
-         tstb @#pseudoc
-         bne lltpcc
-
-         asl r2
-         mov #tovideo,@#pageport
-         mov vistab(r2),@r1
-         mov #todata,@#pageport
-         mov left(r5),r5
-         decb r3
-         bpl loopltc
-         return
-
-lltpcc: 
-
-clrect1: movb @#y8byte,r1
+clrect12:movb @#y8byte,r1
          mov r1,r2
          asr r1
          rorb r1
@@ -1858,8 +1791,67 @@ clrect1: movb @#y8byte,r1
          add video(r5),r1
          add r5,r2
          movb @r2,r2
+         asl r2
+         mov #tovideo,@#pageport
+         mov vistab(r2),@r1
+         mov #todata,@#pageport
          return
 
+clrectpc:movb @#crsrbyte,r4
+         tstb @#ydir
+         beq 3$
+
+         sub #8,r4
+         comb r4
+3$:      movb @#y8poscp,r0
+         add r0,r4
+         clc
+         rorb r4
+         asrb r4
+         asrb r4
+         inc r4
+         ;mov #todata,@#pageport
+         mov @#crsrtile,r0
+
+         tstb @#ydir
+         bne loopuppc
+
+loopdnpc: call @#xclrectpc
+         beq exitclrectpc
+
+         mov down(r0),r0
+         br loopdnpc
+
+loopuppc: call @#xclrectpc
+         beq exitclrectpc
+
+         mov up(r0),r0
+         br loopuppc
+
+xclrectpc: push r0
+         tstb @#xdir
+         bne 2$
+
+1$:      call @#clrect1pc
+         mov right(r0),r0
+         sob r3,1$
+         br 3$
+
+2$:      call @#clrect1pc
+         mov left(r0),r0
+         sob r3,2$
+3$:      pop r0
+         movb @#x8poscp,r3
+         decb r4
+exitclrectpc: return
+
+clrect1pc: push r3
+         push r4
+         call @#showscnp1
+         pop r4
+         pop r3
+         return
+         
 crsrset1:
          mov @#crsrtile,r0     ;sets r0,r1
          movb @#crsrbyte,r1
