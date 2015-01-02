@@ -134,14 +134,10 @@ digifont:   ;8th columns are free
       .word  672,2056,2056,2720,2048, 512, 160, 0
       .word  0, 0, 0, 0, 0, 0, 0, 0   ;space
 
-         .include tile.s
-         .include utils.s
          .include io.s
-         .include rules.s
          ;!.include "ramdisk.s"
          .include video-base.s
          .include video.s
-         .include tab12.s
 
 generate:
          mov @#startp,r0           ;currp=r0
@@ -802,6 +798,11 @@ key2irq:   mov @#kbddtport,@#kbdbuf
         
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
+
+         .include rules.s
+         .include tile.s
+         .include utils.s
+         .include tab12.s
 
          . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:

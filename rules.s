@@ -201,7 +201,7 @@ fillrt:
          asr r2
          asr r2
          asr r2
-         
+
 ;*         pla
 ;*         jsr fillrtsl
          pop r3
@@ -339,7 +339,7 @@ showrules2:
         asl r1
         bpl 4$
 
-        clrb @r4        
+        clrb @r4
         sub r3,r4
         mov #32,r1
         sub r4,r1
@@ -351,5 +351,3 @@ showrules2:
         add #'0,r0
         movb r0,(r4)+
 exit5:  return
-
-
