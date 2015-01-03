@@ -1337,32 +1337,11 @@ ycut      = temp2+1
 x8poscp   = temp
 y8poscp   = temp+1
 y8byte    = saved
-;         jsr xchgxy
          call @#xchgxy
-
-;         lda crsrbyte
-;         sta y8byte
-;         lda crsrbit
-;         sta x8bit
-;         jsr calcx
-;         lda #0
-;         sta xcut        ;0 -> xcut
-;         sta ycut
-;         stx m1+1
-         clr @#xcut
+         clr @#xcut       ;0 -> xcut,ycut
          movb @#crsrbyte,@#y8byte
          movb @#crsrbit,r1
          call @#calcx
-
-;         lda crsrx
-;         lsr
-;         asl
-;         asl
-;         asl
-;m1       adc #0
-;         sta rectulx
-;         ldx xdir
-;         beq cont4
          bis @#crsrx,r1
          mov r1,r3   ;r1 - rectulx
          tstb @#xdir
@@ -1493,23 +1472,11 @@ y8byte    = saved
          mov @#crsrtile,r5
          mov #todata,@#pageport
 
-;         jsr ymove
-;         lda ycut
-;         bne cont11
          movb @#crsrbit,r0
          call @#ymove
          tstb @#ycut
          bne 11$
 
-;         jsr xmove
-;cont11   lda x8poscp
-;         sta x8pos
-;         lda y8poscp
-;         sta y8pos
-;         lda crsrbyte
-;         sta y8byte
-;         lda crsrbit
-;         sta x8bit
          call @#xmove
 11$:     movb @#x8poscp,r3
          movb @#y8poscp,r4
@@ -1530,58 +1497,30 @@ y8byte    = saved
 ymove:   tstb @#ydir
          bne loopup
 
-;loopdn   jsr drrect1
-;loop10   jsr pixel11
-;         iny
-;         dec y8pos
-;         beq exit
 loopdn:  call @#drrect1
 10$:     call @#pixel11p
          decb r4
          beq exitdrawrect
 
-;         sty y8byte
-;         cpy #8
-;         bne loop10
          incb @#y8byte
          cmpb #8,@#y8byte
          bne loopdn
 
-;         ldy #down
-;         jsr nextcell
-;         lda #0
-;         sta y8byte
-;         bpl loopdn
          mov down(r5),r5
          clrb @#y8byte
          br loopdn
 
-;loopup   jsr drrect1
-;loop11   jsr pixel11
-;         dec y8pos
-;         beq exit
 loopup:  call @#drrect1
 11$:     call @#pixel11p
          decb r4
          beq exitdrawrect
 
-;         dey
-;         sty y8byte
-;         bpl loop11
          decb @#y8byte
          bpl loopup
 
-;         ldy #up
-;         jsr nextcell
-;         lda #7
-;         sta y8byte
-;         bpl loopup
          mov up(r5),r5
          movb #7,@#y8byte
          br loopup
-
-;exit     rts
-exitdrawrect: return
 
 ;xmove    lda xdir
 ;         bne looplt
@@ -1605,25 +1544,6 @@ looprt:  call @#drrect1
          asr r0
          bcc 12$
 
-;         sta x8bit
-;         txa
-;         lsr
-;         tax
-;         lda x8bit
-;         cmp #8
-;         bne loop12
-         
-;         lda #8
-;         tax
-;         eor i1
-;         sta i1
-;         bne loop12
-
-;nextrt   ldy #right
-;         jsr nextcell
-;         lda #$80
-;         sta x8bit
-;         bne looprt
          mov right(r5),r5
          movb #128,r0
          br looprt
@@ -1644,25 +1564,6 @@ looplt:  call @#drrect1
          movb r0,r0
          bcc 15$
 
-;         sta x8bit
-;         txa
-;         asl
-;         tax
-;         lda x8bit
-;         cmp #16
-;         bne loop15
-
-;         ldx #1
-;         lda i1
-;         sbc #8
-;         sta i1
-;         bcs loop15
-
-;nextlt   ldy #left
-;         jsr nextcell
-;         lda #1
-;         sta x8bit
-;         bne looplt
          mov left(r5),r5
          mov #1,r0
          br looplt
@@ -1680,7 +1581,7 @@ drrect1: mov video(r5),r1
          rorb r2
          asl r2
          add r2,r1
-         return
+exitdrawrect: return
 
 ;cont14   lda x8bit
 ;         jmp xcont3
@@ -2103,22 +2004,14 @@ pixel11: mov #tovideo,@#pageport   ;it should be after crsrset, IN: r0 - crsrbit
          mov r2,r0
          asl r2
          bis r0,r2
-         mov r1,@#crsraddr
-         mov @r1,@#crsrdata
-         mov r2,@#crsrmask
-gexit4:  bis r2,@r1
+         bis r2,@r1
 gexit3:  mov #todata,@#pageport
 gexit2:  return
 
-pixel11p:mov #tovideo,@#pageport   ;IN: r0 - crsrbit, r1 - addr of video tile line
-         push r0
-         asl r0
-         mov vistab(r0),r2
-         mov r2,r0
-         asl r2
-         bis r0,r2
+pixel11p:push r0
+         call @#pixel11
          pop r0
-         br gexit4
+         return
 
 crsrclr: tstb @#zoom
          bne 1$
@@ -2692,4 +2585,11 @@ showbline2:
          .byte 's,10
          .asciz "SPEED: "
          br shownum
+
+crsrclr2: call @#crsrclr
+clrflash: mov #5568,@#crsrflash
+          return
+
+crsrset2: call @#crsrset
+          br clrflash
 

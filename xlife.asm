@@ -42,10 +42,10 @@ start:   mov #128,@#^O102
          mov #crsrirq,@#^O100
          call @#help
 
-mainloop:
-         call @#dispatcher
+crsrflash: mov #0,r0
+mainloop: call @#dispatcher
          movb @#mode,r0
-         beq mainloop
+         beq crsrflash
 
          cmpb #3,r0
          bne 3$
@@ -62,7 +62,7 @@ mainloop:
          call @#xyout
          call @#showscn
          call @#showmode
-         br mainloop
+         br crsrflash
 
 4$:      cmpb #2,r0
          bne 5$
@@ -75,7 +75,7 @@ mainloop:
          call @#generate
          call @#showscn
          call @#cleanup
-         br mainloop
+         br crsrflash
 
          .include vistab.s
          .include gentab.s
@@ -687,9 +687,6 @@ lowbench: .word 0
 highbench: .word 0
 tobin:    .word 1,10,100,1000,10000
 yscroll:  .word ^O1330
-crsraddr: .word 0
-crsrdata: .word 0
-crsrmask: .word 0
 
 x0:       .byte 0   ;word aligned
 y0:       .byte 0
@@ -762,34 +759,16 @@ benchirq:  push r0
 crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
            bne emptyirq
 
-           push r0
-           mov #crsrticks,r0
-           incb @r0
-           tstb @#zoom
-           bne 1$
+           incb @#crsrticks
+           bitb #15,@#crsrticks
+           bne emptyirq
 
-           bitb #15,@r0
-           bne 1$
+           mov #2527,@#crsrflash     ;2527 = $9df = call
+           mov #crsrset2,@#crsrflash+2
+           bitb #16,@#crsrticks
+           beq emptyirq
 
-           push r1
-           mov @#crsraddr,r1
-           mov #tovideo,@#pageport
-           bitb #16,@r0
-           beq 2$
-
-           mov @#crsrdata,r0       ;clear
-           cmp @#crsrmask,r0
-           bne 4$
-
-           clr r0
-4$:        ;mov r0,@r1
-           br 3$
-
-2$:        mov @#crsrmask,r0
-           ;bis r0,@r1
-3$:        mov #todata,@#pageport
-           pop r1
-1$:        pop r0
+           mov #crsrclr2,@#crsrflash+2
 emptyirq:  rti
 
 key2irq:   mov @#kbddtport,@#kbdbuf
