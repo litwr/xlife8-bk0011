@@ -660,13 +660,9 @@ dispat0: cmpb #'g,r0
 176$:    cmpb #'V,r0
          bne 177$
 
-;*         jsr totext
-;*         jsr JPRIMM
-;*         .byte 144,147,0
-;*
-;*         jsr curoff
 ;*         jsr showcomm
 ;*         jmp finish
+         jmp @#showcomm
 
 177$:    cmpb #'v,r0
          bne 178$

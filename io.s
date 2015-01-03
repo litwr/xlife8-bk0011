@@ -1,21 +1,4 @@
-loadpat:
-;*         lda fnlen
-;*         ldx #<fn
-;*         ldy #>fn
-;*         jsr SETNAM
-;*         lda #8
-;*         jsr io2
-;*         jsr OPEN
-;*         ldx #8
-;*         jsr CHKIN
-;*         bcs error
-         mov #toio,@#pageport
-         mov #io_op,r0
-         mov r0,r1
-         mov #3,(r0)+
-         mov #16384,r4
-         mov r4,(r0)+
-         clr (r0)+
+loadpat: call @#commonin
          mov #fn,r2
          mov #12,r3
 1$:      movb (r2)+,(r0)+
@@ -23,47 +6,12 @@ loadpat:
 
          emt ^O36
          tstb @#io_op+1
-         bne 11$
+         bne ioerrjmp
 
-;*         ldy #0
-;*loop4    jsr READSS
-;*         bne checkst
-;*
-;*         jsr BASIN
-;*         cmp #193
-;*         bcs eof
-;*
-;*         sta x0,y     ;geometry
-;*         iny
-;*         cpy #2
-;*         bne loop4
+         mov #16384,r4
          mov (r4)+,r0
          movb r0,@#fcount
          mov (r4)+,@#x0
-
-;*         ldy #0
-;*loop2    jsr READSS
-;*         bne checkst
-;*
-;*         jsr BASIN
-;*         sta $fe8,y   ;live/born
-;*         iny
-;*         cpy #4
-;*         bne loop2
-;*
-;*         lda $fe9
-;*         ora $feb
-;*         cmp #2
-;*         bcs eof
-;*
-;*         lda $fea
-;*         and #1
-;*         bne eof
-;*
-;*         jsr scrblnk
-;*         jsr readtent
-;*         jsr showrect
-;*         bcs eof
          mov #toio,@#pageport
          mov (r4)+,r0
          mov @r4,r1
@@ -78,13 +26,6 @@ loadpat:
          call @#showrect
          bcs 3$
 
-;*         ldy #3
-;*loop1    lda live,y
-;*         cmp $fe8,y
-;*         bne cont1
-
-;*         dey
-;*         bpl loop1
          mov #toio,@#pageport
          cmp @#live,@#16384+4
          bne 4$
@@ -95,19 +36,6 @@ loadpat:
 4$:      mov @#16384+4,@#live
          mov @#16384+6,@#born
          call @#fillrt
-
-;*loop5    ldy #0
-;*loop6    jsr READSS
-;*         bne checkst
-;*
-;*         jsr BASIN
-;*         sta x0,y   ;x,y - data
-;*         iny
-;*         cpy #2
-;*         bne loop6
-;*
-;*         jsr putpixel
-;*         jmp loop5
 5$:      mov #16384+8,r0
 9$:      add #16384,@#loaded_sz
 6$:      mov #toio,@#pageport
@@ -128,16 +56,14 @@ loadpat:
          clrb r1   ;io_op=0x100
          emt ^O36
          tstb @#io_op+1
-         bne 11$
+         bne ioerrjmp
 
 10$:     mov #16384,r0
          br 9$
 
-11$:     jmp @#ioerror
+3$:      jmp @#gexit3
 
-3$:      mov #todata,@#pageport
-         ;call @#tograph
-         return     
+ioerrjmp: jmp @#ioerror
 
 ;*showdir  .block
 ;*         jsr dirop1
@@ -205,11 +131,11 @@ loadpat:
 ;*         BNE end
 ;*
 ;*         JMP BASIN
-;*
+
 ;*end      PLA            ; don't return to dir reading loop
 ;*         PLA
 ;*         JMP exit
-;*
+
 ;*prfree   jsr JPRIMM
 ;*         .byte 144,0
 ;*         lda fileszhi
@@ -222,7 +148,7 @@ loadpat:
 ;*         lda #$42
 ;*         bne cont4
 ;*         .bend
-;*
+
 ;*menucnt  = $ffb
 ;*quotest  = $ffe
 ;*fileszhi = $ffd
@@ -267,7 +193,7 @@ loadpat:
 ;*
 ;*end     rts
 ;*        .bend
-;*
+
 ;*printsz .block
 ;*        lda quotest
 ;*        bmi exit
@@ -355,7 +281,7 @@ loadpat:
 ;*         PLA
 ;*         JMP exit
 ;*         .bend
-;*
+
 ;*savepat  .block
 ;*sizex    = adjcell2
 ;*sizey    = adjcell2+1
@@ -478,67 +404,41 @@ loadpat:
 ;*         lda i2
 ;*         jmp loop3
 ;*         .bend
-;*
-;*showcomm .block
-;*         ldx fnlen
-;*         bne cont2
-;*
-;*         rts
-;*
-;*cont2    lda #"#"
-;*         cpx #16
-;*         beq cont1
-;*
-;*         inx
-;*cont1    sta fn-1,x
-;*         ;lda #","     ;check file type
-;*         ;inx
-;*         ;sta fn-1,x
-;*         ;lda #"s"
-;*         ;inx
-;*         ;sta fn-1,x
-;*         txa
-;*         ldx #<fn
-;*         ldy #>fn
-;*         .bend
 
-;*showtxt  .block
-;*         jsr SETNAM
-;*         lda #8
-;*         jsr io2
-;*         jsr OPEN
-;*         ldx #8
-;*         jsr CHKIN
-;*         bcs error
-;*
-;*         lda #8
-;*         jsr set_ntsc
-;*         jsr TOCHARSET2  ;to smalls & caps
-;*         ;jsr PRIMM
-;*         ;db 9,$e,0
-;*
-;*loop6    jsr READSS
-;*         bne checkst
-;*
-;*         jsr BASIN
-;*         bne cont2
-;*
-;*         JSR STOP       ; RUN/STOP pressed?
-;*         beq eof
-;*
-;*         lda #$d
-;*cont2    jsr BSOUT
-;*         jmp loop6
-;*
-;*checkst  cmp #$40
-;*         beq eof
-
-copyr:   mov #toio,@#pageport
+commonin:mov #toio,@#pageport
          mov #io_op,r0
          mov r0,r1
          mov #3,(r0)+
          mov #16384,(r0)+
          clr (r0)+
+exit20:  return
+
+showcomm:tstb @#fn
+         beq exit20
+
+         call @#totext
+         jsr r3,@#printstr
+         .byte 12,155,0,0
+         call @#commonin
+         mov #fn,r2
+         mov #12,r3
+1$:      movb (r2)+,r4
+         movb r4,(r0)+
+         cmpb #'.,r4
+         bne 5$
+
+         movb #'T,(r0)+
+         movb #'X,(r0)+
+         movb #'T,(r0)+
+         sub #3,r3
+         add #3,r2
+5$:      sob r3,1$
+         call @#showtxt0
+         jsr r3,@#printstr
+         .byte 12,155,0,0
+         jmp @#tograph
+
+copyr:   call @#commonin
          mov #"CR,(r0)+
          mov #".T,(r0)+
          mov #"XT,(r0)+
@@ -546,7 +446,7 @@ copyr:   mov #toio,@#pageport
 1$:      clr (r0)+
          sob r2,1$
 
-         emt ^O36
+showtxt0:emt ^O36
          tstb @#io_op+1
          bne ioerr1
 
@@ -556,21 +456,24 @@ copyr:   mov #toio,@#pageport
          movb (r1)+,r0
          mov #toandos,@#pageport
          emt ^O16
-         sob r2,2$
+         push r1
+1$:      call @#getkey2
+         bne 1$
 
-         br ioerr2
-exit20:  return
+         pop r1
+         sob r2,2$
+         jmp @#getkey
 
 ioerror: tstb @#errst
          beq exit20
 
 ioerr1:  mov #toandos,@#pageport
          jsr r3,@#printstr
-         .byte 10
-         .asciz "IO ERROR"
-         mov #todata,@#pageport
-ioerr2:  jmp @#getkey
-
+         .ascii "IO ERROR"
+         .byte 0,0
+         call @#getkey
+         jmp @#gexit3
+         
 iocf:    mov #io_op,r0    ;IN: R2 - 2/3 - write/read
          mov r0,r1
          mov r2,(r0)+

@@ -75,7 +75,7 @@ insteps: call @#totext
 ;         db 8,32,8,"$"
 ;         jr cont4
          jsr r3,@#printstr
-         .byte 8,32,8,0
+         .byte 24,0
          br 1$
 
 ;cont1    call TXT_REMOVE_CURSOR
@@ -161,7 +161,7 @@ bornstay:
          bmi 3$
 
          jsr r3,@#printstr
-         .byte 8,32,8,0
+         .byte 24,0
          br 1$
 
 inborn:  jsr r3,@#printstr
@@ -835,7 +835,7 @@ showscnp1:mov video(r0),r5
           clr 384(r5)
           clr 448(r5)
           mov #todata,@#pageport
-          br 15$
+          return
 
 14$:      vidmacp count6,384
           swab r1
@@ -844,18 +844,19 @@ showscnp1:mov video(r0),r5
           mov #tovideo,@#pageport
           clr 448(r5)
           mov #todata,@#pageport
-          br 15$
+          return
 
 16$:      vidmacp count7,448
-15$:      return
+          return
 
 clrscn:   mov #tovideo,@#pageport
           mov #16384,r0
           mov #8192,r1
 1$:       clr (r0)+
           sob r1,1$          
-          mov #todata,@#pageport
-          return
+          ;mov #todata,@#pageport
+          ;return
+          jmp @#gexit3
 
 ;xclrscn  .block
 ;         lda tilecnt
@@ -1093,7 +1094,7 @@ drive:   .byte 10,147,'A,':,154,0
          bmi 3$
 
          jsr r3,@#printstr
-         .byte 8,32,8,0
+         .byte 24,0
          br 14$
 
 ;menu2    call setdirmsk
@@ -1677,9 +1678,7 @@ clrrect:  ;in: x8poscp, y8poscp
          tstb @#pseudoc
          bne clrectpc
 
-         ;mov #todata,@#pageport
          mov @#crsrtile,r5
-
          tstb @#ydir
          bne loopup2
 
@@ -1733,8 +1732,7 @@ clrect12:movb @#y8byte,r1
          asl r2
          mov #tovideo,@#pageport
          mov vistab(r2),@r1
-         mov #todata,@#pageport
-         return
+         jmp @#gexit3
 
 clrectpc:movb @#crsrbyte,r4
          tstb @#ydir
@@ -1749,9 +1747,7 @@ clrectpc:movb @#crsrbyte,r4
          asrb r4
          asrb r4
          inc r4
-         ;mov #todata,@#pageport
          mov @#crsrtile,r0
-
          tstb @#ydir
          bne loopuppc
 
@@ -2436,7 +2432,7 @@ chgcolors:
          bmi 3$
 
          jsr r3,@#printstr
-         .byte 8,32,8,0
+         .byte 24,0
          br 1$
 
 11$:      tst r1
@@ -2500,8 +2496,7 @@ putpixel2:
          bic r4,@r2
          asl r4
          bis r4,@r2
-         mov #todata,@#pageport
-         return
+         jmp @#gexit3
 
 showtent:mov #toio,@#pageport
          mov #16384+8,r0
@@ -2578,7 +2573,16 @@ setpalette:
          swab r2
          asl r2
          mov r2,@#kbddtport   ;sets also active video page and enables raster interrupt
-         return
+exit55:  return
+
+crsrclr2: mov #135,@#crsrflash    ;135 = $87 = return
+          tstb @#zoom
+          bne exit55
+          
+          jmp @#crsrclr
+
+crsrset2: mov #135,@#crsrflash    ;135 = $87 = return
+          jmp @#crsrset
 
 showtopology:
          mov #27,r1
@@ -2612,8 +2616,7 @@ spt1:    clr r2
          emt ^O20
          ;mov @#yshift,@#yscroll
          ;mov #^O1330,@#yshift
-         mov #todata,@#pageport
-exit55:  return
+         jmp @#gexit3
 
 showtxt:     ;IN: R1 - msg
          mov #toandos,@#pageport
@@ -2667,13 +2670,4 @@ showbline2:
          .byte 's,10
          .asciz "SPEED: "
          br shownum
-
-crsrclr2: mov #135,@#crsrflash    ;135 = $87 = return
-          tstb @#zoom
-          bne exit55
-          
-          jmp @#crsrclr
-
-crsrset2: mov #135,@#crsrflash    ;135 = $87 = return
-          jmp @#crsrset
 

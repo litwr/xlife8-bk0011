@@ -24,8 +24,7 @@ initxt:   mov #toandos,@#pageport
           movb #3,41(r1)
           add #64,r1
           sob r3,2$
-          mov #todata,@#pageport
-          return
+          jmp @#gexit3
 
 totext:    call @#clrscn
            mov @#yscroll,@#yshift
