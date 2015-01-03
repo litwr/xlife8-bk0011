@@ -587,8 +587,7 @@ dispat0: cmpb #'g,r0
 ;*nozoom1  jsr totext
 ;*         jsr loadmenu
 ;*         beq exitload
-301$:    ;call @#totext
-         call @#loadmenu
+301$:    call @#loadmenu
          bcs 302$
 
 ;*cont17w  jsr loadpat
@@ -609,6 +608,8 @@ dispat0: cmpb #'g,r0
 
 ;*         lda fnlen
 ;*         bne cont17v
+         tstb @#fn
+         bne 317$
 
 ;*         rts
 100$:    return
@@ -616,13 +617,19 @@ dispat0: cmpb #'g,r0
 ;*cont17v  lda zoom
 ;*         pha
 ;*         beq nozoom3
-
 ;*         jsr zoomout
+317$:    movb @#zoom,r0
+         push r0
+         beq 318$
+         
+         call @#319$
+
 ;*nozoom3  jsr totext
 ;*         lda #147
 ;*         jsr BSOUT
 ;*         jsr curoff
 ;*         jmp cont17w
+318$:    br 303$
 
 174$:    cmpb #'+,r0
          bne 175$
@@ -647,7 +654,7 @@ dispat0: cmpb #'g,r0
          tstb @#zoom
          beq 100$
 
-         clrb @#zoom
+319$:    clrb @#zoom
          br 271$
 
 176$:    cmpb #'V,r0
