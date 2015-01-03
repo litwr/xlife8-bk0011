@@ -42,10 +42,10 @@ start:   mov #128,@#^O102
          mov #crsrirq,@#^O100
          call @#help
 
-crsrflash: mov #0,r0
+crsrflash2: call @#crsrflash
 mainloop: call @#dispatcher
          movb @#mode,r0
-         beq crsrflash
+         beq crsrflash2
 
          cmpb #3,r0
          bne 3$
@@ -62,7 +62,7 @@ mainloop: call @#dispatcher
          call @#xyout
          call @#showscn
          call @#showmode
-         br crsrflash
+         br crsrflash2
 
 4$:      cmpb #2,r0
          bne 5$
@@ -75,7 +75,7 @@ mainloop: call @#dispatcher
          call @#generate
          call @#showscn
          call @#cleanup
-         br crsrflash
+         br crsrflash2
 
          .include vistab.s
          .include gentab.s
@@ -756,6 +756,9 @@ benchirq:  push r0
            pop r0
            rti
 
+crsrflash: return
+           nop
+
 crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
            bne emptyirq
 
@@ -763,7 +766,7 @@ crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
            bitb #15,@#crsrticks
            bne emptyirq
 
-           mov #2527,@#crsrflash     ;2527 = $9df = call
+           mov #95,@#crsrflash     ;95 = $5f = jmp@#
            mov #crsrset2,@#crsrflash+2
            bitb #16,@#crsrticks
            beq emptyirq

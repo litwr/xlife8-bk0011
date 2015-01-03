@@ -1231,7 +1231,8 @@ showrect:
          ;call @#crsrset0
 
 ;loop1    jsr getkey
-11$:     call @#getkey
+11$:     call @#crsrflash
+         call @#getkey2
 
 ;         cmp #$9d   ;cursor left
 ;         beq lselect
@@ -1575,11 +1576,9 @@ looplt:  call @#drrect1
 ;         jmp xcont4
 drrect1: mov video(r5),r1
          movb @#y8byte,r2
+         swab r2
          asr r2
-         rorb r2
-         rorb r2
-         rorb r2
-         asl r2
+         asr r2
          add r2,r1
 exitdrawrect: return
 
@@ -1655,11 +1654,9 @@ exitclrect2: return
 
 clrect12:movb @#y8byte,r1
          mov r1,r2
+         swab r1
          asr r1
-         rorb r1
-         rorb r1
-         rorb r1
-         asl r1
+         asr r1
          add video(r5),r1
          add r5,r2
          movb @r2,r2
@@ -2030,7 +2027,19 @@ crsrclr: tstb @#zoom
 
          mov #tovideo,@#pageport
          asl r2
-         mov vistab(r2),@r1
+         mov vistab(r2),r2
+5$:      movb @#crsrbit,r3
+         asl r3
+         mov vistab(r3),r3
+         mov r3,r4
+         asl r4
+         bis r4,r3
+         mov @r1,r4
+         bic r3,r4
+         com r3
+         bic r3,r2
+         bis r2,r4
+         mov r4,@r1
          br gexit3
 
 2$:      movb @#crsrbyte,r3
@@ -2050,11 +2059,8 @@ crsrclr: tstb @#zoom
          asrb r2
          asrb r2
          asrb r2
-4$:      bisb r4,r2
-         bic #^B1111111100000000,r2
-         mov #tovideo,@#pageport
-         movb vistabpc(r2),@r1
-         br gexit3
+         call @#8$
+         br 5$
 
 3$:      inc r1
          mov count0+2(r3),r3
@@ -2067,12 +2073,20 @@ crsrclr: tstb @#zoom
          asl r4
          bis r3,r4
          bic #^B1111111111110000,r2
-         br 4$
+         call @#8$
+         swab r2
+         br 5$
 
 1$:      clrb @#crsrpgmk
          call @#showscnz
          incb @#crsrpgmk
          ;mov @#crsrtile,r0   ;do not remove! ???
+         return
+
+8$:      bisb r4,r2
+         bic #^B1111111100000000,r2
+         mov #tovideo,@#pageport
+         movb vistabpc(r2),r2
          return
 
 crsrcalc:
@@ -2404,11 +2418,9 @@ putpixel2:
          mov video(r2),r2
          asl r4
          mov vistab(r4),r4
+         swab r3
          asr r3
-         rorb r3
-         rorb r3
-         rorb r3
-         asl r3
+         asr r3
          add r3,r2
 22$:    cmp r2,#16384
         bcs 22$
@@ -2531,7 +2543,7 @@ spt1:    clr r2
          ;mov @#yshift,@#yscroll
          ;mov #^O1330,@#yshift
          mov #todata,@#pageport
-         return
+exit55:  return
 
 showtxt:     ;IN: R1 - msg
          mov #toandos,@#pageport
@@ -2586,10 +2598,12 @@ showbline2:
          .asciz "SPEED: "
          br shownum
 
-crsrclr2: call @#crsrclr
-clrflash: mov #5568,@#crsrflash
-          return
+crsrclr2: mov #135,@#crsrflash    ;135 = $87 = return
+          tstb @#zoom
+          bne exit55
+          
+          jmp @#crsrclr
 
-crsrset2: call @#crsrset
-          br clrflash
+crsrset2: mov #135,@#crsrflash    ;135 = $87 = return
+          jmp @#crsrset
 

@@ -4,18 +4,22 @@ getkey:  movb @#kbdbuf,r0
          clrb @#kbdbuf
 exit11:  return
 
-dispatcher:
-         movb @#kbdbuf,r0
+getkey2: movb @#kbdbuf,r0
          beq exit11
 
-         mov #12000,r1
+kbddelay:mov #20000,r1
 1$:      bit #64,@#pageport
          bne 2$
 
          sob r1,1$
-         br dispat0
+         mov #2000,@#kbddelay+2
+         br 3$
 
 2$:      clrb @#kbdbuf
+         mov #20000,@#kbddelay+2
+3$:      return
+
+dispatcher: call @#getkey2
 dispat0: cmpb #'g,r0
          bne 3$
 
