@@ -930,185 +930,255 @@ clrscn:   mov #tovideo,@#pageport
 ;         stx currp
 ;         jmp loop
 
-;loadmenu .block
-;scrfn    = $c00+123
-;         jsr JPRIMM
-;         .byte 147,30
-;         .ascii "input filename, an empty string means toshow directory. press "
-;         .byte 28
-;         .ascii "run/stop"
-;         .byte 30
-;         .ascii " to use ramdisk, "
-;         .byte 28
-;         .ascii "*"
-;         .byte 30
-;         .ascii " to change unit, "
-;         .byte 28
-;         .ascii "esc"
-;         .byte 30
-;         .ascii " to exit"
-;         .byte $d,144
-;         .null "u0 "
-;         lda curdev
-;         eor #$30
-;         sta scrfn-2
-;loop3    ldy #0
-;         sty $ff0c
-;loop1    tya
-;         clc
-;         adc #<scrfn
-;         sta $ff0d
-;         jsr getkey
-;         cmp #27
-;         bne cont7
+loadmenu:call @#totext 
+         ;set drive+1
+         jsr r3,@#printstr
+         .byte 12,146
+         .ascii "INPUT FILENAME, AN EMPTY STRING MEANS TO SHOW DIRECTORY. PRESS "
+         .byte 145
+         .ascii "KT"
+         .byte 146
+         .ascii " TO USE RAMDISK, "
+         .byte 145,'*,146
+         .ascii " TO CHANGE DRIVE, "
+         .byte 145
+         .ascii "TAB"
+         .byte 146
+         .ascii " TO EXIT"
+drive:   .byte 10,147,'A,':,154,0
+;loop3    ld de,fn
+;         ld c,0
+3$:      mov #fn,r1
+         clr r2
+;loop1    call KM_WAIT_CHAR
+;         cp $d
+;         jr z,cont1
+1$:      call @#getkey
+         cmpb r0,#10
+         beq 11$
+
+;         cp $7f      ;backspace
+;         jr z,cont2
+         cmpb r0,#24
+         beq 12$
+
+;         cp $fc      ;esc
+;         jr nz,cont7
+         cmpb r0,#9   ;tab
+         bne 17$
+
+;exit     call TXT_REMOVE_CURSOR   ;cursor off
+;         xor a
+;         ret
+100$:    mov r0,@#saved    
+101$:    jsr r3,@#printstr
+         .byte 154,0
+         call @#tograph
+         mtps @#saved
+         return
+
+;cont7    cp "*"
+;         jr nz,cont11
+17$:     cmpb r0,#'*
+         bne 21$
+
+;         call chgdrv
+;         jr loop1
+        ;call @#chgdrv
+        br 1$
+
+;cont11   cp 9        ;TAB
+;         jr nz,cont8
+21$:     cmpb #3,r0    ;KT
+         bne 18$
+
+;         call TXT_REMOVE_CURSOR     ;cursor off
+;         call ramdisk
+;         jr exit
+         jsr r3,@#printstr
+         .byte 154,0
+         ;call @#ramdisk
+         br 100$
+
+;cont8    and $7f
+;         cp 33
+;         jr c,loop1
+18$:     cmpb r0,#'!
+         bcs 1$
+
+         cmpb r0,#126
+         bcc 1$
+
+;         ld hl,nofnchar
+;         push bc
+;         ld bc,loadmenu-nofnchar
+;         cpir
+;         pop bc
+;         jr z,loop1
+         mov #nofnchar,r3
+5$:      cmpb r0,(r3)+
+         beq 1$
+
+         cmpb r0,#'a
+         bcs 6$
+
+         cmpb r0,#'z+1
+         bcc 6$
+
+         sub #'a-'A,r0
+6$:      tstb @r3
+         bne 5$
+
+;         ld b,a
+;         ld a,c
+;         cp 8
+;         ld a,b
+;         jr nc,loop1
+         cmp r2,#8
+         bcc 1$
+
+;         ld (de),a
+;         inc de
+;         inc c
+;         ld b,a
+;         call TXT_REMOVE_CURSOR
+;         ld a,b
+;         call TXT_OUTPUT
+         movb r0,(r1)+
+         inc r2
+         emt ^O16 
+;cont4    call TXT_PLACE_CURSOR
+;         jp loop1
+14$:     br 1$
+
+;cont1    call TXT_REMOVE_CURSOR     ;cursor off
+;         ld a,c
+;         or a
+;         jr z,menu2
+11$:     tst r2
+         beq menu2
+
+;         add a,3
+;         ld (fnlen),a
+;         ld a,"."
+;         ld (de),a
+;         inc de
+;         ld a,"8"
+;         ld (de),a
+;         inc de
+;         ld a,"L"
+;         ld (de),a
+;         ret    ;nz
+         movb #'.,(r1)+
+         movb #'8,(r1)+
+         movb #'L,(r1)+
+         movb #'0,(r1)+
+         clr @#saved
+42$:     cmp r1,#density
+         beq 101$
+
+         clrb (r1)+
+         br 42$
+
+;cont2    dec de
+;         dec c
+;         jp m,loop3
 ;
-;exit     jsr curoff
-;         lda #0
-;         rts
+;         call TXT_REMOVE_CURSOR
+;         call printn
+;         db 8,32,8,"$"
+;         jr cont4
+12$:     dec r1
+         dec r2
+         bmi 3$
+
+         jsr r3,@#printstr
+         .byte 8,32,8,0
+         br 14$
+
+;menu2    call setdirmsk
+;         ld a,b
+;         cp $fc    ;esc
+;         jr z,repeat
+menu2:
+;         ;call printn
+;         ;db 12,15,2,"USE ",15,3
+;;*         .text "run/stop"
+;;*         .byte 30
+;;*         .text " and "
+;;*         .byte 28
+;;*         .text "cbm key"
+;;*         .byte 30
+;;*         .text " as usual"
+;;*         .byte $d,0
 ;
-;cont7    cmp #"*"
-;         bne cont11
+;         call showdir
+;         call printn
+;         db 30,18,"ENTER FILE# OR ",15,3,"ESC",15,2,": ",15,1,"$"
+;loopx    call TXT_PLACE_CURSOR   ;cursor on
+;loop3a   ld de,stringbuf
+;         ld c,0
+;loop1a   call KM_WAIT_CHAR
+;         cp $fc       ;esc
+;         jr nz,cont7a
 ;
-;         lda curdev
-;         eor #1
-;         sta curdev
-;         eor #$30
-;         sta scrfn-2
-;         bne loop1
+;repeat   call TXT_REMOVE_CURSOR     ;cursor off
+;         jp loadmenu
 ;
-;cont11   cmp #$d
-;         beq cont1
+;cont7a   cp $d
+;         jr z,cont1a
 ;
-;         cmp #$14   ;backspace
-;         beq cont2
+;         cp $7f       ;backspace
+;         jr z,cont2a
 ;
-;         cmp #3     ;run/stop
-;         bne cont8
+;         cp "0"
+;         jr c,loop1a
 ;
-;         jsr curoff
-;         jsr ramdisk
-;         jmp exit
+;         cp "9"+1
+;         jr nc,loop1a
 ;
-;cont8    cmp #32
-;         bcc loop1
+;         ld b,a
+;         ld a,c
+;         cp 2
+;         ld a,b
+;         jr z,loop1a
 ;
-;         cpy #16    ;fn length limit
-;         beq loop1
+;         ld (de),a
+;         inc de
+;         inc c
+;         ld b,a
+;         call TXT_REMOVE_CURSOR
+;         ld a,b
+;         call TXT_OUTPUT
+;cont4a   call TXT_PLACE_CURSOR
+;         jr loop1a
 ;
-;         ldx #0
-;         stx fnlen
-;         sta fn,y
-;loop8    jsr BSOUT
-;         iny
-;         bpl loop1
+;cont1a   call TXT_REMOVE_CURSOR
+;         ld a,c
+;         or a
+;         jr z,loopx
 ;
-;cont1    tya
-;         beq menu2
+;         push bc
+;         push de
+;         call TXT_PLACE_CURSOR
+;         call findfn
+;         pop de
+;         pop bc
+;         jr nz,loop1a
 ;
-;         sty fnlen
-;         jmp curoff
+;         call TXT_REMOVE_CURSOR
+;         or 1    ;set nz
+;         ret
 ;
-;cont2    dey
-;         bmi loop3
+;cont2a   dec de
+;         dec c
+;         jp m,loop3a
 ;
-;         dey
-;         jmp loop8
-;
-;menu2    jsr setdirmsk
-;         cpx #27
-;         beq repeat
-;
-;         jsr JPRIMM
-;         .byte 147,30
-;         .ascii "use "
-;         .byte 28
-;         .ascii "run/stop"
-;         .byte 30
-;         .ascii " and "
-;         .byte 28
-;         .ascii "cbm key"
-;         .byte 30
-;         .ascii " as usual"
-;         .byte $d,0
-;         jsr showdir
-;         lda $c00
-;         cmp #$15
-;         bne cont10
-;
-;         jsr JPRIMM
-;         .byte 19,27,"d",0
-;cont10   jsr JPRIMM
-;         .byte 19,27,"w",30
-;msglen  = 20
-;         .ascii "enter file# or "
-;         .byte 28,"e","s","c",30,":"," ",144,0
-;loop3a   ldy #0
-;         sty $ff0c
-;loop1a   tya
-;         clc
-;         adc #msglen
-;         sta $ff0d
-;         jsr getkey
-;         cmp #27
-;         bne cont7a
-;
-;repeat   jsr curoff
-;         jmp loadmenu
-;
-;cont7a   cmp #$d
-;         beq cont1a
-;
-;         cmp #$14   ;backspace
-;         beq cont2a
-;
-;         cpy #3     ;#fn limit
-;         beq loop1a
-;
-;         cmp #$30
-;         bcc loop1a
-;
-;         cmp #$3a
-;         bcs loop1a
-;
-;loop8a   jsr BSOUT
-;         iny
-;         bpl loop1a
-;
-;cont1a   tya
-;         beq loop1a
-;
-;         pha     ;save y
-;         lda #msglen
-;         sta $3b
-;         lda #0
-;         sta $c00+msglen,y
-;         lda #$71     ;white = invisible cursor
-;         sta $800+msglen,y
-;         lda #$c
-;         sta $3c
-;         lda $c00+msglen
-;         clc
-;         jsr STR2INT
-;         lda $15
-;         bne l1
-;
-;         jsr findfn
-;l1       pla
-;         tay
-;         lda #32
-;         sta $c00+msglen,y
-;         lda fnlen
-;         sta $800+msglen,y
-;         beq loop1a
-;         jmp curoff
-;
-;cont2a   dey
-;         bmi loop3a
-;
-;         dey
-;         jmp loop8a
-;         .bend
-;
+;         call TXT_REMOVE_CURSOR
+;         call printn
+;         db 8,32,8,"$"
+;         jr cont4a
+
 ;getsvfn  .block
 ;scrfn    = $c00+43
 ;         jsr JPRIMM
@@ -2437,10 +2507,10 @@ showtent:mov #toio,@#pageport
          mov #16384+8,r0
          mov @#loaded_sz,r5
          sub #8,r5
-         cmp r5,#2048
+         cmp r5,#2560
          bcs 2$
 
-         mov #2048,r5
+         mov #2560,r5
 2$:      asr r5
 
 ;         lda x0
@@ -2521,7 +2591,7 @@ showtopology:
          br showptxt
 
 showmode:
-         mov #0,r1
+         clr r1
          mov #2,r2
          mov #msgstop,r3
          movb @#mode,r0

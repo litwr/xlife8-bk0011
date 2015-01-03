@@ -110,10 +110,10 @@ loadpat:
 ;*         jmp loop5
 5$:      mov #16384+8,r0
 9$:      add #16384,@#loaded_sz
-6$:      mov (r0)+,@#x0
+6$:      mov #toio,@#pageport
+         mov (r0)+,@#x0
          mov #todata,@#pageport
          call @#putpixel
-         mov #toio,@#pageport
          cmp r0,@#loaded_sz
          bne 6$
 

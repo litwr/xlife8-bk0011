@@ -556,7 +556,6 @@ generate:
 stage2:  mov @#startp,r0
 
 ;*genloop2 ldy #sum
-         ;*.block
          ;*lda #0
          ;*sta (currp),y
 1$:      
@@ -687,6 +686,8 @@ lowbench: .word 0
 highbench: .word 0
 tobin:    .word 1,10,100,1000,10000
 yscroll:  .word ^O1330
+live:     .word 12
+born:     .word 8
 
 x0:       .byte 0   ;word aligned
 y0:       .byte 0
@@ -706,20 +707,16 @@ xchgdir:  .byte 0
 xdir:     .byte 0      ;linear transformation, word aligned
 ydir:     .byte 0
 clncnt:   .byte 0
+palette:  .byte 0      ;not word aligned???
 pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 zoom:     .byte 0
-fnlen:    .byte 0
-fn:       .ascii "BLOCK.8L0"
-          .byte 0,0,0
-;.blkb 12
+;fnlen:    .byte 0
+fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0
+density:  .byte 3         ;must follow fn
 dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
 ;;         .repeat 17,0
-live:     .byte 12,0
-born:     .byte 8,0
-density:  .byte 3
-palette:  .byte 0
 fcount:   .byte 0      ;number of file parts
 topology: .byte 0      ;0 - torus
 crsrticks: .byte 0
@@ -727,7 +724,7 @@ copyleft: .ascii "CR.TXT"
 errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
-;;curdev   .byte 8
+curdev:   .byte 'A
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0
@@ -736,6 +733,7 @@ msgtore: .asciz "TORUS"
 msgplan: .asciz "PLAIN"
 msgrun:  .asciz "RUN "
 msgstop: .asciz "STOP"
+nofnchar: .byte '%,'(,'),',,'.,'/,':,';,'<,'=,'>,'?,'[,'\,'],'|,0
 stringbuf: .blkb 19
 
          .even   ;high area

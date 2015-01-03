@@ -1,4 +1,4 @@
-getkey:  movb @#kbdbuf,r0
+getkey:  movb @#kbdbuf,r0    ;waitkey
          beq getkey
 
          clrb @#kbdbuf
@@ -588,8 +588,8 @@ dispat0: cmpb #'g,r0
 ;*         jsr loadmenu
 ;*         beq exitload
 301$:    ;call @#totext
-         ;call @#loadmenu
-         ;beq 302$
+         call @#loadmenu
+         bcs 302$
 
 ;*cont17w  jsr loadpat
 ;*         jsr scrnorm

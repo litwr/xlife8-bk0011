@@ -1,3 +1,5 @@
 genmac requires only one argument!
 ESC/HLT interceptor/trap
 move start of program to $200
+xclrscn? to clear only the place for cells - no screen flicker
+odd relocations support, e.g., .blkb

@@ -696,7 +696,10 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         sec
 ;         sbc crsry
 ;         sta y8pos
-1$:      movb @#crsry,r4
+1$:      mov #65280,r2
+         movb @#crsry,r4
+         bic r2,r3
+         bic r2,r4
          sub r4,r3
 
 ;         lda x8pos
@@ -713,6 +716,8 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         sbc t2
 ;         sta x8pos
          movb @#crsrx,r4
+         bic r2,r1
+         bic r2,r4
          sub r4,r1
 
 ;         #assign16 adjcell,crsrtile
@@ -722,14 +727,14 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         lda y8pos
 ;loop2    bmi cup
 ;         bne cdown
-22$:     bitb #248,r3
+22$:     bit #65528,r3
          bmi 12$
          bne 11$
 
 ;         lda x8pos
 ;loop3    bmi cleft
 ;         bne cright
-23$:     bitb #248,r1
+23$:     bit #65528,r1
          bmi 13$
          bne 10$
          
