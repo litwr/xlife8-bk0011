@@ -266,7 +266,9 @@ dispat0: cmpb #'g,r0
          mov #live,r5
          call @#setrconst
 
+         mov #todata,@#pageport
          call @#fillrt
+         mov #toandos,@#pageport
 200$:    call @#tograph
 ;*         jsr calccells    ;for load sequence
 ;*         jsr crsrset      ;showscn also calls crsrset! but crsrset is fast now...
@@ -592,13 +594,15 @@ dispat0: cmpb #'g,r0
 
 ;*cont17w  jsr loadpat
 ;*         jsr scrnorm
-303$:    call @#loadpat
+303$:    call @#tograph
+         call @#loadpat
 
 ;*exitload jsr finish
 ;*         pla
 ;*         bne zoomin
 302$:    pop r0
          movb r0,@#zoom
+         mov #todata,@#pageport
          call @#zerocc
          call @#calccells
          jmp @#tograph0

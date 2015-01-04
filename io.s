@@ -37,14 +37,7 @@ loadpat: call @#commonin
          mov @#16384+6,@#born
          call @#fillrt
 5$:      mov #16384+8,r0
-9$:      add #16384,@#loaded_sz
-6$:      mov #toio,@#pageport
-         mov (r0)+,@#x0
-         mov #todata,@#pageport
-         call @#putpixel
-         cmp r0,@#loaded_sz
-         bne 6$
-
+9$:      call @#puttent
          decb @#fcount
          bmi 3$
 

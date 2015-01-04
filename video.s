@@ -923,13 +923,9 @@ loadmenu:call @#totext
          .byte 146
          .ascii " TO EXIT"
 drive:   .byte 10,147,'A,':,154,0,0
-;loop3    ld de,fn
-;         ld c,0
+
 3$:      mov #fn,r1
          clr r2
-;loop1    call KM_WAIT_CHAR
-;         cp $d
-;         jr z,cont1
 1$:      call @#getkey
          cmpb r0,#10
          beq 11$
@@ -944,14 +940,10 @@ drive:   .byte 10,147,'A,':,154,0,0
          cmpb r0,#9   ;tab
          bne 17$
 
-;exit     call TXT_REMOVE_CURSOR   ;cursor off
-;         xor a
-;         ret
-100$:    mov r0,@#saved    
+100$:    movb r0,r4
 101$:    jsr r3,@#printstr
          .byte 154,0
-         call @#tograph
-         mtps @#saved
+         mtps r4
          return
 
 ;cont7    cp "*"
@@ -969,12 +961,15 @@ drive:   .byte 10,147,'A,':,154,0,0
 21$:     cmpb #3,r0    ;KT
          bne 18$
 
-;         call TXT_REMOVE_CURSOR     ;cursor off
-;         call ramdisk
-;         jr exit
          jsr r3,@#printstr
          .byte 154,0
-         ;call @#ramdisk
+
+         call @#ramdisk
+         mov #toandos,@#pageport
+         jsr r3,@#printstr
+         .byte 154,0
+
+         mov #1,r0
          br 100$
 
 ;cont8    and $7f
@@ -986,12 +981,6 @@ drive:   .byte 10,147,'A,':,154,0,0
          cmpb r0,#126
          bcc 1$
 
-;         ld hl,nofnchar
-;         push bc
-;         ld bc,loadmenu-nofnchar
-;         cpir
-;         pop bc
-;         jr z,loop1
          mov #nofnchar,r3
 5$:      cmpb r0,(r3)+
          beq 1$
@@ -1006,26 +995,12 @@ drive:   .byte 10,147,'A,':,154,0,0
 6$:      tstb @r3
          bne 5$
 
-;         ld b,a
-;         ld a,c
-;         cp 8
-;         ld a,b
-;         jr nc,loop1
          cmp r2,#8
          bcc 1$
 
-;         ld (de),a
-;         inc de
-;         inc c
-;         ld b,a
-;         call TXT_REMOVE_CURSOR
-;         ld a,b
-;         call TXT_OUTPUT
          movb r0,(r1)+
          inc r2
          emt ^O16 
-;cont4    call TXT_PLACE_CURSOR
-;         jp loop1
 14$:     br 1$
 
 ;cont1    call TXT_REMOVE_CURSOR     ;cursor off
@@ -1035,22 +1010,11 @@ drive:   .byte 10,147,'A,':,154,0,0
 11$:     tst r2
          beq menu2
 
-;         add a,3
-;         ld (fnlen),a
-;         ld a,"."
-;         ld (de),a
-;         inc de
-;         ld a,"8"
-;         ld (de),a
-;         inc de
-;         ld a,"L"
-;         ld (de),a
-;         ret    ;nz
          movb #'.,(r1)+
          movb #'8,(r1)+
          movb #'L,(r1)+
          movb #'0,(r1)+
-         clr @#saved
+         clr r4
 42$:     cmp r1,#density
          beq 101$
 
@@ -1226,29 +1190,11 @@ menu2:   ;call @#setdirmsk
 ;         .bend
 
 showrect:
-;         clc
-;         ldy #0
-;         ldx #24
-;         jsr PLOT        ;set position for the text
          mov #toandos,@#pageport
          clr r1
          mov #19,r2
          emt ^O24
 
-;         jsr JPRIMM
-;         .byte 30
-;         .ascii "move, "
-;         .byte 28,"r",30
-;         .ascii "otate, "
-;         .byte 28,"f",30
-;         .ascii "lip, "
-;         .byte 28
-;         .ascii "enter"
-;         .byte 30
-;         .ascii ", "
-;         .byte 28
-;         .ascii "esc"
-;         .byte 144,0
          jsr r3,@#printstr
          .byte 153,146
          .ascii "MOVE, "
@@ -1262,23 +1208,11 @@ showrect:
          .ascii "TAB"
          .byte 0
        
-;         lda #0
-;         sta xdir
-;         sta ydir
-;         sta xchgdir
          clr @#xdir
          clrb @#xchgdir
 
-;         jsr tograph0
-;         jsr showscn0
-;loop0    jsr drawrect
-;         jsr showtent
-;         jsr crsrset0
 10$:     call @#drawrect
          call @#showtent
-         ;call @#crsrset0
-
-;loop1    jsr getkey
 11$:     call @#crsrflash
          call @#getkey2
 

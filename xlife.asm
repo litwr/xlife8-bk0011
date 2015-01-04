@@ -78,7 +78,6 @@ mainloop: call @#dispatcher
          br crsrflash2
 
          .include vistab.s
-         .include gentab.s
 
 tab3:    .byte 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
          .byte 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5
@@ -135,7 +134,7 @@ digifont:   ;8th columns are free
       .word  0, 0, 0, 0, 0, 0, 0, 0   ;space
 
          .include io.s
-         ;!.include "ramdisk.s"
+         .include ramdisk.s
          .include video-base.s
          .include video.s
 
@@ -782,6 +781,8 @@ keyirq:    mov @#kbddtport,@#kbdbuf
          .include tile.s
          .include utils.s
          .include tab12.s
+         .include gentab.s
+         .include ramdata.s
 
          . = 19330           ;16384-((20*24+1)*62-32*1024)
 tiles:
