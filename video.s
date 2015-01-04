@@ -312,11 +312,11 @@ help:    call @#totext
          .byte 156,159
          .ascii " to speed up the movement"
          .byte 159,0,0 ;word align
-         mov @#yshift,@#yscroll
          add #14,@#yshift
          call @#getkey
          jsr r3,@#printstr
          .byte 155,0
+         mov #^O1330,@#yshift
          jmp @#tograph
 
 xyout:   mov #tovideo,@#pageport
@@ -2609,13 +2609,10 @@ showmode:
 
 showptxt:     ;IN: R1 - X, R2 - Y, R3 - msg
          mov #toandos,@#pageport
-         ;mov @#yscroll,@#yshift 
          emt ^O24
          mov r3,r1
 spt1:    clr r2
          emt ^O20
-         ;mov @#yshift,@#yscroll
-         ;mov #^O1330,@#yshift
          jmp @#gexit3
 
 showtxt:     ;IN: R1 - msg

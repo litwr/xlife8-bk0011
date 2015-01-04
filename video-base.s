@@ -27,13 +27,20 @@ initxt:   mov #toandos,@#pageport
           jmp @#gexit3
 
 totext:    call @#clrscn
-           mov @#yscroll,@#yshift
            mov #toandos,@#pageport
            return
 
 tograph:   jsr r3,@#printstr
            .byte 145,0
-           mov #^O1330,@#yshift
+           mov #10,r0
+1$:        cmp #^O1330,@#yshift
+           beq 2$
+
+           emt ^O16
+           br 1$
+
+2$:        jsr r3,@#printstr
+           .byte 12,0
 tograph0:  call @#clrscn
            call @#initxt
            call @#showscn

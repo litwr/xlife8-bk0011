@@ -685,7 +685,6 @@ saved:    .word 0
 lowbench: .word 0
 highbench: .word 0
 tobin:    .word 1,10,100,1000,10000
-yscroll:  .word ^O1330
 live:     .word 12
 born:     .word 8
 

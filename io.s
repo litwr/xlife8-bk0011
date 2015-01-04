@@ -435,7 +435,7 @@ showcomm:tstb @#fn
 5$:      sob r3,1$
          call @#showtxt0
          jsr r3,@#printstr
-         .byte 12,155,0,0
+         .byte 155,0
          jmp @#tograph
 
 copyr:   call @#commonin
@@ -459,7 +459,8 @@ showtxt0:emt ^O36
          push r1
 1$:      call @#getkey2
          bne 1$
-
+         mov #1000,r1
+3$:      sob r1,3$
          pop r1
          sob r2,2$
          jmp @#getkey
