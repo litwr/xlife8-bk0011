@@ -28,6 +28,8 @@ initxt:   mov #toandos,@#pageport
 
 totext:    call @#clrscn
            mov #toandos,@#pageport
+           mov #12,r0
+           emt ^O16
            return
 
 tograph:   jsr r3,@#printstr
@@ -39,8 +41,8 @@ tograph:   jsr r3,@#printstr
            emt ^O16
            br 1$
 
-2$:        jsr r3,@#printstr
-           .byte 12,0
+2$:        ;jsr r3,@#printstr
+           ;.byte 12,0
 tograph0:  call @#clrscn
            call @#initxt
            call @#showscn

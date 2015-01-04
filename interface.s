@@ -667,10 +667,7 @@ dispat0: cmpb #'g,r0
 177$:    cmpb #'v,r0
          bne 178$
 
-;*         jsr totext
-;*         jsr curoff
-;*         jsr infov
-;*         jmp finish
+         jmp @#infov
 
 178$:    cmpb #'Z,r0
          bne 179$

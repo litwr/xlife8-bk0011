@@ -418,7 +418,7 @@ showcomm:tstb @#fn
 
          call @#totext
          jsr r3,@#printstr
-         .byte 12,155,0,0
+         .byte 155,0
          call @#commonin
          mov #fn,r2
          mov #12,r3

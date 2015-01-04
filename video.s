@@ -52,45 +52,22 @@ insteps: call @#totext
 ;         inc de
 ;         inc c
          inc r1
-;         ld b,a
-;         call TXT_REMOVE_CURSOR
-;         ld a,b
-;         call TXT_OUTPUT
          emt ^O16
          sub #'0,r0
          movb r0,(r2)+
-;cont4    call TXT_PLACE_CURSOR
-;         jr loop1
          br 1$
 
-;cont2    dec de
-;         dec c
-;         jp m,loop3
 12$:     dec r2
          dec r1
          bmi 3$
 
-;         call TXT_REMOVE_CURSOR
-;         call printn
-;         db 8,32,8,"$"
-;         jr cont4
-         jsr r3,@#printstr
-         .byte 24,0
+         mov #24,r0
+         emt ^O16
          br 1$
 
-;cont1    call TXT_REMOVE_CURSOR
-11$:      tst r1
-          beq 20$
+11$:     tst r1
+         beq 20$
 
-;         ld l,e
-;         ld h,d
-;         ld a,c
-;         or a
-;         ret z
-
-;         ld bc,(~stringbuf)+1
-;         add hl,bc
-;         ret    ;hl - buffer length, de - buffer end
          sub r1,r2          ;convert to binary
          clr r4
          dec r1
@@ -166,7 +143,7 @@ bornstay:
 
 inborn:  jsr r3,@#printstr
          .byte 154
-         .byte 12,147
+         .byte 147
          .ascii "THE RULES ARE DEFINED BY "
          .byte 156,
          .ascii "BORN"
@@ -194,7 +171,7 @@ inborn:  jsr r3,@#printstr
          .ascii " - BORN=3 AND STAY=012345678, ..."
          .byte 146,10,10
          .ascii "BORN = "
-         .byte 0
+         .byte 0,0
 
          mov #'1,r5
          jmp @#bornstay
@@ -209,7 +186,7 @@ instay:  jsr r3,@#printstr
 
 indens:  call @#totext
          jsr r3,@#printstr
-         .byte 12,146
+         .byte 146
          .ascii "SELECT DENSITY OR PRESS "
          .byte 145
          .ascii "TAB"
@@ -235,7 +212,7 @@ indens:  call @#totext
          .ascii " - 95%"
          .byte 10,9,145,'9,147
          .ascii " - 100%"
-         .byte 0,0
+         .byte 0
 1$:      call @#getkey
          cmpb #9,r0
          beq 2$
@@ -252,7 +229,6 @@ indens:  call @#totext
 
 help:    call @#totext
          jsr r3,@#printstr
-         .byte 12
          .ascii "    "
          .byte 146,159
          .ascii "*** XLIFE COMMANDS ***"
@@ -311,7 +287,7 @@ help:    call @#totext
          .ascii "AP2"
          .byte 156,159
          .ascii " to speed up the movement"
-         .byte 159,0,0 ;word align
+         .byte 159,0
          add #14,@#yshift
          call @#getkey
          jsr r3,@#printstr
@@ -934,7 +910,7 @@ clrscn:   mov #tovideo,@#pageport
 loadmenu:call @#totext 
          ;set drive+1
          jsr r3,@#printstr
-         .byte 12,146
+         .byte 146
          .ascii "INPUT FILENAME, AN EMPTY STRING MEANS TO SHOW DIRECTORY. PRESS "
          .byte 145
          .ascii "KT"
@@ -946,7 +922,7 @@ loadmenu:call @#totext
          .ascii "TAB"
          .byte 146
          .ascii " TO EXIT"
-drive:   .byte 10,147,'A,':,154,0
+drive:   .byte 10,147,'A,':,154,0,0
 ;loop3    ld de,fn
 ;         ld c,0
 3$:      mov #fn,r1
@@ -1101,7 +1077,8 @@ drive:   .byte 10,147,'A,':,154,0
 ;         ld a,b
 ;         cp $fc    ;esc
 ;         jr z,repeat
-menu2:
+menu2:   ;call @#setdirmsk
+
 ;         ;call printn
 ;         ;db 12,15,2,"USE ",15,3
 ;;*         .text "run/stop"
@@ -2242,143 +2219,91 @@ crsrcalc:
 
 35$:    movb r3,@#vptilecx
 31$:    add @#viewport,r1
-        
-;         sta viewport+1
-;         sta adjcell+1
-;         stx viewport
-;         stx adjcell
         mov @r1,r3
         mov r3,@#viewport
-
-;         ldy #down
-;         jsr nextcell
-;         dey
-;         jsr nextcell
         mov dr(r3),r1
         mov dr(r1),r1
-
-;         lda #4
-;         sta i2
-;loopx    ldy #right
-;         jsr nextcell
-;         dec i2
-;         bne loopx
         mov right(r1),r1
         mov right(r1),r1
 
-;         lda viewport
-;         clc
-;         adc #<44*tilesize
-;         tax
-;         lda viewport+1
-;         adc #>44*tilesize
-;         cmp adjcell+1
-;         bne l7
-
-;         cpx adjcell
-;         beq cont0
         add #44*tilesize,r3
         cmp r1,r3
         beq 30$
 
-;l7       jsr setviewport
         call @#setviewport
-
-;cont0    jsr showscnz
 30$:    jmp @#showscnz
 
-;cont2    lda #0
-;         sta t1
-;         lda vptilecy
-;         asl
-;         asl
-;         adc vptilecy
-;         asl
-;         asl
-;         rol t1
-;         asl
-;         rol t1
-;         adc vptilecx
-;         sta $ff0d
-;         lda t1
-;         adc #0
-;         sta $ff0c
-;exit     rts
-;         .bend
+outdec:  clr r4            ;in: r3
+         call @#todec
+         mov #stringbuf+7,r1
+         mov #3,r2
+2$:      cmpb #'0,(r1)+
+         bne 1$
+         sob r2,2$
+   
+1$:      dec r1      
+         mov #255,r2
+         emt ^O20
+         return
 
-;infov    .block
-;         jsr JPRIMM
-;         .byte 147,144,0
-;
-;         lda fnlen
-;         beq cont1
-;
-;         jsr JPRIMM
-;         .null "last loaded filename: "
-;
-;         ldy #0
-;loop1    lda fn,y
-;         jsr BSOUT
-;         iny
-;         cpy fnlen
-;         bne loop1
-;
-;cont1    sei
-;         sta $ff3f
-;         jsr boxsz
-;         sta $ff3e
-;         cli
-;         beq cont2
-;
-;xmin     = i1
-;ymin     = i1+1
-;xmax     = adjcell
-;ymax     = adjcell+1
-;sizex    = adjcell2
-;sizey    = adjcell2+1
-;         jsr JPRIMM
-;         .byte $d
-;         .null "active pattern size: "
-;
-;         lda #0
-;         ldx sizex
-;         jsr INT2STR
-;         lda #"x"
-;         jsr BSOUT
-;         lda #0
-;
-;         ldx sizey
-;         jsr INT2STR
-;         jsr JPRIMM
-;         .byte $d
-;         .null "box life bounds: "
-;
-;         lda #0
-;         ldx xmin
-;         jsr INT2STR
-;         jsr JPRIMM
-;         .null "<=x<="
-;
-;         lda #0
-;         ldx xmax
-;         jsr INT2STR
-;         lda #" "
-;         jsr BSOUT
-;         lda #0
-;         ldx ymin
-;         jsr INT2STR
-;         jsr JPRIMM
-;         .null "<=y<="
-;
-;         lda #0
-;         ldx ymax
-;         jsr INT2STR
-;cont2    jsr JPRIMM
-;         .byte $d
-;         .null "rules: "
-;         jsr showrules2
-;         jmp getkey
-;         .bend
+infov:   call @#totext
+         mov #146,r0
+         emt ^O16
+         mov #fn,r3
+         tstb @r3
+         beq 11$
+
+         jsr r3,@#printstr
+         .asciz "Last loaded filename: "
+         .byte 0
+
+1$:      movb (r3)+,r0
+         emt ^O16
+         cmpb #'.,@r3
+         bne 1$
+
+11$:     mov #todata,@#pageport
+         call @#boxsz
+         mov #toandos,@#pageport
+         bis r5,r1  ;r5 = boxsz_ymax, this instruction is part of boxsz
+         beq 12$
+
+         jsr r3,@#printstr
+         .byte 10
+         .asciz "Active pattern size: "
+         .byte 0
+
+         push r3
+         push r5
+         mov r4,r3
+         call @#outdec
+         mov #'x,r0
+         emt ^O16
+         mov @#boxsz_cury,r3
+         call @#outdec
+         jsr r3,@#printstr
+         .byte 10
+         .ascii "Box life bounds:"
+         .byte 10,32,0
+
+         mov @#boxsz_xmin,r3
+         call @#outdec
+         jsr r3,@#printstr
+         .asciz "<=x<="
+
+         pop r3
+         call @#outdec
+
+         mov #32,r0
+         emt ^O16
+         mov @#boxsz_ymin,r3
+         call @#outdec
+         jsr r3,@#printstr
+         .asciz "<=y<="
+         pop r3
+         call @#outdec
+12$:     call @#getkey
+         jmp @#tograph
 
 chgcolors:
         movb @#palette,r0
@@ -2488,10 +2413,12 @@ putpixel2:
          asr r3
          asr r3
          add r3,r2
-22$:    cmp r2,#16384
-        bcs 22$
-        cmp r2,#32768
-        bcc 22$
+22$:     cmp r2,#16384
+         bcs 22$
+
+         cmp r2,#32768
+         bcc 22$
+
          mov #tovideo,@#pageport
          bic r4,@r2
          asl r4

@@ -71,71 +71,105 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
           mov (sp)+,r3
           return
 
-;boxsz    .block
-;xmin     = i1
-;ymin     = i1+1
-;xmax     = adjcell
-;ymax     = adjcell+1
-;curx     = adjcell2
-;cury     = adjcell2+1
-;         lda #192
-;         sta ymin
-;         lda #160
-;         sta xmin
-;         lda #0
-;         sta xmax
-;         sta ymax
-;         sta curx
-;         sta cury
+boxsz:
+boxsz_xmin = i1
+boxsz_ymin = saved
+boxsz_xmax = r5
+boxsz_ymax = r3
+boxsz_curx = temp
+boxsz_cury = temp2
+         mov #192,@#boxsz_ymin
+         mov #160,@#boxsz_xmin
+         clr boxsz_xmax
+         clr boxsz_ymax
+         clr @#boxsz_curx
+         clr @#boxsz_cury
+
 ;         lda #<tiles ;=0
 ;         sta currp
 ;         lda #>tiles
 ;         sta currp+1
-;loop0    lda #0
-;         ldy #7
-;loop1    ora (currp),y
-;         dey
-;         bpl loop1
+         mov #tiles,r4
 
-;         ora #0
-;         beq cont7
+0$:      clr r2
+         bis (r4)+,r2
+         bis (r4)+,r2
+         bis (r4)+,r2
+         bis (r4)+,r2
+         sub #8,r4
+         mov r2,r1
+         beq 17$
 
-;         pha
-;loop2    asl
-;         iny
-;         bcc loop2
+         swab r1
+         bis r1,r2
+         push r2
+         clr r1
+         dec r1
+2$:      inc r1
+         aslb r2
+         bcc 2$
 
 ;         sty t1
 ;         lda curx
+         mov @#boxsz_curx,r2
+
 ;         asl
 ;         asl
 ;         asl
+         asl r2
+         asl r2
+         asl r2
+
 ;         tax
 ;         adc t1
+         mov r2,r0
+         add r2,r1
+
 ;         cmp xmin
 ;         bcs cont2
+         cmp r1,@#boxsz_xmin
+         bcc 12$
 
 ;         sta xmin
+         mov r1,@#boxsz_xmin
+
 ;cont2    pla
 ;         ldy #8
 ;loop3    lsr
 ;         dey
 ;         bcc loop3
+12$:     pop r2
+         mov #8,r1
+3$:      dec r1
+         asr r2
+         bcc 3$
 
 ;         sty t1
 ;         txa
 ;         clc
 ;         adc t1
+         add r0,r1
+
 ;         cmp xmax
 ;         bcc cont3
+        cmp r1,boxsz_xmax
+        bcs 13$
 
 ;         sta xmax
+        mov r1,boxsz_xmax
+
 ;cont3    ldy #0
 ;loop4    lda (currp),y
 ;         bne cont4
 
 ;         iny
 ;         bpl loop4
+13$:     mov r4,r1
+4$:      tstb (r1)+
+         beq 4$
+
+         sub r4,r1
+         dec r1
 
 ;cont4    sty t1
 ;         lda cury
@@ -146,31 +180,56 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
 ;         adc t1
 ;         cmp ymin
 ;         bcs cont5
+         mov @#boxsz_cury,r2
+         asl r2
+         asl r2
+         asl r2
+         mov r2,r0
+         add r1,r2
+         cmp r2,@#boxsz_ymin
+         bcc 15$
 
 ;         sta ymin
+         mov r2,@#boxsz_ymin
+
 ;cont5    ldy #7
 ;loop5    lda (currp),y
 ;         bne cont6
 
 ;         dey
 ;         bpl loop5
+15$:     mov r4,r1
+         add #8,r1
+5$:      tstb -(r1)
+         beq 5$
 
+         sub r4,r1
 ;cont6    sty t1
 ;         txa
 ;         clc
 ;         adc t1
 ;         cmp ymax
 ;         bcc cont7
+         add r0,r1
+         cmp r1,boxsz_ymax
+         bcs 17$
 
 ;         sta ymax
+         mov r1,boxsz_ymax
+
 ;cont7    jsr inccurrp
 ;         ldx curx
 ;         inx
 ;         cpx #20
 ;         beq cont8
+17$:     add #tilesize,r4
+         inc @#boxsz_curx
+         cmp #20,@#boxsz_curx
+         bne 0$
 
 ;         stx curx
 ;         bne loop0
+         
 
 ;cont8    ldx #0
 ;         stx curx
@@ -178,6 +237,10 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
 ;         iny
 ;         cpy #24
 ;         beq cont1
+        clr @#boxsz_curx
+        inc @#boxsz_cury
+        cmp #24,@#boxsz_cury
+        bne 0$
 
 ;         sty cury
 ;         jmp loop0
@@ -195,8 +258,17 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
 ;         ora ymax
 ;         ora tiles
 ;         rts
-;         .bend
-
+         mov boxsz_ymax,r0
+         sub @#boxsz_ymin,r0
+         inc r0
+         mov r0,@#boxsz_cury
+         mov boxsz_xmax,r4
+         sub @#boxsz_xmin,r4
+         inc r4       ;returns xsize
+         mov @#tiles,r1
+         bis boxsz_ymax,r1
+         return
+         
 rndbyte: push r0   ;IN: R2
          push r1
          push r4
