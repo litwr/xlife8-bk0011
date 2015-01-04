@@ -907,10 +907,28 @@ clrscn:   mov #tovideo,@#pageport
 ;         stx currp
 ;         jmp loop
 
+
+chgdrv:  incb @#curdev
+         bicb #252,@#curdev
+         mov r2,r3
+         clr r1
+         mov #4,r2
+         emt ^O24
+         movb @#curdev,r0
+         add #'A,r0
+         emt ^O16
+         mov r3,r1
+         add #2,r1
+         emt ^O24
+         mov r3,r2
+         return
+
 loadmenu:call @#totext 
-         ;set drive+1
+         movb @#curdev,r0
+         add #'A,r0
+         movb r0,@#80$+2
          jsr r3,@#printstr
-         .byte 146
+         .byte 12,146
          .ascii "INPUT FILENAME, AN EMPTY STRING MEANS TO SHOW DIRECTORY. PRESS "
          .byte 145
          .ascii "KT"
@@ -922,9 +940,9 @@ loadmenu:call @#totext
          .ascii "TAB"
          .byte 146
          .ascii " TO EXIT"
-drive:   .byte 10,147,'A,':,154,0,0
+80$:     .byte 10,147,'A,':,154,0   ;toggles cursor!
 
-3$:      mov #fn,r1
+3$:      mov #fn,r5
          clr r2
 1$:      call @#getkey
          cmpb r0,#10
@@ -951,9 +969,7 @@ drive:   .byte 10,147,'A,':,154,0,0
 17$:     cmpb r0,#'*
          bne 21$
 
-;         call chgdrv
-;         jr loop1
-        ;call @#chgdrv
+        call @#chgdrv
         br 1$
 
 ;cont11   cp 9        ;TAB
@@ -998,7 +1014,7 @@ drive:   .byte 10,147,'A,':,154,0,0
          cmp r2,#8
          bcc 1$
 
-         movb r0,(r1)+
+         movb r0,(r5)+
          inc r2
          emt ^O16 
 14$:     br 1$
@@ -1010,15 +1026,15 @@ drive:   .byte 10,147,'A,':,154,0,0
 11$:     tst r2
          beq menu2
 
-         movb #'.,(r1)+
-         movb #'8,(r1)+
-         movb #'L,(r1)+
-         movb #'0,(r1)+
+         movb #'.,(r5)+
+         movb #'8,(r5)+
+         movb #'L,(r5)+
+         movb #'0,(r5)+
          clr r4
-42$:     cmp r1,#density
+42$:     cmp r5,#density
          beq 101$
 
-         clrb (r1)+
+         clrb (r5)+
          br 42$
 
 ;cont2    dec de
@@ -1029,7 +1045,7 @@ drive:   .byte 10,147,'A,':,154,0,0
 ;         call printn
 ;         db 8,32,8,"$"
 ;         jr cont4
-12$:     dec r1
+12$:     dec r5
          dec r2
          bmi 3$
 
@@ -1397,9 +1413,6 @@ y8byte    = saved
          tstb @#ydir
          beq 3$
          
-;         sec
-;         sbc y0
-;         bcs cont1
          mov r4,r5
          sub r0,r4
          cmp r5,r4

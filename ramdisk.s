@@ -55,7 +55,6 @@ ramdisk: jsr r3,@#printstr
          mov ramptrs(r0),r0
          mov (r0)+,@#x0   ;geometry
          call @#maketent
-         mov #toandos,@#pageport
          call @#tograph
          call @#showrect
          bcs exitram

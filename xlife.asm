@@ -16,25 +16,19 @@
 start:   mov #128,@#^O102
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
+         movb @#andos_disk,r0
+         dec r0
+         bicb #252,r0
+         movb r0,@#curdev
          call @#copyr
          mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
 
-         ;;lda 174     ;current device #
-         ;;bne nochg
-
-         ;;lda curdev
-;;nochg:
-         ;;sta curdev
-
          mov #emptyirq,@#^O100         ;empty timer irq
          mov #3,r2
          call @#setpalette         ;inits also timer interrupt, sets active video page
          incb @#errst
-
-         ;;#iniram
-
          mov #tiles,@#crsrtile
          call @#tograph
          call @#calccells
@@ -722,7 +716,7 @@ copyleft: .ascii "CR.TXT"
 errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
-curdev:   .byte 'A
+curdev:   .byte 0   ;0 - A:, 1 - B:, ...
 ;;svfnlen  .byte 0
 ;;svfn     .text "@0:"
 ;;         .repeat 20,0

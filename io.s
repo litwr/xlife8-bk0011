@@ -404,6 +404,9 @@ commonin:mov #toio,@#pageport
          mov #3,(r0)+
          mov #16384,(r0)+
          clr (r0)+
+         movb @#curdev,r2
+         add #"A:,r2
+         mov r2,(r0)+
 exit20:  return
 
 showcomm:tstb @#fn
@@ -435,7 +438,7 @@ copyr:   call @#commonin
          mov #"CR,(r0)+
          mov #".T,(r0)+
          mov #"XT,(r0)+
-         mov #5,r2
+         mov #4,r2
 1$:      clr (r0)+
          sob r2,1$
 
@@ -463,8 +466,8 @@ ioerror: tstb @#errst
 
 ioerr1:  mov #toandos,@#pageport
          jsr r3,@#printstr
-         .ascii "IO ERROR"
-         .byte 0,0
+         .asciz "IO ERROR"
+         .byte 0
          call @#getkey
          jmp @#gexit3
          

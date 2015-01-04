@@ -624,7 +624,7 @@ dispat0: cmpb #'g,r0
 ;*         jsr zoomout
 317$:    movb @#zoom,r0
          push r0
-         beq 318$
+         beq 303$
          
          call @#319$
 
@@ -633,7 +633,7 @@ dispat0: cmpb #'g,r0
 ;*         jsr BSOUT
 ;*         jsr curoff
 ;*         jmp cont17w
-318$:    br 303$
+         br 303$
 
 174$:    cmpb #'+,r0
          bne 175$

@@ -32,7 +32,8 @@ totext:    call @#clrscn
            emt ^O16
            return
 
-tograph:   jsr r3,@#printstr
+tograph:   mov #toandos,@#pageport
+           jsr r3,@#printstr
            .byte 145,0
            mov #10,r0
 1$:        cmp #^O1330,@#yshift
