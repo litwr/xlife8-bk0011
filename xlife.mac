@@ -50,29 +50,10 @@ sum      .byte 0        ;+60
          .byte 0        ;free
          .endm
 
-;testlf   .macro
-;         lda (currp),y
-;         and #$80
-;         beq finish
-
-;         lda #1
-;         sta t1
-;         ora (adjcell),y
-;         sta (adjcell),y
-;finish
-         .endm
-
-;testrt   .macro
-;         lda (currp),y
-;         and #1
-;         beq finish
-;
-;         lda #$80
-;         sta t1
-;         ora (adjcell),y
-;         sta (adjcell),y
-;finish
-;         .endm
+boxsz_xmin = i1
+boxsz_ymin = saved
+boxsz_curx = temp          ;boxsz_sizex
+boxsz_cury = temp2         ;boxsz_sizey
 
         .macro vidmacp one,two
           mov one(r0),r2

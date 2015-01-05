@@ -912,7 +912,7 @@ chgdrv:  incb @#curdev
          bicb #252,@#curdev
          mov r2,r3
          clr r1
-         mov #4,r2
+         mov r4,r2
          emt ^O24
          movb @#curdev,r0
          add #'A,r0
@@ -969,6 +969,7 @@ loadmenu:call @#totext
 17$:     cmpb r0,#'*
          bne 21$
 
+        mov #4,r4
         call @#chgdrv
         br 1$
 
@@ -1137,76 +1138,98 @@ menu2:   ;call @#setdirmsk
 ;         db 8,32,8,"$"
 ;         jr cont4a
 
-;getsvfn  .block
-;scrfn    = $c00+43
-;         jsr JPRIMM
-;         .byte 147,30
-;         .ascii "enter filename ("
-;         .byte 28
-;         .ascii "esc"
-;         .byte 30
-;         .ascii " - exit, "
-;         .byte 28, "*", 30
-;         .ascii " - unit)"
-;         .byte 144,$d
-;         .null "u0 "
-;         lda curdev
-;         eor #$30
-;         sta scrfn-2
-;loop3    ldy #0
-;         sty $ff0c
-;loop1    tya
-;         clc
-;         adc #<scrfn
-;         sta $ff0d
-;         jsr getkey
-;         cmp #27
-;         bne cont7
-;
-;         jsr curoff
-;         ldy #0
-;         sta svfnlen
-;         rts
-;
-;cont7    cmp #"*"
-;         bne cont11
-;
-;         lda curdev
-;         eor #1
-;         sta curdev
-;         eor #$30
-;         sta scrfn-2
-;         bne loop1
-;
-;cont11   cmp #$d
-;         beq cont1
-;
-;         cmp #$14   ;backspace
-;         beq cont2
-;
-;         cmp #32
-;         bcc loop1
-;
-;         cpy #16    ;fn length limit
-;         beq loop1
-;
-;         sta svfn+3,y
-;loop8    jsr BSOUT
-;         iny
-;         bpl loop1
-;
-;cont1    sty svfnlen
-;         jmp curoff
-;
-;cont2    dey
-;         bmi loop3
-;
-;         dey
-;         jmp loop8
-;         .bend
+getsvfn:  call @#totext
+         movb @#curdev,r0
+         add #'A,r0
+         movb r0,@#80$
+         jsr r3,@#printstr
+         .byte 12,146
+         .ascii "Enter filename ("
+         .byte 145
+         .ascii "TAB"
+         .byte 146
+         .ascii " - exit, "
+         .byte 145, '*, 146
+         .ascii " - drive)"
+         .byte 147,10
+80$:     .byte 'A,':,154,0
 
-showrect:
-         mov #toandos,@#pageport
+3$:      mov #svfn,r5
+         clr r2
+1$:      call @#getkey
+         cmpb r0,#10
+         beq 11$
+
+         cmpb r0,#24  ;backspace
+         beq 12$
+
+         cmpb r0,#9   ;tab
+         bne 17$
+
+100$:    movb r0,r4
+101$:    jsr r3,@#printstr
+         .byte 154,0
+         mtps r4
+         return
+
+17$:     cmpb r0,#'*
+         bne 18$
+
+         mov #2,r4
+         call @#chgdrv
+         br 1$
+
+18$:     cmpb r0,#'!
+         bcs 1$
+
+         cmpb r0,#126
+         bcc 1$
+
+         mov #nofnchar,r3
+5$:      cmpb r0,(r3)+
+         beq 1$
+
+         cmpb r0,#'a
+         bcs 6$
+
+         cmpb r0,#'z+1
+         bcc 6$
+
+         sub #'a-'A,r0
+6$:      tstb @r3
+         bne 5$
+
+         cmp r2,#8
+         bcc 1$
+
+         movb r0,(r5)+
+         inc r2
+         emt ^O16 
+14$:     br 1$
+
+11$:     tst r2
+         beq 100$
+
+         movb #'.,(r5)+
+         movb #'8,(r5)+
+         movb #'L,(r5)+
+         movb #'0,(r5)+
+         clr r4
+42$:     cmp r5,#msghide
+         beq 101$
+
+         clrb (r5)+
+         br 42$
+
+12$:     dec r5
+         dec r2
+         bmi 3$
+
+         jsr r3,@#printstr
+         .byte 24,0
+         br 14$
+
+showrect: mov #toandos,@#pageport
          clr r1
          mov #19,r2
          emt ^O24
@@ -1816,15 +1839,8 @@ setviewport:
         cmpb r1,#8
         bcc 1$
 
-;         dec (ix+1)
         decb @#vptilecy
-
-;         ld hl,(viewport)      ;up
-;         ld de,tilesize*20
-;         add hl,de
-;         ld (viewport),hl
-;         jr cont2
-        add #tilesize*20,@r3
+        add #tilesize*hormax,@r3  ;up
         br 2$
 
 ;cont1    ld a,(ycrsr)
@@ -1842,13 +1858,8 @@ setviewport:
 1$:     cmpb r1,#184
         bcs 2$
 
-;cont4    inc (ix+1)
-;         ld hl,(viewport)      ;down
-;         ld de,(~(tilesize*20))+1
-;         add hl,de
-;         ld (viewport),hl
-        incb @#vptilecy
-        sub #tilesize*20,@r3
+        incb @#vptilecy     ;down
+        sub #tilesize*hormax,@r3
 
 ;cont2    ld hl,(xcrsr)
 ;         ld a,l

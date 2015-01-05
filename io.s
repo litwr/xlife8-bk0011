@@ -35,18 +35,20 @@ loadpat: call @#commonin
 
 4$:      mov @#16384+4,@#live
          mov @#16384+6,@#born
+         mov #todata,@#pageport
          call @#fillrt
 5$:      mov #16384+8,r0
 9$:      call @#puttent
          decb @#fcount
          bmi 3$
 
-         mov #io_fn+12,r1
+         mov #io_fn+14,r1
 8$:      tstb -(r1)
          beq 8$
 
          incb @r1
          clrb r1   ;io_op=0x100
+         mov #toio,@#pageport
          emt ^O36
          tstb @#io_op+1
          bne ioerrjmp
@@ -275,128 +277,95 @@ ioerrjmp: jmp @#ioerror
 ;*         JMP exit
 ;*         .bend
 
-;*savepat  .block
-;*sizex    = adjcell2
-;*sizey    = adjcell2+1
-;*xmin     = i1
-;*ymin     = i1+1
-;*curx     = adjcell
-;*cury     = adjcell+1
-;*         lda #8
-;*         jsr io2
-;*         ldy svfnlen
-;*         lda #","
-;*         sta svfn+3,y
-;*         sta svfn+5,y
-;*         lda #"u"
-;*         sta svfn+4,y
-;*         lda #"w"
-;*         sta svfn+6,y
-;*         tya
-;*         clc
-;*         adc #7
-;*         ldx #<svfn
-;*         ldy #>svfn
-;*         jsr SETNAM
-;*         jsr OPEN
-;*         bcs error
-;*
-;*         ldx #8
-;*         jsr CHOUT    ;open channel for write
-;*         bcs error
-;*
-;*         jsr READSS
-;*         bne error
-;*
-;*         lda sizex
-;*         jsr BSOUT
-;*         jsr READSS
-;*         bne error
-;*
-;*         lda sizey
-;*         jsr BSOUT
-;*         ldy #0
-;*loop1    jsr READSS
-;*         bne error
-;*
-;*         lda live,y
-;*         jsr BSOUT
-;*         iny
-;*         cpy #4
-;*         bne loop1
-;*
-;*         lda #0
-;*         sta curx
-;*         sta cury
-;*         lda #<tiles ;=0
-;*         sta currp
-;*         lda #>tiles
-;*         sta currp+1
-;*loop0    ldy #0
-;*loop2    sei
-;*         sta $ff3f
-;*         lda (currp),y
-;*         sta $ff3e
-;*         cli
-;*         bne cont1
-;*
-;*loop4    iny
-;*         cpy #8
-;*         bne loop2
-;*
-;*         jsr inccurrp
-;*         inc curx
-;*         ldx curx
-;*         cpx #20
-;*         bne loop0
-;*
-;*         ldx #0
-;*         stx curx
-;*         inc cury
-;*         ldy cury
-;*         cpy #24
-;*         bne loop0
-;*         beq eof
-;*
-;*error    jsr CLRCH
-;*         jsr showds
-;*eof      jmp endio
-;*
-;*cont1    ldx #$ff
-;*loop3    inx
-;*         asl
-;*         bcs cont4
-;*         beq loop4
-;*         bcc loop3
-;*
-;*cont4    sta i2
-;*         stx t1
-;*         jsr READSS
-;*         bne error
-;*
-;*         lda curx
-;*         asl
-;*         asl
-;*         asl
-;*         adc t1
-;*         sec
-;*         sbc xmin
-;*         jsr BSOUT
-;*         jsr READSS
-;*         bne error
-;*
-;*         sty t1
-;*         lda cury
-;*         asl
-;*         asl
-;*         asl
-;*         adc t1
-;*         sec
-;*         sbc ymin
-;*         jsr BSOUT
-;*         lda i2
-;*         jmp loop3
-;*         .bend
+savepat: call @#commonin
+         dec @#io_op
+         mov #svfn,r2
+         mov #12,r3
+1$:      movb (r2)+,(r0)+
+         sob r3,1$
+
+         mov #16384,r2
+         mov @#lowbench,r0
+         asl r0
+         add #7,r0
+         rol r0
+         rol r0
+         rol r0
+         bic #65532,r0
+         mov r0,(r2)+         ;number of blocks
+         movb @#boxsz_curx,(r2)+    ;sizex
+         movb @#boxsz_cury,(r2)+    ;sizey
+         mov @#live,(r2)+
+         mov @#born,(r2)+
+         mov #tiles,r4
+         clr @#boxsz_curx
+         clr @#boxsz_cury
+         mov #4,@#io_len
+0$:      mov #8,r5
+2$:      mov #todata,@#pageport
+         movb (r4)+,r0
+         bne 11$
+4$:      sob r5,2$
+
+         add #tilesize-8,r4
+         inc @#boxsz_curx
+         cmp #hormax,@#boxsz_curx
+         bne 0$
+
+         clr @#boxsz_curx
+         inc @#boxsz_cury
+         cmp #vermax,@#boxsz_cury
+         bne 0$
+         br 20$
+
+11$:     mov #65535,r1
+3$:      inc r1
+         aslb r0
+         bcs 14$
+         beq 4$
+         br 3$
+
+14$:     mov @#boxsz_curx,r3
+         asl r3
+         asl r3
+         asl r3
+         add r1,r3
+         sub @#boxsz_xmin,r3
+         mov #toio,@#pageport
+         movb r3,(r2)+
+         mov @#boxsz_cury,r3
+         asl r3
+         asl r3
+         asl r3
+         add #8,r3
+         sub r5,r3
+         sub @#boxsz_ymin,r3
+         movb r3,(r2)+
+         inc @#io_len
+         cmp #8192,@#io_len
+         bne 3$
+
+20$:     asl @#io_len
+         beq exit20
+
+21$:     push r1
+         mov #io_op,r1
+         mov #toio,@#pageport
+         emt ^O36
+         pop r1
+         clr @#io_len
+         tstb @#io_op+1
+         bne ioerr1   ;????
+
+         cmp #plainbox,r4
+         beq exit20
+
+         mov #io_fn+14,r3
+25$:     tstb -(r3)
+         beq 25$
+         incb @r3
+         mov #16384,r2
+         br 3$
 
 commonin:mov #toio,@#pageport
          mov #io_op,r0

@@ -706,7 +706,7 @@ zoom:     .byte 0
 ;fnlen:    .byte 0
 fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0
 density:  .byte 3         ;must follow fn
-dirnlen:  .byte 0
+;;dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
 ;;         .repeat 17,0
 fcount:   .byte 0      ;number of file parts
@@ -717,19 +717,17 @@ errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
 curdev:   .byte 0   ;0 - A:, 1 - B:, ...
-;;svfnlen  .byte 0
-;;svfn     .text "@0:"
-;;         .repeat 20,0
-msghide: .asciz "HIDE"
-msgtore: .asciz "TORUS"
-msgplan: .asciz "PLAIN"
-msgrun:  .asciz "RUN "
-msgstop: .asciz "STOP"
+svfn:     .byte 0,0,0,0,0,0,0,0,0,0,0,0
+msghide:  .asciz "HIDE"  ;must follow svfn
+msgtore:  .asciz "TORUS"
+msgplan:  .asciz "PLAIN"
+msgrun:   .asciz "RUN "
+msgstop:  .asciz "STOP"
 nofnchar: .byte '%,'(,'),',,'.,'/,':,';,'<,'=,'>,'?,'[,'\,'],'|,0
 stringbuf: .blkb 19
 
-         .even   ;high area
-         .include interface.s
+          .even   ;high area
+          .include interface.s
 
 benchirq0: mov @#saved,r0
            mov @#timerport2,r1

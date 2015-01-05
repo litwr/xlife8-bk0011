@@ -71,37 +71,28 @@ todec:    mov r3,-(sp)  ;r4:r3/10 in decimal
           mov (sp)+,r3
           return
 
-boxsz:
-boxsz_xmin = i1
-boxsz_ymin = saved
-boxsz_xmax = r5
-boxsz_ymax = r3
-boxsz_curx = temp
-boxsz_cury = temp2
-         mov #192,@#boxsz_ymin
+boxsz:   mov #192,@#boxsz_ymin
          mov #160,@#boxsz_xmin
-         clr boxsz_xmax
-         clr boxsz_ymax
+         clr r3                ;boxsz_ymax
+         clr r5                ;boxsz_xmax
          clr @#boxsz_curx
          clr @#boxsz_cury
-
-;         lda #<tiles ;=0
-;         sta currp
-;         lda #>tiles
-;         sta currp+1
          mov #tiles,r4
-
-0$:      clr r2
-         bis (r4)+,r2
-         bis (r4)+,r2
-         bis (r4)+,r2
-         bis (r4)+,r2
+         clr @#lowbench         ;binary cell count
+0$:      push r5
+         mov #8,r5
+         clr r2
+9$:      movb (r4)+,r0
+         bic #65280,r0
+         movb tab3(r0),r1
+         add r1,@#lowbench
+         bis r0,r2
+         sob r5,9$
+         pop r5
          sub #8,r4
-         mov r2,r1
+         tst r2
          beq 17$
 
-         swab r1
-         bis r1,r2
          push r2
          clr r1
          dec r1
@@ -152,11 +143,11 @@ boxsz_cury = temp2
 
 ;         cmp xmax
 ;         bcc cont3
-        cmp r1,boxsz_xmax
+        cmp r1,r5
         bcs 13$
 
 ;         sta xmax
-        mov r1,boxsz_xmax
+        mov r1,r5
 
 ;cont3    ldy #0
 ;loop4    lda (currp),y
@@ -204,43 +195,20 @@ boxsz_cury = temp2
          beq 5$
 
          sub r4,r1
-;cont6    sty t1
-;         txa
-;         clc
-;         adc t1
-;         cmp ymax
-;         bcc cont7
          add r0,r1
-         cmp r1,boxsz_ymax
+         cmp r1,r3
          bcs 17$
 
-;         sta ymax
-         mov r1,boxsz_ymax
-
-;cont7    jsr inccurrp
-;         ldx curx
-;         inx
-;         cpx #20
-;         beq cont8
+         mov r1,r3
 17$:     add #tilesize,r4
          inc @#boxsz_curx
-         cmp #20,@#boxsz_curx
+         cmp #hormax,@#boxsz_curx
          bne 0$
 
-;         stx curx
-;         bne loop0
-         
-
-;cont8    ldx #0
-;         stx curx
-;         ldy cury
-;         iny
-;         cpy #24
-;         beq cont1
-        clr @#boxsz_curx
-        inc @#boxsz_cury
-        cmp #24,@#boxsz_cury
-        bne 0$
+         clr @#boxsz_curx
+         inc @#boxsz_cury
+         cmp #vermax,@#boxsz_cury
+         bne 0$
 
 ;         sty cury
 ;         jmp loop0
@@ -258,15 +226,16 @@ boxsz_cury = temp2
 ;         ora ymax
 ;         ora tiles
 ;         rts
-         mov boxsz_ymax,r0
+         mov r3,r0
          sub @#boxsz_ymin,r0
          inc r0
          mov r0,@#boxsz_cury
-         mov boxsz_xmax,r4
+         mov r5,r4
          sub @#boxsz_xmin,r4
          inc r4       ;returns xsize
+         mov r4,@#boxsz_curx
          mov @#tiles,r1
-         bis boxsz_ymax,r1
+         bis r3,r1
          return
          
 rndbyte: push r0   ;IN: R2

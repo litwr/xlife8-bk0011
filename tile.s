@@ -494,25 +494,11 @@ plain:
 
 random:
 ;uses: adjcell:2 - r2, i1:2 - r3/r5, i2 - r4, t1 - r1
-;         lda #0     ;dir: 0 - left, 1 - right
-;         sta t1
-         clr r1
-
-;         lda #<tiles+((hormax*4+3)*tilesize)  ;start random area
-;         sta adjcell
-;         lda #>tiles+((hormax*4+3)*tilesize)
-;         sta adjcell+1
+         clr r1   ;dir: 0 - left, 1 - right
          mov #tiles+<<hormax*4+3>*tilesize>,r2
-
-;         lda #right
-;         sta i1+1
-;         lda #14    ;hor rnd max
-;         sta i2
-;         lda #16    ;ver rnd max
-;         sta i1
-        mov #16,r3
-        mov #right,r5
-        mov #14,r4
+         mov #16,r3    ;ver rnd max
+         mov #right,r5
+         mov #14,r4    ;hor rnd max
 
 ;cont3    ldy #sum
 ;         sta (adjcell),y
@@ -552,14 +538,7 @@ random:
 22$:     dec r3
          beq calccells
 
-;         lda #14    ;hor rnd max
-;         sta i2
-;         lda t1
-;         ldy #left
-;         eor #1
-;         sta t1
-;         bne cont1
-         mov #14,r4
+         mov #14,r4   ;hor rnd max
          mov #left,r5
          mov #1,r0
          xor r0,r1
@@ -574,6 +553,7 @@ random:
          br 24$
 
 calccells:
+         call @#zerocc
          tst @#tilecnt
          bne 12$
          return

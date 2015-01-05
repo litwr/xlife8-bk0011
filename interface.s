@@ -172,7 +172,6 @@ dispat0: cmpb #'g,r0
 
 142$:    call @#getkey
          call @#tograph
-         call @#zerocc
          jmp @#calccells
 
 141$:    add r2,r0
@@ -510,8 +509,7 @@ dispat0: cmpb #'g,r0
 
 ;*lsp1     jsr dectsum
 ;*         bne lsp2
-79$:     call @#zerocc      ;instead of dectsum
-         call @#calccells
+79$:     call @#calccells
          br 270$
 
 170$:    cmpb #'.,r0
@@ -601,7 +599,6 @@ dispat0: cmpb #'g,r0
 302$:    pop r0
          movb r0,@#zoom
          mov #todata,@#pageport
-         call @#zerocc
          call @#calccells
          jmp @#tograph0
 
@@ -686,15 +683,14 @@ dispat0: cmpb #'g,r0
 18$:     cmpb #'S,r0
          bne 20$
 
-;*         jsr boxsz
-;*         beq cont20
-;*
-;*         jsr totext
-;*         jsr getsvfn
-;*         beq exitsave
+         call @#boxsz
+         beq 20$
 
-;*         jsr savepat
-;*exitsave jmp finish
+         call @#getsvfn
+         bcs 220$
+
+         call @#savepat
+         br 220$
 
 ;*cont20   clc
 ;*         rts
