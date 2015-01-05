@@ -54,7 +54,7 @@ loadpat: call @#commonin
 10$:     mov #16384,r0
          br 9$
 
-3$:      jmp @#gexit3
+3$:      return
 
 ioerrjmp: jmp @#ioerror
 
@@ -468,8 +468,7 @@ ioerr1:  mov #toandos,@#pageport
          jsr r3,@#printstr
          .asciz "IO ERROR"
          .byte 0
-         call @#getkey
-         jmp @#gexit3
+         jmp @#getkey
          
 iocf:    mov #io_op,r0    ;IN: R2 - 2/3 - write/read
          mov r0,r1
