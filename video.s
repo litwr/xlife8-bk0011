@@ -5,52 +5,33 @@ insteps: call @#totext
          .byte 12,146
          .ascii "NUMBER OF GENERATIONS: "
          .byte 0
-;         call TXT_PLACE_CURSOR
+
 3$:      mov #stringbuf,r2
-;         ld c,0
          clr r1
          clr @#temp
 1$:      call @#getkey
-;         cp $d
          cmpb #10,r0
-;         jr z,cont1
          beq 11$
 
-;         cp $fc       ;esc
-;         ret z
-         cmpb #9,r0    ;tab
+         cmpb #9,r0    ;tab (esc)
          bne 16$
 
 20$:     jsr r3,@#printstr
          .byte 154,0
          return
 
-;         cp $7f       ;backspace
-;         jr z,cont2
 16$:     cmpb #24,r0    ;backspace=zaboy
          beq 12$
 
-;         cp $3a
-;         jr nc,loop1
          cmpb r0,#'0+10
          bcc 1$
 
-;         cp "0"
-;         jr c,loop1
          cmpb r0,#'0
          bcs 1$
 
-;         ld b,a
-;         ld a,5
-;         cp c
-;         ld a,b
-;         jr z,loop1
          cmpb #5,r1
          beq 1$
 
-;         ld (de),a
-;         inc de
-;         inc c
          inc r1
          emt ^O16
          sub #'0,r0
@@ -226,6 +207,25 @@ indens:  call @#totext
          sub #'0-1,r0
          movb r0,@#density
 2$:      jmp @#tograph
+
+inmode:  jsr r3,@#printstr
+         .byte 146,10
+         .ascii "SELECT BENCHMARK MODE"
+         .byte 10,145,'0,147
+         .ascii " - CALCULATIONS"
+         .byte 10,145,'1,147
+         .ascii " - VIDEO"
+         .byte 10,145,'2,147
+         .asciz " - BOTH"
+1$:      call @#getkey
+         cmpb r0,#'0
+         bcs 1$
+
+         cmpb r0,#'3
+         bcc 1$
+
+         sub #'1,r0
+         return
 
 help:    call @#totext
          jsr r3,@#printstr
@@ -689,56 +689,8 @@ showscn2: mov @#startp,r0
           mov next(r0),r0
           cmp #1,r0
           bne 1$
-
-;*         jmp crsrset
           jmp @#crsrset
 
-;showscnp .block    ;uses: 7(vidmacp), i1(2), adjcell(2), adjcell2(2), temp(2)
-;         #assign16 currp,startp
-;loop     ldy #video
-;         lda (currp),y
-;         sta i1
-;         eor #8
-;         sta temp
-;         iny
-;         lda (currp),y
-;         sta i1+1
-;         sta temp+1
-;         ldy #0
-;         clc
-;         lda currp
-;         adc #count0
-;         sta adjcell
-;         lda currp+1
-;         adc #0
-;         sta adjcell+1
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         iny
-;         #vidmacp
-;         ldy #next+1
-;         lda (currp),y
-;         bne cont
-;         jmp crsrset
-
-;cont     tax
-;         dey
-;         lda (currp),y
-;         sta currp
-;         stx currp+1
-;         jmp loop
-;         .bend
 showscnp: mov @#startp,r0
 1$:       call @#showscnp1
           mov next(r0),r0
@@ -825,14 +777,12 @@ showscnp1:mov video(r0),r5
 16$:      vidmacp count7,448
           return
 
-clrscn:   mov #tovideo,@#pageport
+clrscn:   mov #toandos,@#pageport
           mov #16384,r0
           mov #8192,r1
 1$:       clr (r0)+
           sob r1,1$          
-          ;mov #todata,@#pageport
-          ;return
-          jmp @#gexit3
+          jmp @#gexit3   ;???
 
 ;xclrscn  .block
 ;         lda tilecnt
@@ -1352,14 +1302,7 @@ xchgxy:  tstb @#xchgdir
 exit7:   return
 
 
-drawrect:
-;;calls: pixel11p
-xcut      = temp2
-ycut      = temp2+1
-x8poscp   = temp
-y8poscp   = temp+1
-y8byte    = saved
-         call @#xchgxy
+drawrect: call @#xchgxy
          clr @#xcut       ;0 -> xcut,ycut
          movb @#crsrbyte,@#y8byte
          movb @#crsrbit,r1

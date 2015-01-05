@@ -703,16 +703,14 @@ palette:  .byte 0      ;not word aligned???
 pseudoc:  .byte 0
 mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 zoom:     .byte 0
-;fnlen:    .byte 0
 fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0
 density:  .byte 3         ;must follow fn
 ;;dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
-;;         .repeat 17,0
 fcount:   .byte 0      ;number of file parts
 topology: .byte 0      ;0 - torus
 crsrticks: .byte 0
-copyleft: .ascii "CR.TXT"
+;copyleft: .ascii "CR.TXT"
 errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
@@ -723,7 +721,7 @@ msgtore:  .asciz "TORUS"
 msgplan:  .asciz "PLAIN"
 msgrun:   .asciz "RUN "
 msgstop:  .asciz "STOP"
-nofnchar: .byte '%,'(,'),',,'.,'/,':,';,'<,'=,'>,'?,'[,'\,'],'|,0
+nofnchar: .asciz "%(),./:;<=>?[\]|"
 stringbuf: .blkb 19
 
           .even   ;high area

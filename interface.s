@@ -130,13 +130,16 @@ dispat0: cmpb #'g,r0
          jmp @#15$
 
 159$:    call @#insteps
-         mov @#temp2,r0
+         mov @#temp2,@#x0
          beq 142$
 
-         mov r0,@#temp
          clr @#lowbench
          clr @#highbench
-         mov #benchirq,@#^O100
+         call @#inmode
+         bmi 402$
+         jmp @#400$
+
+402$:    mov #benchirq,@#^O100
          mov #todata,@#pageport
          mov @#timerport2,@#saved
 146$:    tst @#tilecnt
@@ -147,12 +150,13 @@ dispat0: cmpb #'g,r0
 
 147$:    call @#generate
          call @#cleanup
-148$:    dec @#temp
+148$:    dec @#x0
          bne 146$
 
-         mov #toandos,@#pageport
+401$:    mov #toandos,@#pageport
          mov #crsrirq,@#^O100
          call @#benchirq0
+         call @#totext
          mov @#lowbench,r0
          mov @#highbench,r1
          asl r0
@@ -250,6 +254,33 @@ dispat0: cmpb #'g,r0
 152$:    call @#todec
          call @#showbline2
          br 142$
+
+400$:    beq 500$
+
+         call @#tograph
+         mov #benchirq,@#^O100
+         mov @#timerport2,@#saved
+5146$:   tst @#tilecnt
+         bne 5147$
+
+         call @#incgen
+         br 5148$
+
+5147$:   call @#zerocc
+         call @#generate
+         call @#showscn
+         call @#cleanup
+5148$:   dec @#x0
+         bne 5146$
+         jmp @#401$         
+
+500$:    call @#tograph
+         mov #benchirq,@#^O100
+         mov @#timerport2,@#saved
+4147$:   call @#showscn
+         dec @#x0
+         bne 4147$
+         jmp @#401$ 
 
 15$:     cmpb #'R,r0
          bne 16$
