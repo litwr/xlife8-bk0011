@@ -4,7 +4,7 @@ insteps: call @#totext
 38$:     jsr r3,@#printstr
          .byte 12,146
          .ascii "NUMBER OF GENERATIONS: "
-         .byte 0
+         .byte 147,0,0
 
 3$:      mov #stringbuf,r2
          clr r1
@@ -209,14 +209,15 @@ indens:  call @#totext
 2$:      jmp @#tograph
 
 inmode:  jsr r3,@#printstr
-         .byte 146,10
+         .byte 10,10,146
          .ascii "SELECT BENCHMARK MODE"
-         .byte 10,145,'0,147
+         .byte 10,32,145,'0,146
          .ascii " - CALCULATIONS"
-         .byte 10,145,'1,147
+         .byte 10,32,145,'1,146
          .ascii " - VIDEO"
-         .byte 10,145,'2,147
+         .byte 10,32,145,'2,146
          .asciz " - BOTH"
+         ;.byte 0
 1$:      call @#getkey
          cmpb r0,#'0
          bcs 1$
@@ -948,7 +949,7 @@ loadmenu:call @#totext
          cmpb r0,#126
          bcc 1$
 
-         mov #nofnchar,r3
+         mov #nofnchar+1,r3   ;allows ?-char
 5$:      cmpb r0,(r3)+
          beq 1$
 
@@ -1008,7 +1009,10 @@ loadmenu:call @#totext
 ;         ld a,b
 ;         cp $fc    ;esc
 ;         jr z,repeat
-menu2:   ;call @#setdirmsk
+menu2:   call @#setdirmsk
+         cmpb #9,r0
+         beq 100$
+       br 21$
 
 ;         ;call printn
 ;         ;db 12,15,2,"USE ",15,3
@@ -1030,10 +1034,13 @@ menu2:   ;call @#setdirmsk
 ;loop1a   call KM_WAIT_CHAR
 ;         cp $fc       ;esc
 ;         jr nz,cont7a
-;
+
 ;repeat   call TXT_REMOVE_CURSOR     ;cursor off
 ;         jp loadmenu
-;
+100$:    mov #154,r0
+         emt ^O16
+         jmp @#loadmenu
+
 ;cont7a   cp $d
 ;         jr z,cont1a
 ;
@@ -1061,12 +1068,13 @@ menu2:   ;call @#setdirmsk
 ;         call TXT_OUTPUT
 ;cont4a   call TXT_PLACE_CURSOR
 ;         jr loop1a
-;
+
 ;cont1a   call TXT_REMOVE_CURSOR
 ;         ld a,c
 ;         or a
 ;         jr z,loopx
-;
+
+21$:
 ;         push bc
 ;         push de
 ;         call TXT_PLACE_CURSOR
@@ -1078,7 +1086,11 @@ menu2:   ;call @#setdirmsk
 ;         call TXT_REMOVE_CURSOR
 ;         or 1    ;set nz
 ;         ret
-;
+         mov #154,r0
+         emt ^O16
+       sec
+         return
+
 ;cont2a   dec de
 ;         dec c
 ;         jp m,loop3a
@@ -1687,74 +1699,93 @@ crsrset1:
          movb @#crsrbit,r0
          return
 
-;crsrset0 jsr crsrset1
-;         lda vistab,x
-;         asl
-;         eor (i1),y
-;         sta (i1),y
-;         rts
+setdirmsk: jsr r3,@#printstr
+         .byte 12,146
+         .ascii "SET DIRECTORY MASK ("
+         .byte 145
+         .ascii "ENTER"
+         .byte 146
+         .ascii " = *)"
+         .byte 10,147,0,0
 
-;setdirmsk
-;         .block
-;         jsr JPRIMM
-;         .byte 147
-;msglen   = 40
-;         .ascii "set directory mask ("
-;         .byte 28
-;         .ascii "enter"
-;         .byte 30
-;         .ascii " = *)"
-;         .byte $d,144,0
-;loop3    ldy #0
-;         sty $ff0c
-;loop1    tya
-;         clc
-;         adc #<msglen
-;         sta $ff0d
-;         jsr getkey
-;         cmp #$d
-;         beq cont1
-;
-;         tax
-;         cmp #27
-;         beq cont4
-;
-;         cmp #$14    ;backspace
-;         beq cont2
-;
-;         cmp #32
-;         bcc loop1
-;
-;         cpy #16     ;max mask length
-;         beq loop1
-;
-;         sta dirname+3,y
-;loop8    jsr BSOUT
-;         iny
-;         bpl loop1
-;
-;cont1    tya
-;         bne cont3
-;
-;         lda #"*"
-;         sta dirname+3
-;         iny
-;cont3    lda #"="
-;         tax
-;         sta dirname+3,y
-;         lda #"u"
-;         sta dirname+4,y
-;         tya
-;         adc #4   ;+CY=1
-;         sta dirnlen
-;cont4    jmp curoff
-;
-;cont2    dey
-;         bmi loop3
-;
-;         dey
-;         bcs loop8
-;         .bend
+3$:      mov #stringbuf,r5
+         clr r2
+1$:      call @#getkey
+         cmp #10,r0
+         beq 11$
+
+         cmp #24,r0    ;backspace
+         beq 12$
+
+         cmp #9,r0     ;tab/esc
+         beq 13$
+
+         cmpb r0,#'!
+         bcs 1$
+
+         cmpb r0,#126
+         bcc 1$
+
+         mov #nofnchar,r3
+50$:     cmpb r0,(r3)+
+         beq 1$
+
+         cmpb r0,#'a
+         bcs 6$
+
+         cmpb r0,#'z+1
+         bcc 6$
+
+         sub #'a-'A,r0
+6$:      tstb @r3
+         bne 50$
+
+         cmp r2,#8    ;fn length limit
+         bcc 1$
+
+         movb r0,(r5)+
+         inc r2
+         emt ^O16 
+         br 1$
+
+11$:     mov #svfn,r4
+         mov r2,r3
+         tstb r2
+         beq 16$
+
+         mov #stringbuf,r5
+2$:      mov @r5,r0
+         cmpb #'*,r0
+         beq 16$
+
+         movb (r5)+,(r4)+
+         sob r3,2$
+
+         mov #8,r0
+         sub r2,r0
+         beq 13$
+
+         mov r0,r3
+         clr r0
+         br 5$
+
+16$:     mov #8,r0
+         sub r2,r0
+         add r3,r0
+         mov r0,r3
+         mov #'?,r0
+5$:      movb r0,(r4)+
+         sob r3,5$
+
+13$:     return
+
+12$:     dec r5
+         dec r2
+         bmi 3$
+
+         jsr r3,@#printstr
+         .byte 24,0
+         br 1$
 
 setviewport:
 ;         ld hl,(crsrtile)

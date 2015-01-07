@@ -705,7 +705,6 @@ mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
 zoom:     .byte 0
 fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0
 density:  .byte 3         ;must follow fn
-;;dirnlen:  .byte 0
 ;;dirname  .TEXT "0:"      ;filename used to access directory
 fcount:   .byte 0      ;number of file parts
 topology: .byte 0      ;0 - torus
@@ -721,7 +720,7 @@ msgtore:  .asciz "TORUS"
 msgplan:  .asciz "PLAIN"
 msgrun:   .asciz "RUN "
 msgstop:  .asciz "STOP"
-nofnchar: .asciz "%(),./:;<=>?[\]|"
+nofnchar: .asciz "?%(),./:;<=>[\]|"
 stringbuf: .blkb 19
 
           .even   ;high area
