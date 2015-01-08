@@ -18,13 +18,13 @@ loadpat: call @#commonin
          mov r1,r2
          bis r0,r2
          cmp r2,#512
-         bcc 3$
+         bcc exitio
 
          bit #1,r1
-         bne 3$
+         bne exitio
 
          call @#showrect
-         bcs 3$
+         bcs exitio
 
          mov #toio,@#pageport
          cmp @#live,@#16384+4
@@ -40,7 +40,7 @@ loadpat: call @#commonin
 5$:      mov #16384+8,r0
 9$:      call @#puttent
          decb @#fcount
-         bmi 3$
+         bmi exitio
 
          mov #io_fn+14,r1
 8$:      tstb -(r1)
@@ -56,67 +56,147 @@ loadpat: call @#commonin
 10$:     mov #16384,r0
          br 9$
 
-3$:      return
+exitio:  return
 
 ioerrjmp: jmp @#ioerror
 
-;*findfn   .block         ;fn# is at $14-15
-;*         jsr dirop1
-;*         BCS error
-;*
-;*         LDY #6
-;*         jsr skipln
-;*         bne error
-;*
-;*         lda $14
-;*         beq next
-;*
-;*loop0    ldy #4
-;*         jsr skipln
-;*         bne exit
-;*
-;*         dec $14
-;*         bne loop0
-;*
-;*next     LDY #4
-;*skip2    JSR getbyte    ; get a byte from dir and ignore it
-;*         DEY
-;*         BNE skip2
-;*
-;*         lda #2
-;*         sta quotest
-;*char     cmp #$22       ;quote
-;*         bne cont1
-;*
-;*         dec quotest
-;*         beq exit
-;*         bne cont3
-;*
-;*cont1    ldx quotest
-;*         cpx #2
-;*         beq cont3
-;*
-;*cont4    ldy menucnt
-;*         sta fn,y
-;*         inc menucnt
-;*cont3    JSR getbyte
-;*         BNE char       ; continue until end of line
-;*         beq exit
-;*
-;*error    jsr showds
-;*exit     lda menucnt
-;*         sta fnlen
-;*         jmp endio
-;*
-;*getbyte  JSR READSS
-;*         BNE end
-;*
-;*         JMP BASIN
-;*
-;*end      PLA            ; don't return to dir reading loop
-;*         PLA
-;*         JMP exit
-;*         .bend
+showdir: jsr r3,@#printstr
+         .byte 12,10,0,0
+
+         mov @#andos_init,r1
+         call @r1
+         mov #"00,r5
+         clr r0
+1$:      mov #svfn,r3
+         mov @#andos_diren2,r1
+         call @r1
+         beq exitio
+
+         cmp #"8L,8(r4)
+         bne 1$
+
+         cmpb #'0,10(r4)
+         bne 1$
+
+         mov #8,r2
+         mov r4,r1
+3$:      cmpb @r3,(r1)+
+         beq 2$
+
+         cmpb #'?,@r3
+         bne 1$
+
+2$:      inc r3
+         sob r2,3$
+
+         mov #stringbuf,r3
+         movb #145,(r3)+
+         mov r5,(r3)+
+         mov #32*256+146,(r3)+
+         mov #8,r2
+         mov r4,r1
+4$:      movb (r1)+,(r3)+
+         sob r2,4$
+
+         mov #147*256+32,r2
+         mov r2,(r3)+
+         add #256,r5
+         cmp r5,#<'9+1>*256
+         bcs 15$
+
+         add #246*256+1,r5
+15$:     mov 28(r4),r1
+         cmp #16384,r1
+         beq 16$
+
+         bit #^B1111111111,r1
+         beq 17$
+
+         add #^B10000000000,r1
+17$:     swab r1
+         asrb r1
+         asrb r1
+         cmpb r1,#10
+         bcc 20$
+
+         add #'0,r1
+         movb r1,(r3)+
+         movb r2,(r3)+
+         br 23$
+
+20$:     add #'0-10,r1
+         movb #'1,(r3)+
+         movb r1,(r3)+
+23$:     movb r2,(r3)+
+         br 21$
+
+16$:     mov #"16,(r3)+
+         movb #'+,(r3)+
+21$:     bit #256,r5
+         bne 22$
+
+         mov #10,r2
+22$:     movb r2,(r3)+
+         mov #stringbuf,r1
+         mov #19,r2
+         emt ^O20
+         br 1$
+
+findfn:  mov @#andos_init,r1
+         call @r1
+         mov @#stringbuf+1,r5
+         sub #48*256+48,r5
+         clr r0
+1$:      mov #svfn,r3
+         mov @#andos_diren2,r1
+         call @r1
+         beq exitio
+
+         cmp #"8L,8(r4)
+         bne 1$
+
+         cmpb #'0,10(r4)
+         bne 1$
+
+         mov #8,r2
+         mov r4,r1
+3$:      cmpb @r3,(r1)+
+         beq 2$
+
+         cmpb #'?,@r3
+         bne 1$
+
+2$:      inc r3
+         sob r2,3$
+
+         tst r5
+         beq 5$
+
+         sub #256,r5
+         bpl 1$
+
+         add #2559,r5   ;$9ff
+         br 1$
+
+5$:      mov #fn,r5
+         mov #8,r2
+8$:      movb (r4)+,r1
+         cmpb r1,#32
+         beq 7$
+
+         movb r1,(r5)+
+         sob r2,8$
+
+7$:      movb #'.,(r5)+
+         movb #'8,(r5)+
+         movb #'L,(r5)+
+         movb #'0,(r5)+
+         tst r2
+         beq 11$
+
+6$:      clrb (r5)+
+         sob r2,6$
+11$:     return
 
 savepat: call @#commonin
          dec @#io_op

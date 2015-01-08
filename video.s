@@ -1019,15 +1019,16 @@ menu2:   call @#setdirmsk
 ;;*         .byte $d,0
 
          call @#showdir
-         clr r1
+6$:      clr r1
          clr r2
          emt ^O24
          jsr r3,@#printstr
-         .byte 146
+         .byte 153,146
          .ascii "ENTER FILE# OR "
-         .byte 145,'T,'A,'B,146,':,32,147,0,0
+         .byte 145,'T,'A,'B,146,':,32,147,0
 
-3$:      mov #stringbuf,r5
+3$:      mov #stringbuf+1,r3
+         mov r3,r4
          clr r2
 1$:      call @#getkey
          cmpb #9,r0     ;tab/esc
@@ -1052,7 +1053,7 @@ menu2:   call @#setdirmsk
          cmp #2,r2
          beq 1$
 
-         movb r0,(r5)+
+         movb r0,(r3)+
          inc r2
          emt ^O16
          br 1$
@@ -1060,19 +1061,21 @@ menu2:   call @#setdirmsk
 11$:     tst r2
          beq 3$
 
-21$:     push r2
-         push r5
-         ;call @#findfn
-         pop r5
-         pop r2
-         bcs 1$
+         dec r2
+         bne 21$
 
+         swab @r4
+         movb #'0,@r4
+21$:     cmp @r4,r5
+         bcc 6$
+
+         call @#findfn
          mov #154,r0
          emt ^O16
          clc
          return
 
-12$:     dec r5
+12$:     dec r3
          dec r2
          bmi 3$
 
@@ -2506,94 +2509,4 @@ showbline2:
          .byte 's,10
          .asciz "SPEED: "
          br shownum
-
-showdir: jsr r3,@#printstr
-         .byte 12,10,0,0
-
-         mov #toio,@#pageport
-         mov @#andos_init,r1
-         call @r1
-         mov #16384,r5
-         mov #"00,@r5
-         clr r0
-1$:      mov #svfn,r3
-         mov @#andos_diren2,r1
-         call @r1
-         beq 11$
-
-         cmp #"8L,8(r4)
-         bne 1$
-
-         cmpb #'0,10(r4)
-         bne 1$
-
-         mov #8,r2
-         mov r4,r1
-3$:      cmpb @r3,(r1)+
-         beq 2$
-
-         cmpb #'?,@r3
-         bne 1$
-
-2$:      inc r3
-         sob r2,3$
-
-         mov #stringbuf,r3
-         movb #145,(r3)+
-         mov @r5,(r3)+
-         mov #32*256+146,(r3)+
-         mov #8,r2
-         mov r4,r1
-4$:      movb (r1)+,(r3)+
-         sob r2,4$
-
-         mov #147*256+32,(r3)+
-         incb @#16385
-         cmpb @#16385,#'9+1
-         bcs 15$
-
-         add #246*256+1,@r5
-15$:     mov 28(r4),r1
-         cmp r5,r1
-         beq 16$
-
-         bit #^B1111111111,r1
-         beq 17$
-
-         add #^B10000000000,r1
-17$:     swab r1
-         asrb r1
-         asrb r1
-         cmpb r1,#10
-         bcc 20$
-
-         add #'0,r1
-         movb r1,(r3)+
-         movb #32,(r3)+
-         movb #32,(r3)+
-         br 21$
-
-20$:     add #'0-10,r1
-         movb #'1,(r3)+
-         movb r1,(r3)+
-         movb #32,(r3)+
-         br 21$
-
-16$:     mov #"16,(r3)+
-         movb #'+,(r3)+
-21$:     movb #32,r1
-         bit #1,@#16385
-         beq 22$
-
-         mov #10,r1
-22$:     mov #toandos,@#pageport
-         movb r1,(r3)+
-         mov #stringbuf,r1
-         mov #19,r2
-         emt ^O20
-         mov #toio,@#pageport
-         br 1$
-
-11$:     mov #toandos,@#pageport
-         return
 

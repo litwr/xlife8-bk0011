@@ -15,5 +15,5 @@ http://freecode.com/projects/xlife
 
 This program creation was inspired by Luca, Mkarcz, Gaia, and
 Opqa. Thanks to makers of 'macro11' assembler, bk-terak
-emulator, http://pdp-11.ru/, the original 'xlife', Commodore
-+4, Amstrad CPC6128, ‚K0011, ...
+emulator, ANDOS OS, http://pdp-11.ru/, the original 'xlife',
+Commodore +4, Amstrad CPC6128, ‚K0011, ...
