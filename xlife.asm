@@ -721,9 +721,10 @@ msgplan:  .asciz "PLAIN"
 msgrun:   .asciz "RUN "
 msgstop:  .asciz "STOP"
 nofnchar: .asciz "?%(),./:;<=>[\]|"
-stringbuf: .blkb 19
 
-          .even   ;high area
+          .odd
+stringbuf: .blkb 19       ;it must be at odd addr!
+
           .include interface.s
 
 benchirq0: mov @#saved,r0

@@ -1005,17 +1005,10 @@ loadmenu:call @#totext
          .byte 24,0
          br 14$
 
-;menu2    call setdirmsk
-;         ld a,b
-;         cp $fc    ;esc
-;         jr z,repeat
 menu2:   call @#setdirmsk
-         cmpb #9,r0
+         cmpb #9,r0   ;tab/esc
          beq 100$
-       br 21$
 
-;         ;call printn
-;         ;db 12,15,2,"USE ",15,3
 ;;*         .text "run/stop"
 ;;*         .byte 30
 ;;*         .text " and "
@@ -1024,81 +1017,68 @@ menu2:   call @#setdirmsk
 ;;*         .byte 30
 ;;*         .text " as usual"
 ;;*         .byte $d,0
-;
-;         call showdir
-;         call printn
-;         db 30,18,"ENTER FILE# OR ",15,3,"ESC",15,2,": ",15,1,"$"
-;loopx    call TXT_PLACE_CURSOR   ;cursor on
-;loop3a   ld de,stringbuf
-;         ld c,0
-;loop1a   call KM_WAIT_CHAR
-;         cp $fc       ;esc
-;         jr nz,cont7a
 
-;repeat   call TXT_REMOVE_CURSOR     ;cursor off
-;         jp loadmenu
+         call @#showdir
+         clr r1
+         clr r2
+         emt ^O24
+         jsr r3,@#printstr
+         .byte 146
+         .ascii "ENTER FILE# OR "
+         .byte 145,'T,'A,'B,146,':,32,147,0,0
+
+3$:      mov #stringbuf,r5
+         clr r2
+1$:      call @#getkey
+         cmpb #9,r0     ;tab/esc
+         bne 17$
+
 100$:    mov #154,r0
          emt ^O16
          jmp @#loadmenu
 
-;cont7a   cp $d
-;         jr z,cont1a
-;
-;         cp $7f       ;backspace
-;         jr z,cont2a
-;
-;         cp "0"
-;         jr c,loop1a
-;
-;         cp "9"+1
-;         jr nc,loop1a
-;
-;         ld b,a
-;         ld a,c
-;         cp 2
-;         ld a,b
-;         jr z,loop1a
-;
-;         ld (de),a
-;         inc de
-;         inc c
-;         ld b,a
-;         call TXT_REMOVE_CURSOR
-;         ld a,b
-;         call TXT_OUTPUT
-;cont4a   call TXT_PLACE_CURSOR
-;         jr loop1a
+17$:     cmpb #10,r0
+         beq 11$
 
-;cont1a   call TXT_REMOVE_CURSOR
-;         ld a,c
-;         or a
-;         jr z,loopx
+         cmpb #24,r0   ;backspace
+         beq 12$
 
-21$:
-;         push bc
-;         push de
-;         call TXT_PLACE_CURSOR
-;         call findfn
-;         pop de
-;         pop bc
-;         jr nz,loop1a
-;
-;         call TXT_REMOVE_CURSOR
-;         or 1    ;set nz
-;         ret
+         cmpb r0,#'0
+         bcs 1$
+
+         cmpb #'9,r0
+         bcs 1$
+
+         cmp #2,r2
+         beq 1$
+
+         movb r0,(r5)+
+         inc r2
+         emt ^O16
+         br 1$
+
+11$:     tst r2
+         beq 3$
+
+21$:     push r2
+         push r5
+         ;call @#findfn
+         pop r5
+         pop r2
+         bcs 1$
+
          mov #154,r0
          emt ^O16
-       sec
+         clc
          return
 
-;cont2a   dec de
-;         dec c
-;         jp m,loop3a
-;
-;         call TXT_REMOVE_CURSOR
-;         call printn
-;         db 8,32,8,"$"
-;         jr cont4a
+12$:     dec r5
+         dec r2
+         bmi 3$
+
+         mov #24,r0
+         emt ^O16
+         br 1$
 
 getsvfn:  call @#totext
          movb @#curdev,r0
@@ -1705,8 +1685,8 @@ setdirmsk: jsr r3,@#printstr
          .byte 145
          .ascii "ENTER"
          .byte 146
-         .ascii " = *)"
-         .byte 10,147,0,0
+         .ascii " = *). WILDCARDS USAGE IS THE SAME AS AT IBM PC DOS: "
+         .byte 147,0
 
 3$:      mov #stringbuf,r5
          clr r2
@@ -1766,7 +1746,7 @@ setdirmsk: jsr r3,@#printstr
          beq 13$
 
          mov r0,r3
-         clr r0
+         movb #32,r0
          br 5$
 
 16$:     mov #8,r0
@@ -2526,4 +2506,94 @@ showbline2:
          .byte 's,10
          .asciz "SPEED: "
          br shownum
+
+showdir: jsr r3,@#printstr
+         .byte 12,10,0,0
+
+         mov #toio,@#pageport
+         mov @#andos_init,r1
+         call @r1
+         mov #16384,r5
+         mov #"00,@r5
+         clr r0
+1$:      mov #svfn,r3
+         mov @#andos_diren2,r1
+         call @r1
+         beq 11$
+
+         cmp #"8L,8(r4)
+         bne 1$
+
+         cmpb #'0,10(r4)
+         bne 1$
+
+         mov #8,r2
+         mov r4,r1
+3$:      cmpb @r3,(r1)+
+         beq 2$
+
+         cmpb #'?,@r3
+         bne 1$
+
+2$:      inc r3
+         sob r2,3$
+
+         mov #stringbuf,r3
+         movb #145,(r3)+
+         mov @r5,(r3)+
+         mov #32*256+146,(r3)+
+         mov #8,r2
+         mov r4,r1
+4$:      movb (r1)+,(r3)+
+         sob r2,4$
+
+         mov #147*256+32,(r3)+
+         incb @#16385
+         cmpb @#16385,#'9+1
+         bcs 15$
+
+         add #246*256+1,@r5
+15$:     mov 28(r4),r1
+         cmp r5,r1
+         beq 16$
+
+         bit #^B1111111111,r1
+         beq 17$
+
+         add #^B10000000000,r1
+17$:     swab r1
+         asrb r1
+         asrb r1
+         cmpb r1,#10
+         bcc 20$
+
+         add #'0,r1
+         movb r1,(r3)+
+         movb #32,(r3)+
+         movb #32,(r3)+
+         br 21$
+
+20$:     add #'0-10,r1
+         movb #'1,(r3)+
+         movb r1,(r3)+
+         movb #32,(r3)+
+         br 21$
+
+16$:     mov #"16,(r3)+
+         movb #'+,(r3)+
+21$:     movb #32,r1
+         bit #1,@#16385
+         beq 22$
+
+         mov #10,r1
+22$:     mov #toandos,@#pageport
+         movb r1,(r3)+
+         mov #stringbuf,r1
+         mov #19,r2
+         emt ^O20
+         mov #toio,@#pageport
+         br 1$
+
+11$:     mov #toandos,@#pageport
+         return
 
