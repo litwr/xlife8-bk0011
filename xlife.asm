@@ -16,10 +16,6 @@
 start:   mov #128,@#^O102
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
-         movb @#andos_disk,r0
-         dec r0
-         bicb #252,r0
-         movb r0,@#curdev
          call @#copyr
          mov #^B10010,@#timerport3    ;start timer
          jsr r3,@#printstr
@@ -713,7 +709,6 @@ crsrticks: .byte 0
 errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
 ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
 crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
-curdev:   .byte 0   ;0 - A:, 1 - B:, ...
 svfn:     .byte 0,0,0,0,0,0,0,0,0,0,0,0
 msghide:  .asciz "HIDE"  ;must follow svfn
 msgtore:  .asciz "TORUS"

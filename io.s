@@ -65,6 +65,8 @@ showdir: jsr r3,@#printstr
 
          mov @#andos_init,r1
          call @r1
+         bcs ioerrjmp
+
          mov #"00,r5
          clr r0
 1$:      mov #svfn,r3
@@ -144,6 +146,8 @@ showdir: jsr r3,@#printstr
 
 findfn:  mov @#andos_init,r1
          call @r1
+         bcs ioerrjmp
+
          mov @#stringbuf+1,r5
          sub #48*256+48,r5
          clr r0
@@ -294,10 +298,31 @@ commonin:mov #toio,@#pageport
          mov #3,(r0)+
          mov #16384,(r0)+
          clr (r0)+
-         movb @#curdev,r2
-         add #"A:,r2
-         mov r2,(r0)+
 exit20:  return
+
+iocf:    mov #io_op,r0    ;IN: R2 - 2/3 - write/read
+         mov r0,r1
+         mov r2,(r0)+
+         mov #palette,(r0)+
+         mov #1,(r0)+
+         mov #"CO,(r0)+
+         mov #"LO,(r0)+
+         mov #"RS,(r0)+
+         mov #".C,(r0)+
+         mov #"FG,(r0)+
+         clr @r0
+         emt ^O36
+         tstb @#io_op+1
+         beq exit20
+
+ioerror: tstb @#errst           ;must be after iocf
+         beq exit20
+
+ioerr1:  mov #toandos,@#pageport  ;must be after ioerror
+         jsr r3,@#printstr
+         .byte 12
+         .asciz "IO ERROR"
+         jmp @#getkey
 
 showcomm:tstb @#fn
          beq exit20
@@ -328,11 +353,11 @@ copyr:   call @#commonin
          mov #"CR,(r0)+
          mov #".T,(r0)+
          mov #"XT,(r0)+
-         mov #4,r2
+         mov #5,r2
 1$:      clr (r0)+
          sob r2,1$
 
-showtxt0:emt ^O36
+showtxt0:emt ^O36            ;must be after copyr
          tstb @#io_op+1
          bne ioerr1
 
@@ -350,30 +375,4 @@ showtxt0:emt ^O36
          pop r1
          sob r2,2$
          jmp @#getkey
-
-ioerror: tstb @#errst
-         beq exit20
-
-ioerr1:  mov #toandos,@#pageport
-         jsr r3,@#printstr
-         .asciz "IO ERROR"
-         .byte 0
-         jmp @#getkey
-         
-iocf:    mov #io_op,r0    ;IN: R2 - 2/3 - write/read
-         mov r0,r1
-         mov r2,(r0)+
-         mov #palette,(r0)+
-         mov #1,(r0)+
-         mov #"CO,(r0)+
-         mov #"LO,(r0)+
-         mov #"RS,(r0)+
-         mov #".C,(r0)+
-         mov #"FG,(r0)+
-         clr @r0
-         emt ^O36
-         tstb @#io_op+1
-         beq exit20
-
-         jmp @#ioerror
 

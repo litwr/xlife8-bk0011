@@ -229,6 +229,7 @@ inmode:  jsr r3,@#printstr
          return
 
 help:    call @#totext
+         add #14,@#yshift
          jsr r3,@#printstr
          .ascii "    "
          .byte 146,159
@@ -289,7 +290,6 @@ help:    call @#totext
          .byte 156,159
          .ascii " to speed up the movement"
          .byte 159,0
-         add #14,@#yshift
          call @#getkey
          jsr r3,@#printstr
          .byte 155,0
@@ -859,14 +859,16 @@ clrscn:   mov #toandos,@#pageport
 ;         jmp loop
 
 
-chgdrv:  incb @#curdev
-         bicb #252,@#curdev
+chgdrv:  movb @#andos_disk,r0
+         bicb #252,r0
+         inc r0
+         movb r0,@#andos_disk
+         movb r0,@#andos_curdsk
          mov r2,r3
          clr r1
          mov r4,r2
          emt ^O24
-         movb @#curdev,r0
-         add #'A,r0
+         add #'A-1,r0
          emt ^O16
          mov r3,r1
          add #2,r1
@@ -875,8 +877,8 @@ chgdrv:  incb @#curdev
          return
 
 loadmenu:call @#totext 
-         movb @#curdev,r0
-         add #'A,r0
+         movb @#andos_disk,r0
+         add #'A-1,r0
          movb r0,@#80$+2
          jsr r3,@#printstr
          .byte 12,146
@@ -1083,9 +1085,9 @@ menu2:   call @#setdirmsk
          emt ^O16
          br 1$
 
-getsvfn:  call @#totext
-         movb @#curdev,r0
-         add #'A,r0
+getsvfn: call @#totext
+         movb @#andos_disk,r0
+         add #'A-1,r0
          movb r0,@#80$
          jsr r3,@#printstr
          .byte 12,146
