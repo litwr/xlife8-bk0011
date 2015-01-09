@@ -57,7 +57,7 @@ loadpat: call @#commonin
          br 9$
 
 showfree: push r5 
-         mov @#O120230,r1
+         mov @#andos_rdfat,r1
          call @r1
          mov @#andos_iobuff,r0
          add #3,r0      ;start
@@ -100,6 +100,7 @@ showfree: push r5
          jsr r3,@#printstr
          .byte 'K,32,146
          .asciz "free"
+
          pop r5
 exitio:  return
 
@@ -221,10 +222,10 @@ findfn:  mov @#andos_init,r1
          tst r5
          beq 5$
 
-         sub #256,r5
+         decb r5
          bpl 1$
 
-         add #2559,r5   ;$9ff
+         add #65034,r5   ;$ff0a
          br 1$
 
 5$:      mov #fn,r5

@@ -15,7 +15,7 @@ ramdisk: jsr r3,@#printstr
          .byte 12,146
          .ascii "ENTER FILE# OR HIT "
          .byte 145
-         .ascii "TAB"
+         .ascii "KT"
          .byte 10,'0,147
          .ascii " GLIDER GUN"
          .byte 10,145,'1,147
@@ -36,9 +36,10 @@ ramdisk: jsr r3,@#printstr
          .ascii " ACORN"
          .byte 10,145,'9,147
          .asciz " SWITCH ENGINE PUFFER"
+         .byte 0
 
 1$:      call @#getkey
-         cmpb #9,r0    ;tab
+         cmpb #3,r0    ;kt/esc
          bne 2$
 
          return

@@ -13,7 +13,7 @@ insteps: call @#totext
          cmpb #10,r0
          beq 11$
 
-         cmpb #9,r0    ;tab (esc)
+         cmpb #3,r0    ;KT (esc)
          bne 16$
 
 20$:     jsr r3,@#printstr
@@ -71,23 +71,16 @@ bornstay:
          mov #stringbuf,r4
 3$:      mov r4,r3
 1$:      call @#getkey
-
-;         cmp #$d
-;         beq cont1
          cmpb #10,r0
          beq 11$
 
-;         cmp #$14   ;backspace
-;         beq cont2
          cmpb #24,r0    ;backspace=zaboy
          beq 12$
 
          cmp #'0,r5
          beq 40$
 
-;         cmp #27    ;esc
-;         beq cont1
-         cmpb #9,r0    ;tab
+         cmpb #3,r0    ;kt/esc
          beq 11$
 
 40$:     cmpb r0,r5
@@ -170,7 +163,7 @@ indens:  call @#totext
          .byte 146
          .ascii "SELECT DENSITY OR PRESS "
          .byte 145
-         .ascii "TAB"
+         .ascii "KT"
          .byte 146
          .ascii " TO EXIT"
          .byte 10,9,145,'0,147
@@ -192,7 +185,7 @@ indens:  call @#totext
          .byte 10,9,145,'8,147
          .ascii " - 95%"
          .byte 10,9,145,'9,147
-         .ascii " - 100%"
+         .asciz " - 100%"
          .byte 0
 1$:      call @#getkey
          cmpb #9,r0
@@ -884,13 +877,13 @@ loadmenu:call @#totext
          .byte 12,146
          .ascii "INPUT FILENAME, AN EMPTY STRING MEANS TO SHOW DIRECTORY. PRESS "
          .byte 145
-         .ascii "KT"
+         .ascii "TAB"
          .byte 146
          .ascii " TO USE RAMDISK, "
          .byte 145,'*,146
          .ascii " TO CHANGE DRIVE, "
          .byte 145
-         .ascii "TAB"
+         .ascii "KT"
          .byte 146
          .ascii " TO EXIT"
 80$:     .byte 10,147,'A,':,154,0   ;toggles cursor!
@@ -901,14 +894,10 @@ loadmenu:call @#totext
          cmpb r0,#10
          beq 11$
 
-;         cp $7f      ;backspace
-;         jr z,cont2
-         cmpb r0,#24
+         cmpb r0,#24   ;zaboy/backspace
          beq 12$
 
-;         cp $fc      ;esc
-;         jr nz,cont7
-         cmpb r0,#9   ;tab
+         cmpb r0,#3   ;kt/esc
          bne 17$
 
 100$:    movb r0,r4
@@ -917,8 +906,6 @@ loadmenu:call @#totext
          mtps r4
          return
 
-;cont7    cp "*"
-;         jr nz,cont11
 17$:     cmpb r0,#'*
          bne 21$
 
@@ -926,9 +913,7 @@ loadmenu:call @#totext
         call @#chgdrv
         br 1$
 
-;cont11   cp 9        ;TAB
-;         jr nz,cont8
-21$:     cmpb #3,r0    ;KT
+21$:     cmpb #9,r0    ;TAB
          bne 18$
 
          jsr r3,@#printstr
@@ -1008,7 +993,7 @@ loadmenu:call @#totext
          br 14$
 
 menu2:   call @#setdirmsk
-         cmpb #9,r0   ;tab/esc
+         cmpb #3,r0   ;kt/esc
          beq 100$
 
 ;;*         .text "run/stop"
@@ -1027,13 +1012,13 @@ menu2:   call @#setdirmsk
          jsr r3,@#printstr
          .byte 153,146
          .ascii "ENTER FILE# OR "
-         .byte 145,'T,'A,'B,146,':,32,147,0
+         .byte 145,'K,'T,146,':,32,147,0,0
 
 3$:      mov #stringbuf+1,r3
          mov r3,r4
          clr r2
 1$:      call @#getkey
-         cmpb #9,r0     ;tab/esc
+         cmpb #3,r0     ;kt/esc
          bne 17$
 
 100$:    mov #154,r0
@@ -1063,11 +1048,12 @@ menu2:   call @#setdirmsk
 11$:     tst r2
          beq 3$
 
+         swab @r4
          dec r2
          bne 21$
 
-         swab @r4
          movb #'0,@r4
+         swab @r4
 21$:     cmp @r4,r5
          bcc 6$
 
@@ -1093,13 +1079,13 @@ getsvfn: call @#totext
          .byte 12,146
          .ascii "Enter filename ("
          .byte 145
-         .ascii "TAB"
+         .ascii "KT"
          .byte 146
          .ascii " - exit, "
          .byte 145, '*, 146
          .ascii " - drive)"
          .byte 147,10
-80$:     .byte 'A,':,154,0
+80$:     .byte 'A,':,154,0,0
 
 3$:      mov #svfn,r5
          clr r2
@@ -1110,7 +1096,7 @@ getsvfn: call @#totext
          cmpb r0,#24  ;backspace
          beq 12$
 
-         cmpb r0,#9   ;tab
+         cmpb r0,#3   ;kt
          bne 17$
 
 100$:    movb r0,r4
@@ -1191,49 +1177,33 @@ showrect: mov #toandos,@#pageport
          .byte 145
          .ascii "ENTER"
          .byte 146,',,32,145
-         .ascii "TAB"
+         .asciz "KT"
          .byte 0
        
          clr @#xdir
          clrb @#xchgdir
-
 10$:     call @#drawrect
          call @#showtent
 11$:     call @#crsrflash
          call @#getkey2
-
-;         cmp #$9d   ;cursor left
-;         beq lselect
-         cmpb #8,r0
+         cmpb #8,r0    ;cursor left
          beq 100$
 
-;         cmp #$1d   ;cursor right
-;         beq lselect
-         cmpb #25,r0
+         cmpb #25,r0  ;cursor right
          beq 100$
 
-;         cmp #$91   ;cursor up
-;         beq lselect
-         cmpb #26,r0
+         cmpb #26,r0   ;cursor up
          beq 100$
 
-;         cmp #$11   ;cursor down
-;         beq lselect
-         cmpb #27,r0
+         cmpb #27,r0   ;cursor down
          beq 100$
 
-;         cmp #"."   ;to center
-;         beq lselect
-         cmpb #'.,r0
+         cmpb #'.,r0     ;to center
          beq 100$
 
-;         cmp #19    ;to home
-;         beq lselect
-         cmpb #12,r0
+         cmpb #12,r0     ;to home
          beq 100$
 
-;         cmp #"R"-"A"+$41
-;         bne cont1
          cmpb #'r,r0
          bne 1$
 
@@ -1253,8 +1223,6 @@ showrect: mov #toandos,@#pageport
          comb @#xdir
          br 10$
 
-;cont1    cmp #"F"-"A"+$41
-;         bne cont2
 1$:      cmpb #'f,r0
          bne 2$
 
@@ -1267,18 +1235,12 @@ showrect: mov #toandos,@#pageport
          comb @#xdir
          br 10$
 
-;cont2    cmp #$d
-;         beq finish
 2$:      cmpb #10,r0
          beq exit7
 
-;         cmp #$1b
-;         beq finish0
-         cmpb #9,r0
+         cmpb #3,r0      ;kt/esc
          sec
          beq exit7
-
-;         bne loop1
          br 11$
 
 ;lselect  pha
@@ -1336,8 +1298,6 @@ drawrect: call @#xchgxy
          cmpb r3,r1
          bcs 5$
 
-;         cmp #161
-;         bcc cont2
          cmpb r3,#161
          bcs 2$
 
@@ -1702,7 +1662,7 @@ setdirmsk: jsr r3,@#printstr
          cmp #24,r0    ;backspace
          beq 12$
 
-         cmp #9,r0     ;tab/esc
+         cmp #3,r0     ;kt/esc
          beq 13$
 
          cmpb r0,#'!
