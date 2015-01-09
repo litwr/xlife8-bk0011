@@ -11,7 +11,7 @@
          .include xlife.mac
 
          .asect
-         .=768
+         .=512
 
 start:   mov #128,@#^O102
          mov #keyirq,@#^O60
@@ -127,6 +127,7 @@ digifont:   ;8th columns are free
          .include ramdisk.s
          .include video-base.s
          .include video.s
+         .include utils.s
 
 generate:
          mov @#startp,r0           ;currp=r0
@@ -764,7 +765,6 @@ keyirq:    mov @#kbddtport,@#kbdbuf
 
          .include rules.s
          .include tile.s
-         .include utils.s
          .include tab12.s
          .include gentab.s
          .include ramdata.s

@@ -14,30 +14,29 @@
          .asect
          .=512
 
-stack:   br start
-
-data:    .word 3
-         .word 16384
-         .word 0
-fn:      .asciz /XLIFE2.COM/
-         .byte 0,0,0,0,0
-fa:      .word 0
-         .word 0
-         .blkb 16
-
-         .=768
-start:   mov #^B11110000000000,@#pageport  ;open pages 3 and 4 (AnDOS)
-         mov #data,r1
+start:   mov #start,sp
+         mov #^B11110000000000,@#pageport  ;open pages 3 and 4 (AnDOS)
+         mov #io_op,r1
+         mov r1,r0
+         mov #data,r2
+         mov #11,r3
+1$:      mov (r2)+,(r0)+
+         sob r3,1$
+         
          emt ^O36     ;load XLIFE2.COM
+         tstb @#io_op+1
+         beq 2$
 
-         mov #start,@#<data+2> 
-         decb @#<fn+5>
+         halt
+2$:      mov #start,@#io_start 
+         decb @#io_fn+5
 
          mov #^B10110000000000,@#pageport  ;open pages 2 and 4 (AnDOS)
-         mov #start,sp
-         mov sp,-(sp)
-         mov #data,r1
+         push sp
          jmp @#^O120002  ;load XLIFE1.COM
-         nop
+
+data:    .word 3,16384,0
+         .ascii "XLIFE2.COM"
+         .word 0,0,0
          .end
 

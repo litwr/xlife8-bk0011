@@ -17,9 +17,17 @@ andos_size = ^O120162            ;$a072
 andos_init = ^O120204            ;$a084
 andos_diren2 = ^O120214          ;$a08c
 andos_rdfat = ^O120230           ;$a098
-io_op      = 256
-io_start   = 258
-io_len     = 260
-io_fn      = 262
-loaded_sz  = ^O266              ;$b6
+io_op      = ^O320               ;$d0
+io_start   = ^O322
+io_len     = ^O324
+io_fn      = ^O326
+loaded_sz  = ^O266               ;$b6
+
+         .macro push arg
+         mov arg,-(sp)
+         .endm
+
+         .macro pop arg
+         mov (sp)+,arg
+         .endm
 
