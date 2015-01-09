@@ -56,6 +56,51 @@ loadpat: call @#commonin
 10$:     mov #16384,r0
          br 9$
 
+showfree: push r5 
+         mov @#O120230,r1
+         call @r1
+         mov @#andos_iobuff,r0
+         add #3,r0      ;start
+         mov #397,r1    ;cluster counter for 80x2x10 = 1600 sectors disk
+         clr r3         ;free
+3$:      movb (r0)+,r2
+         movb @r0,r4
+         bic #^B1111,r4
+         bis r2,r4
+         bne 1$
+
+         inc r3
+1$:      dec r1
+         beq 10$
+
+         movb (r0)+,r2
+         bic #^B1111111111110000,r2
+         bisb (r0)+,r2
+         bne 2$
+
+         inc r3
+2$:      dec r1
+         bne 3$
+
+10$:     asl r3
+         clr r4
+         call @#todec
+         mov #32,r0
+         emt ^O16
+         mov #stringbuf,r1
+         mov #10,r2
+5$:      cmpb @r1,#'0
+         bne 4$
+
+         inc r1
+         dec r2
+         br 5$
+
+4$:      emt ^O20
+         jsr r3,@#printstr
+         .byte 'K,32,146
+         .asciz "free"
+         pop r5
 exitio:  return
 
 ioerrjmp: jmp @#ioerror
@@ -72,7 +117,7 @@ showdir: jsr r3,@#printstr
 1$:      mov #svfn,r3
          mov @#andos_diren2,r1
          call @r1
-         beq exitio
+         beq showfree
 
          cmp #"8L,8(r4)
          bne 1$
