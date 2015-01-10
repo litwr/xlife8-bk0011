@@ -1,0 +1,24 @@
+#converts a file produced by Lifeconv to Elektronika BK 8Ln-format
+if [ $# = 0 ]; then
+   echo Usage:  raw2bk raw-file
+   exit
+fi
+F=${1%%.raw}.8L
+A=`ls -l $1 | awk '{print $5}'`
+A=$(($A + 2))
+B=$((($A - 1) >> 14))
+C=0
+P=0
+S=2
+L=16382
+awk 'BEGIN{printf "%c%c",'$B',0}' >${F}0
+while [ $A -gt 16384 ]
+do
+   dd if=$1 of=$F$C skip=$P seek=$S bs=1 count=$L
+   P=$(($P+$L))
+   L=16384
+   A=$(($A-$L))
+   C=$(($C+1))
+   S=0
+done
+dd if=$1 of=$F$C skip=$P seek=$S bs=1

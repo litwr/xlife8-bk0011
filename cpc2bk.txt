@@ -1,0 +1,16 @@
+Change 2 first bytes at the 8L-file to the number of file parts.  This number is an integer part of the ratio of the size of 8L-file minus 1 and 16384.  So if filesize is 16384 then the result number will be 0.  If 8L-file has size more than 16384 bytes then it should be splitted into parts.  The last part size is the modulo of 8L-filesize and 16384, the other parts should have exactly 16384 bytes length.  So 32000 bytes file should be splitted into two files with 16384 and 15616 bytes sizes.  The file parts should have 8L0, 8L1, 8L2, 8L3 name extensions.
+
+The `cpc2bk' utility may make the conversion easier.  For example,
+
+cpc2bk cpcfile.8l
+
+will produce `cpcfile.8L0' (and possible `cpcfile.8L1', ...) from `cpcfile.8l'.
+
+The comments have a plain text format.  CPC uses CRLF as end of line marker but BK uses LF only.  So CPC comments maybe translated, for examble, by
+
+tr -d '\r' <cpc.txt >bk.txt
+
+or by
+
+sed 's/\r//' cpc.txt >bk.txt
+
