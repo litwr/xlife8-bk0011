@@ -416,6 +416,7 @@ showtxt0:emt ^O36            ;must be after copyr
          push r1
 1$:      call @#getkey2
          bne 1$
+
          mov #1000,r1
 3$:      sob r1,3$
          pop r1

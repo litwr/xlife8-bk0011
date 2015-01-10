@@ -909,9 +909,9 @@ loadmenu:call @#totext
 17$:     cmpb r0,#'*
          bne 21$
 
-        mov #4,r4
-        call @#chgdrv
-        br 1$
+         mov #4,r4
+         call @#chgdrv
+         br 1$
 
 21$:     cmpb #9,r0    ;TAB
          bne 18$

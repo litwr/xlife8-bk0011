@@ -22,13 +22,13 @@ start:   mov #start,sp
          mov #11,r3
 1$:      mov (r2)+,(r0)+
          sob r3,1$
-         
+
          emt ^O36     ;load XLIFE2.COM
          tstb @#io_op+1
          beq 2$
 
          halt
-2$:      mov #start,@#io_start 
+2$:      mov #start,@#io_start
          decb @#io_fn+5
 
          mov #^B10110000000000,@#pageport  ;open pages 2 and 4 (AnDOS)
@@ -39,4 +39,3 @@ data:    .word 3,16384,0
          .ascii "XLIFE2.COM"
          .word 0,0,0
          .end
-
