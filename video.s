@@ -2118,9 +2118,9 @@ outdec:  clr r4            ;in: r3
 2$:      cmpb #'0,(r1)+
          bne 1$
          sob r2,2$
-   
-1$:      dec r1      
-         mov #255,r2
+
+         inc r2
+1$:      dec r1
          emt ^O20
          return
 
