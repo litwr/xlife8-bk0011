@@ -47,7 +47,7 @@ loadpat: call @#commonin
          beq 8$
 
          incb @r1
-         clrb r1   ;io_op=0x100
+         mov #io_op,r1
          mov #toio,@#pageport
          emt ^O36
          tstb @#io_op+1

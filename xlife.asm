@@ -129,6 +129,115 @@ digifont:   ;8th columns are free
          .include video.s
          .include utils.s
 
+waitkbd: mov @#kbdstport,r0
+         tstb r0
+         bpl waitkbd
+
+         mov @#kbddtport,r0
+         return
+
+startp:   .word 1
+tilecnt:  .word 0
+viewport: .word 0
+crsrtile: .word 0
+temp:     .word 0
+temp2:    .word 0
+kbdbuf:   .word 0
+saved:    .word 0
+lowbench: .word 0
+highbench: .word 0
+tobin:    .word 1,10,100,1000,10000
+live:     .word 12
+born:     .word 8
+
+x0:       .byte 0   ;word aligned
+y0:       .byte 0
+crsrbyte: .byte 0      ;y%8  word aligned
+crsrbit:  .byte 128    ;x bit position
+i1:       .byte 0,0
+cellcnt:  .byte 0,0,0,0,0
+gencnt:   .byte 0,0,0,0,0,0,0
+crsrx:    .byte 0      ;[x/8]*8, word aligned!
+crsry:    .byte 0      ;[y/8]*8
+vptilecx: .byte 0      ;word aligned!
+vptilecy: .byte 0
+xcrsr:    .byte 0,0,0
+ycrsr:    .byte 0,0,0
+tinfo:    .byte 0,0,0  ;even alignment for BK!
+xchgdir:  .byte 0
+xdir:     .byte 0      ;linear transformation, word aligned
+ydir:     .byte 0
+clncnt:   .byte 0
+palette:  .byte 0      ;not word aligned???
+pseudoc:  .byte 0
+mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
+zoom:     .byte 0
+fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0
+density:  .byte 3         ;must follow fn
+;;dirname  .TEXT "0:"      ;filename used to access directory
+fcount:   .byte 0      ;number of file parts
+topology: .byte 0      ;0 - torus
+crsrticks: .byte 0
+;copyleft: .ascii "CR.TXT"
+errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
+ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
+crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
+svfn:     .byte 0,0,0,0,0,0,0,0,0,0,0,0
+msghide:  .asciz "HIDE"  ;must follow svfn
+msgtore:  .asciz "TORUS"
+msgplan:  .asciz "PLAIN"
+msgrun:   .asciz "RUN "
+msgstop:  .asciz "STOP"
+nofnchar: .asciz "?%(),./:;<=>[\]|"
+
+          .odd
+stringbuf: .blkb 19       ;it must be at odd addr!
+
+          .include interface.s
+
+benchirq0: mov @#saved,r0
+           mov @#timerport2,r1
+           mov r1,@#saved
+           sub r1,r0
+           add r0,@#lowbench
+           adc @#highbench
+           return
+
+benchirq:  push r0
+           push r1
+           call @#benchirq0
+           pop r1
+           pop r0
+           rti
+
+crsrflash: return
+           nop
+
+crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
+           bne emptyirq
+
+           incb @#crsrticks
+           bitb #15,@#crsrticks
+           bne emptyirq
+
+           mov #95,@#crsrflash     ;95 = $5f = jmp@#
+           mov #crsrset2,@#crsrflash+2
+           bitb #16,@#crsrticks
+           beq emptyirq
+
+           mov #crsrclr2,@#crsrflash+2
+emptyirq:  rti
+
+key2irq:   mov @#kbddtport,@#kbdbuf
+           incb @#kbdbuf+1
+           rti
+        
+keyirq:    mov @#kbddtport,@#kbdbuf
+           rti
+
+         .include rules.s
+         .include tile.s
+
 generate:
          mov @#startp,r0           ;currp=r0
 ;*loop3
@@ -657,114 +766,6 @@ cleanup0: mov @#startp,r0
 ;         .bend
          br 1$
 
-waitkbd: mov @#kbdstport,r0
-         tstb r0
-         bpl waitkbd
-
-         mov @#kbddtport,r0
-         return
-
-startp:   .word 1
-tilecnt:  .word 0
-viewport: .word 0
-crsrtile: .word 0
-temp:     .word 0
-temp2:    .word 0
-kbdbuf:   .word 0
-saved:    .word 0
-lowbench: .word 0
-highbench: .word 0
-tobin:    .word 1,10,100,1000,10000
-live:     .word 12
-born:     .word 8
-
-x0:       .byte 0   ;word aligned
-y0:       .byte 0
-crsrbyte: .byte 0      ;y%8  word aligned
-crsrbit:  .byte 128    ;x bit position
-i1:       .byte 0,0
-cellcnt:  .byte 0,0,0,0,0
-gencnt:   .byte 0,0,0,0,0,0,0
-crsrx:    .byte 0      ;[x/8]*8, word aligned!
-crsry:    .byte 0      ;[y/8]*8
-vptilecx: .byte 0      ;word aligned!
-vptilecy: .byte 0
-xcrsr:    .byte 0,0,0
-ycrsr:    .byte 0,0,0
-tinfo:    .byte 0,0,0  ;even alignment for BK!
-xchgdir:  .byte 0
-xdir:     .byte 0      ;linear transformation, word aligned
-ydir:     .byte 0
-clncnt:   .byte 0
-palette:  .byte 0      ;not word aligned???
-pseudoc:  .byte 0
-mode:     .byte 0      ;0-stop, 1-run, 2-hide, 3-exit
-zoom:     .byte 0
-fn:       .byte 0,0,0,0,0,0,0,0,0,0,0,0
-density:  .byte 3         ;must follow fn
-;;dirname  .TEXT "0:"      ;filename used to access directory
-fcount:   .byte 0      ;number of file parts
-topology: .byte 0      ;0 - torus
-crsrticks: .byte 0
-;copyleft: .ascii "CR.TXT"
-errst:    .byte 0   ;0 - do not print i/o-errors message, 1 - print
-ppmode:   .byte 1    ;putpixel mode: 0 - tentative, 1 - active
-crsrpgmk: .byte 1   ;0 - do not draw cursor during showscnz, 1 - draw
-svfn:     .byte 0,0,0,0,0,0,0,0,0,0,0,0
-msghide:  .asciz "HIDE"  ;must follow svfn
-msgtore:  .asciz "TORUS"
-msgplan:  .asciz "PLAIN"
-msgrun:   .asciz "RUN "
-msgstop:  .asciz "STOP"
-nofnchar: .asciz "?%(),./:;<=>[\]|"
-
-          .odd
-stringbuf: .blkb 19       ;it must be at odd addr!
-
-          .include interface.s
-
-benchirq0: mov @#saved,r0
-           mov @#timerport2,r1
-           mov r1,@#saved
-           sub r1,r0
-           add r0,@#lowbench
-           adc @#highbench
-           return
-
-benchirq:  push r0
-           push r1
-           call @#benchirq0
-           pop r1
-           pop r0
-           rti
-
-crsrflash: return
-           nop
-
-crsrirq:   cmp @#plainbox+left,#plainbox   ;test memory bank
-           bne emptyirq
-
-           incb @#crsrticks
-           bitb #15,@#crsrticks
-           bne emptyirq
-
-           mov #95,@#crsrflash     ;95 = $5f = jmp@#
-           mov #crsrset2,@#crsrflash+2
-           bitb #16,@#crsrticks
-           beq emptyirq
-
-           mov #crsrclr2,@#crsrflash+2
-emptyirq:  rti
-
-key2irq:   mov @#kbddtport,@#kbdbuf
-           incb @#kbdbuf+1
-           rti
-        
-keyirq:    mov @#kbddtport,@#kbdbuf
-           rti
-
-         .include rules.s
-         .include tile.s
          .include tab12.s
          .include gentab.s
          .include ramdata.s

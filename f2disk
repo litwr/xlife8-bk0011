@@ -21,4 +21,4 @@ touch -t 01010016.00 /mnt/loop/manpage.com
 ls -l /mnt/loop/xlife* /mnt/loop/manpage.com
 sudo sync
 sudo umount /mnt/loop
-rm initiles.s gentab.s tab12.s vistab.s manpage.s
+rm initiles.s gentab.s tab12.s vistab.s manpage.s *.obj irps.log *.bin

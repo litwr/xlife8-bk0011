@@ -3,9 +3,11 @@ BEGIN {
       t[sprintf("%c", i)] = i
    ci = sprintf("%c", 156)
    cu = sprintf("%c", 159)
-   r = ""
 }
-length($0) == 0 {printf ".byte 10\n"}
+length($0) == 0 {
+   re1[NR] = sprintf(".byte 10")
+   re2[NR] = 0
+}
 length($0) > 0 {
     b = ""
     x = e = $0
@@ -27,7 +29,7 @@ length($0) > 0 {
          } else if (m == "r") {
             b = b cu
             und = 0
-         } else if (m == "p") {
+         } else if (m == "b") {
             b = b ci
             rev = 0
          }
@@ -36,11 +38,11 @@ length($0) > 0 {
          if (m == "g") {
             b = b ci
             rev = 0
-         } else if (m == "p") {
+         } else if (m == "b") {
             b = b ci cu
             rev = 0
             und = 1
-         } else if (m == "b") {
+         } else if (m == "p") {
             b = b cu
             und = 1
          }
@@ -53,32 +55,39 @@ length($0) > 0 {
             b = b cu ci
             rev = 1
             und = 0
-         } else if (m == "b") {
+         } else if (m == "p") {
             b = b ci
             rev = 1
          }
          e = substr(e, p + 2)
       }
       else {
-         if (m == "b") {
+         if (m == "p") {
             b = b ci cu
             und = rev = 1
          } else if (m == "r") {
             b = b ci
             rev = 1
-         } else if (m == "p") {
+         } else if (m == "b") {
             b = b cu
             und = 1
          }
          e = substr(e, p + 2)
       }
    }
-   printf ".byte "
+   res = ".byte "
    s = b e
    for (i = 1; i < length(s); i++)
-      printf "%d,",t[substr(s,i,1)]
-   printf "%d",t[substr(s,i,1)]
-   if (length(x) < 64) printf(",10")
-   printf("\n")
+      res = res sprintf("%d,",t[substr(s,i,1)])
+   res = res sprintf("%d",t[substr(s,i,1)])
+   re1[NR] = res
+   re2[NR] = length(x)
+}
+END {
+   for (i = 1; i <= NR; i++) {
+      printf "%s", re1[i]
+      if (re2[i] && re2[i] < 64 && i != NR) printf(",10")
+      printf("\n")
+   }
 }
 

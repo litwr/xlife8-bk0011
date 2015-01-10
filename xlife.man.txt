@@ -123,12 +123,11 @@
 
    \praw2bk in-file\g
 
- This utility is the script depended on several Unix utilities. It
- requires the
- presence of "bash", "awk", and "cat" programs at the  system.  The  appropriate
- comments file should have the same name as 8l-file, the  txt-extension, and its
- content may be any textual data.
-
+ This utility is the script depended on several Unix  utilities.
+ It requires the presence of "bash", "awk", and "dd" programs at
+ the system.  The appropriate comments file should have the same
+ name as 8L0-file, the txt-extension, and its content may be any
+ textual data.
 
 \bRAMDISK
 
