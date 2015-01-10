@@ -1006,6 +1006,7 @@ menu2:   call @#setdirmsk
 ;;*         .byte $d,0
 
          call @#showdir
+         swab r5
 6$:      clr r1
          clr r2
          emt ^O24

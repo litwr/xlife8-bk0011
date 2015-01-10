@@ -106,7 +106,7 @@ exitio:  return
 
 ioerrjmp: jmp @#ioerror
 
-showdir: jsr r3,@#printstr
+showdir: jsr r3,@#printstr   ;OUT: R5
          .byte 12,10,0,0
 
          mov @#andos_init,r1
