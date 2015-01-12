@@ -3,7 +3,8 @@
 #include "rbkbasic.h"
 map<int,Symbol*> realloca;
 map<int,int> reallocl, labels;
-string code[10000], data[10000];
+string code[100000], data[100000];
+int iop;
 %}
 %union {
   Symbol *sym;
@@ -11,7 +12,7 @@ string code[10000], data[10000];
 }
 %token <sym> SVAR IVAR UNDEF STR STRING CHR INKEY MID 
 %token <num> NUMBER ASC CLS DIM ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
-%token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS
+%token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %type <sym> var ivar svar
 %type <num> oper operlist assign print for if locate input markop
 %left OR
@@ -21,12 +22,19 @@ string code[10000], data[10000];
 %left NOT
 %%
 operlist: markop {relocate(); throw 1;}
-| oper '\n' operlist
+//| oper '\n' operlist  //immediate mode
 | NUMBER {
     code[progp++] = tostr(locals) + "$:\n";
     labels[$1] = locals++;
   } oper '\n' operlist
 | NUMBER '\n' operlist
+;
+ioperlist: markop
+| NUMBER {
+    code[progp++] = tostr(locals) + "$:\n";
+    labels[$1] = locals++;
+  } oper '\n' ioperlist
+| NUMBER '\n' ioperlist
 ;
 oper: assign
 | print
@@ -55,6 +63,7 @@ oper: assign
 | CLS {code[progp++] = "MOV #12,R0\nENT ^O16\n";}
 | input
 | POKE iexpr ',' iexpr
+| markop END {code[progp++] = "JMP @#finalfinish\n";}
 ;
 assign: markop ivar '=' iexpr {
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
@@ -88,11 +97,42 @@ input: INPUT varlist
 varlist: var
 | var ',' varlist
 ;
-for: FOR IVAR '=' iexpr TO iexpr '\n' operlist '\n' NEXT IVAR markop
-| FOR IVAR '=' iexpr TO iexpr STEP iexpr '\n' operlist '\n' NEXT IVAR markop
+for: markop FOR IVAR '=' iexpr {
+     code[progp++] = "POP R3\nMOV R3,@#";
+     realloca[progp] = $3;
+     code[progp++] = tostr($3->addr);
+     code[progp++] = "\n";
+  } TO iexpr step '\n' {
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$1] = locals++;
+  } ioperlist next {
+     code[progp++] = "MOVB #7,R3\n";   //BLE
+     code[progp++] = "TST @SP\n";
+     code[progp++] = "BPL " + tostr(locals) + "$\n";
+     code[progp++] = "MOVB #4,R3\n";   //BGE
+     code[progp++] = tostr(locals++) + "$:MOVB R3,@#";
+     code[progp++] = tostr(locals) + "$+1\n";
+     code[progp++] = "ADD @SP,@#";
+     realloca[progp] = $3;
+     code[progp++] = tostr($3->addr);
+     code[progp++] = "\nCMP @#";
+     realloca[progp] = $3;
+     code[progp++] = tostr($3->addr);
+     code[progp++] = ",2(SP)\n";
+     code[progp++] = tostr(locals++) + "$:BGE ";
+     reallocl[progp] = -$1;
+     code[progp++] = "";
+     code[progp++] = "ADD #4,SP\n";
+  }
 ;
-if: IF iexpr THEN oper markop
-| IF iexpr THEN oper ELSE oper markop
+next: NEXT IVAR
+| NEXT
+;
+step: {code[progp++] = "PUSH #1\n";}
+| STEP iexpr
+;
+if: markop IF iexpr THEN oper markop
+| markop IF iexpr THEN oper ELSE oper markop
 ;
 locate: LOCATE iexpr ',' iexpr ',' iexpr
 LOCATE iexpr ',' iexpr
@@ -232,6 +272,7 @@ main () {
    }
    catch (string s) {
       cerr << s << endl;
+      printcode();
    }
    catch (int) {
       printcode();

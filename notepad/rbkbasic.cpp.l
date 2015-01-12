@@ -3,7 +3,7 @@ number	   [0-9]+
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 %%
 [ ]
-(?i:REM).*$ return '\n';
+(?i:REM).*$ 
 >= 	   return GE;
 \<= 	   return LE;
 == 	   return EQ;
@@ -18,8 +18,9 @@ symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 (?i:GOTO)  return GOTO;
 (?i:INPUT) return INPUT;
 (?i:FOR)   return FOR;
+(?i:END)   return END;
 (?i:TO)    return TO;
-(?i:NEXT)  return NEXT;
+[0-9]+[ ]*(?i:NEXT)  return NEXT;
 (?i:STEP)  return STEP;
 (?i:RETURN) return RETURN;
 (?i:GOSUB) return GOSUB;

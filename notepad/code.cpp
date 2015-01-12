@@ -25,10 +25,11 @@ int toint(string s) {
 void printcode() {
    cout << ".radix 10\n.dsabl gbl\n.include bk0011m.mac\n.asect\n.="
       << progstart << endl;
-   cout << "MOV #512,SP\nMOV #12,R0\nEMT ^O16\n";
+   cout << "MOV #16384,SP\n";
+//   cout << "MOV #12,R0\nEMT ^O16\n";
    for (int i = 0; i < progp; i++)
       cout << code[i];
-   cout << "WAIT\n.include notepad/rbkbasic.inc\n";
+   cout << "finalfinish:WAIT\n.include notepad/rbkbasic.inc\n";
    int k = (ivarp + svarp + strconstp)/2;
    if (k) {
       cout << ".word ";
