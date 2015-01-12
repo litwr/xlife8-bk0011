@@ -14,7 +14,7 @@ int iop;
 %token <num> NUMBER ASC CLS DIM ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %type <sym> var ivar svar
-%type <num> oper operlist assign print for if locate input markop
+%type <num> oper operlist assign print for if locate input markop then
 %left OR
 %left AND
 %left GT GE LT LE EQ NE  //> >= < <= == !=
@@ -131,11 +131,77 @@ next: NEXT IVAR
 step: {code[progp++] = "PUSH #1\n";}
 | STEP iexpr
 ;
-if: markop IF iexpr THEN oper markop
-| markop IF iexpr THEN oper ELSE oper markop
+if: markop IF iexpr then thenoper {
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$4] = locals++;
+   }
+| markop IF iexpr then thenoper ELSE {
+     code[progp++] = "BR ";
+     reallocl[progp] = -$1;
+     code[progp++] = "";
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$4] = locals++;
+   } elseoper {
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$1] = locals++;
+   }
+| markop IF iexpr GOTO NUMBER {
+     code[progp++] = "POP R3\nTST R3\n";
+     code[progp++] = "BEQ ";
+     reallocl[progp] = -$1;
+     code[progp++] = "";
+     code[progp++] = "JMP @#";
+     reallocl[progp] = $5;
+     code[progp++] = "";
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$1] = locals++;
+   }
+| markop IF iexpr GOTO NUMBER ELSE {
+     code[progp++] = "POP R3\nTST R3\n";
+     code[progp++] = "BEQ ";
+     reallocl[progp] = -$1;
+     code[progp++] = "";
+     code[progp++] = "JMP @#";
+     reallocl[progp] = $5;
+     code[progp++] = "";
+     code[progp++] = "BR ";
+     reallocl[progp] = -$1 - 100000;
+     code[progp++] = "";
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$1] = locals++;
+   } elseoper {
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$1 - 100000] = locals++;
+   }
 ;
-locate: LOCATE iexpr ',' iexpr ',' iexpr
-LOCATE iexpr ',' iexpr
+then: THEN {
+     code[progp++] = "POP R3\nTST R3\n";
+     code[progp++] = "BEQ ";
+     reallocl[progp] = -$1;
+     code[progp++] = "";
+   }
+;
+thenoper: oper
+| NUMBER {
+     code[progp++] = "JMP @#";
+     reallocl[progp] = $1;
+     code[progp++] = "";
+   }
+;
+elseoper: oper
+| NUMBER {
+     code[progp++] = "JMP @#";
+     reallocl[progp] = $1;
+     code[progp++] = "";
+   }
+;
+locate: LOCATE iexpr ',' iexpr ',' iexpr {
+   code[progp++] = "POP R1\nMOV R1,@#^O56\n";
+   code[progp++] = "POP R2\nPOP R1\nEMT ^O24\n";
+}
+| LOCATE iexpr ',' iexpr {
+   code[progp++] = "POP R2\nPOP R1\nEMT ^O24\n";
+}
 ;
 markop: {$$ = progp;}
 ;

@@ -26,7 +26,7 @@ symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 (?i:GOSUB) return GOSUB;
 (?i:CLS)   return CLS;
 (?i:IF)    return IF;
-(?i:THEN)  return THEN;
+(?i:THEN)  yylval.num = progp; return THEN;
 (?i:ELSE)  return ELSE;
 (?i:PRINT) return PRINT;
 (?i:LOCATE) return LOCATE;
