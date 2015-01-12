@@ -7,7 +7,7 @@ gcc -DBK0011 gentab12.c && a.out >tab12.s && \
 compile xlife.asm && \
 compile xlife0.asm && \
 rungcc cut3.c && \
-bin2com xlife0.bin && \
+bk-bin2com xlife0.bin && \
 sudo ~/bin/mountimg XLIFE.IMG && \
 rm -f /mnt/loop/xlife?.com /mnt/loop/cr.txt /mnt/loop/manpage.com && \
 cp xlife[012].com /mnt/loop && \
