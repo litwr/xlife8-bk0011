@@ -177,19 +177,6 @@ cond2:
          sob r1,loop
          .endm
 
-;iniram   .macro
-;         ldy #0
-;loop1    lda $1800,y
-;         sta $332,y
-;         iny
-;         bne loop1
-;loop2    lda $1900,y
-;         sta $432,y
-;         iny
-;         cpy #$0a
-;         bne loop2
-;         .endm
-
          .macro setcount one,two
          mov one(r0),r1
          mov r1,r2

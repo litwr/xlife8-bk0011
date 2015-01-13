@@ -82,8 +82,8 @@ boxsz:   mov #192,@#boxsz_ymin
 0$:      push r5
          mov #8,r5
          clr r2
-9$:      movb (r4)+,r0
-         bic #65280,r0
+9$:      clr r0
+         bisb (r4)+,r0
          movb tab3(r0),r1
          add r1,@#lowbench
          bis r0,r2

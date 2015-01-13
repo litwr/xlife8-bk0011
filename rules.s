@@ -16,8 +16,8 @@ fillrtsl: adc r3
          add r2,r3
          call @#fillrt1
          mov r4,@#temp
-         mov r1,r3
-         bic #65535-255,r3
+         clr r3
+         bisb r1,r3
          return
 
 fillrtsr: adc r3
@@ -61,8 +61,8 @@ fillrt:  clr r1          ;XR
          clrb gentab(r1)
          mov r1,r2
          bic #65535-1,r2     ;i1
-         mov r1,r3
-         bic #65535-255,r3
+         clr r3
+         bisb r1,r3
          asr r3
          asr r3
          asr r3

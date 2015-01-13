@@ -561,8 +561,8 @@ calccells:
 12$:     mov @#startp,r0
 2$:      mov #8,r5
          clr r4
-4$:      movb (r0)+,r1
-         bic #^B1111111100000000,r1
+4$:      clr r1
+         bisb (r0)+,r1
          beq 5$
 
          movb tab3(r1),r2

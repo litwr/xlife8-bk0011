@@ -1,15 +1,3 @@
-          .macro tostring
-          mov #tobasic,@#pageport
-          .endm
-
-          .macro toscreen
-          mov #toandos,@#pageport
-          .endm
-
-          .macro toio
-          mov #toio,@#pageport
-          .endm
-
 tobin:     .word 10000,1000,100,10,1
 stringbuf: .byte 0,0,0,0,0,0
 todec:    mov #stringbuf,r2  ;IN: r3 to decimal, no negative numbers support

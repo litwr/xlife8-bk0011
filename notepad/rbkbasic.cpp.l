@@ -1,6 +1,7 @@
 %option    noyywrap
 number	   [0-9]+
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
+string     (\"[^"]*\"[ ]*)+
 %%
 [ ]
 (?i:REM).*$ 
@@ -51,34 +52,32 @@ symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
               for (int i = 0; i < sbuf.length(); i++)
                  sbuf[i] = toupper(sbuf[i]);
               if (names.find(sbuf) == names.end()) {
-                 names[sbuf].type = UNDEF;
-                 names[sbuf].name = &(string&)names.find(sbuf)->first;
-              }
-              Symbol *s = &names[sbuf];
-              yylval.sym = s;
-              if (s->type == UNDEF)
+                 names[sbuf].len = 2;
                  if (sbuf[sbuf.length() - 1] == '$') {
-                    s->type = SVAR;
-                    s->addr = svarp;
-                    s->len = 2;
+                    names[sbuf].type = SVAR;
+                    names[sbuf].addr = svarp;
                     svarp += 2;
                  }
                  else {
-                    s->type = IVAR;
-                    s->addr = ivarp;
+                    names[sbuf].type = IVAR;
+                    names[sbuf].addr = ivarp;
                     ivarp += 2;
                  }
-              return s->type;
+                 names[sbuf].name = &(string&)names.find(sbuf)->first;
+              }
+              yylval.sym = &names[sbuf];
+              return yylval.sym->type;
            }
-\"[^"]*\"  {
+{string}   {
               string istr(yytext + 1);
-              istr.erase(istr.length() - 1);
+              unsigned long p;
+              while ((p = istr.find("\"")) != string::npos)
+                 istr.erase(p, 1);
               if (strings.find(istr) == strings.end()) {
-                 strings[istr].addr = 0;
+                 strings[istr].addr = strconstp;
+                 strconstp += (strings[istr].len = istr.length()) + 1;
                  strings[istr].name = &(string&)strings.find(istr)->first;
               }
-              strings[istr].addr = strconstp;
-              strconstp += 2;
               yylval.sym = &strings[istr];
               return yylval.sym->type = STRING;
            }

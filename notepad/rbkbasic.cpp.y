@@ -1,7 +1,8 @@
 %{
 #include <cctype>
 #include "rbkbasic.h"
-map<int,Symbol*> realloca;
+map<int,Symbol*> realloca, reallocs;
+map<string, Symbol> names, strings;
 map<int,int> reallocl, labels;
 string code[100000], data[100000];
 int iop;
@@ -10,7 +11,7 @@ int iop;
   Symbol *sym;
   int num;
 }
-%token <sym> SVAR IVAR UNDEF STR STRING CHR INKEY MID 
+%token <sym> SVAR IVAR STR STRING CHR INKEY MID 
 %token <num> NUMBER ASC CLS DIM ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %type <sym> var ivar svar
@@ -84,7 +85,7 @@ pexpr: iexpr {
      code[progp++] = "POP R3\nCALL @#todec\nEMT ^O20\n";
   }
 | sexpr {
-     code[progp++] = "POP R1\nMOV @R1,R1\nTOSTRING\nMOVB (R1)+,R2\n" + tostr(locals)
+     code[progp++] = "POP R1\nTOSTRING\nCLR R2\nBISB (R1)+,R2\n" + tostr(locals)
        + "$:TOSTRING\nMOVB (R1)+,R0\nTOSCREEN\nEMT ^O16\nSOB R2," + tostr(locals) + "$\n";
      locals++;
   }
@@ -196,7 +197,7 @@ elseoper: oper
    }
 ;
 locate: LOCATE iexpr ',' iexpr ',' iexpr {
-   code[progp++] = "POP R1\nMOV R1,@#^O56\n";
+   code[progp++] = "POP R1\nMOVB R1,@#^O56\n";
    code[progp++] = "POP R2\nPOP R1\nEMT ^O24\n";
 }
 | LOCATE iexpr ',' iexpr {
@@ -303,7 +304,7 @@ sexpr: STRING {
          data[stringp++] += "," + tostr((int)(*$1->name)[i]) + "\n";
      }
      code[progp++] = "PUSH #";
-     realloca[progp] = $1;
+     reallocs[progp] = $1;
      code[progp++] = tostr($1->addr);
      code[progp++] = "\n";
   }
@@ -319,8 +320,6 @@ sexpr: STRING {
 ;
 %%
 int lineno = 1;
-
-map<string, Symbol> names, strings;
 
 #include "lex.yy.c"
 

@@ -5,16 +5,14 @@
 using namespace std;
 struct Symbol {
   string *name;
-  short type; //IVAR, SVAR, UNDEF
-  int addr;
-  int len;
+  short type; //IVAR, SVAR, STRING
+  int addr, len;
 };
 int yylex(), yyparse(), yyerror(const string &), toint(string);
-void initcode(), printcode(), relocate();
+void initcode(), printcode(), relocate(), breakpoint();
 string tostr(int);
-extern int progp, ivarp, svarp, strconstp, stringp, locals;
+extern int progp, ivarp, svarp, strconstp, stringp, locals, strdatap;
 extern string code[], data[];
-extern map<int,Symbol*> realloca;
+extern map<int,Symbol*> realloca, reallocs;
 extern map<int,int> reallocl, labels;
-
 
