@@ -40,16 +40,18 @@ oper: assign
      code[progp++] = "CALL @#";
      reallocl[progp] = $3;
      code[progp++] = "";
-  }
+   }
 | RETURN {code[progp++] = "RETURN\n";}
 | markop GOTO NUMBER {
-     code[progp++] = "JMP @#";
-     reallocl[progp] = $3;
-     code[progp++] = "";
-  }
+      code[progp++] = "JMP @#";
+      reallocl[progp] = $3;
+      code[progp++] = "";
+   }
 | CLS {code[progp++] = "MOV #12,R0\nENT ^O16\n";}
 | input
-| POKE iexpr ',' iexpr
+| POKE iexpr ',' iexpr {
+      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
+   }
 | markop END {code[progp++] = "JMP @#finalfinish\n";}
 ;
 assign: markop ivar '=' iexpr {
@@ -75,9 +77,10 @@ pexpr: iexpr {
      code[progp++] = "POP R3\nCALL @#todec\nEMT ^O20\n";
   }
 | sexpr {
-     code[progp++] = "POP R1\nTOSTRING\nCLR R2\nBISB (R1)+,R2\n" + tostr(locals)
-       + "$:TOSTRING\nMOVB (R1)+,R0\nTOSCREEN\nEMT ^O16\nSOB R2," + tostr(locals) + "$\n";
-     locals++;
+     code[progp++] = "POP R1\nTOSTRING\nCLR R2\nBISB (R1)+,R2\nBEQ " + tostr(locals + 1)
+       + "$\n" + tostr(locals) + "$:TOSTRING\nMOVB (R1)+,R0\nTOSCREEN\nEMT ^O16\nSOB R2," 
+       + tostr(locals) + "$\n" + tostr(locals + 1) + "$:TOSCREEN\n";
+     locals += 2;
   }
 //| PBLTIN '(' iexpr ')'
 ;
@@ -222,7 +225,12 @@ svar: SVAR {
      code[progp++] = tostr($1->addr);
      code[progp++] = "\n";
   }
-| SVAR '(' iexpr ')'
+| SVAR '(' iexpr ')' {
+     code[progp++] = "POP R3\nASL R3\nADD #";
+     realloca[progp] = $1;
+     code[progp++] = tostr($1->addr);
+     code[progp++] = ",R3\nPUSH R3\n";
+  }
 ;
 iexpr: NUMBER {
      code[progp++] = "PUSH #" + tostr($1) + "\n";
@@ -233,10 +241,16 @@ iexpr: NUMBER {
 | FRE '(' iexpr ')'
 | FRE '(' sexpr ')'
 | PEEK '(' iexpr ')' {
-     code[progp++] = "POP R4\nMOVB @R4,R4\nBIC #65280,R4\nPUSH R4";
+     code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
   }
-| ASC '(' sexpr ')' 
-| LEN '(' sexpr ')'
+| ASC '(' sexpr ')' {
+     code[progp++] = "POP R4\nTOSTRING\nCLR R3\nBISB (R4)+,R3\nBEQ " + tostr(locals)
+        + "$\nCLR R3\nBISB @R4,R3\n" + tostr(locals) + "$:TOSCREEN\nPUSH R3\n";
+     locals++;
+  }
+| LEN '(' sexpr ')' {
+     code[progp++] = "POP R4\nTOSTRING\nCLR R3\nBISB @R4,R3\nTOSCREEN\nPUSH R3\n";
+  }
 | VAL '(' sexpr ')'
 | iexpr '+' iexpr {
      code[progp++] = "POP R3\nPOP R4\nADD R3,R4\nPUSH R4\n";
@@ -307,7 +321,9 @@ sexpr: STRING {
      code[progp++] = tostr($1->addr);
      code[progp++] = "\n";
   }
-| svar
+| svar {
+     code[progp++] = "POP R3\nMOV @R3,R3\nPUSH R3\n";
+  }
 | MID '(' sexpr ',' iexpr ')'
 | MID '(' sexpr ',' iexpr ',' iexpr ')'
 | STR '(' iexpr ')'
