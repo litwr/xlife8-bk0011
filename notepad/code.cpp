@@ -4,9 +4,10 @@
 #define progstart 512
 
 int progp, ivarp, svarp, strconstp, stringp, locals;
+int lexdimst;
+string lexdimname;
 
 void initcode() {
-   progp = ivarp = svarp = strconstp = locals = stringp = 0;
 }
 
 string tostr(int i) {
@@ -36,7 +37,7 @@ void printcode() {
    }
    for (int i = 0; i < progp; i++)
       cout << code[i];
-   cout << "finalfinish:WAIT\n.include notepad/rbkbasic.inc\n";
+   cout << "finalfinish:WAIT\nHALT\n.include notepad/rbkbasic.inc\n";
    int k = (ivarp + svarp)/2;
    if (k) {
       cout << ".word ";
@@ -59,6 +60,25 @@ void relocate() {
          code[i->first] = tostr(i->second->addr + ivarp) + "+lib_end";
    for (map<int,Symbol*>::iterator i = reallocs.begin(); i != reallocs.end(); i++)
       code[i->first] = tostr(i->second->addr + 16384);
+}
+
+void lexaddsym(string& sbuf, int len) {
+   for (int i = 0; i < sbuf.length(); i++)
+      sbuf[i] = toupper(sbuf[i]);
+   if (names.find(sbuf) == names.end()) {
+      names[sbuf].len = len;
+      if (sbuf[sbuf.length() - 1] == '$') {
+         names[sbuf].type = SVAR;
+         names[sbuf].addr = svarp;
+         svarp += len;
+      }
+      else {
+         names[sbuf].type = IVAR;
+         names[sbuf].addr = ivarp;
+         ivarp += len;
+      }
+      names[sbuf].name = &(string&)names.find(sbuf)->first;
+   }
 }
 
 void breakpoint() {

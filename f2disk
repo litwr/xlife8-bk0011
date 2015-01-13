@@ -15,7 +15,7 @@ touch -t 01010016.00 /mnt/loop/xlife0.com && \
 cp cr.txt /mnt/loop
 awk -bf xlife.man.awk xlife.man.txt >manpage.s && \
 compile manpage.asm && \
-bin2com manpage.bin && \
+bk-bin2com manpage.bin && \
 cp manpage.com /mnt/loop && \
 touch -t 01010016.00 /mnt/loop/manpage.com
 ls -l /mnt/loop/xlife* /mnt/loop/manpage.com

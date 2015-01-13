@@ -9,10 +9,12 @@ struct Symbol {
   int addr, len;
 };
 int yylex(), yyparse(), yyerror(const string &), toint(string);
-void initcode(), printcode(), relocate(), breakpoint();
+void initcode(), printcode(), relocate(), breakpoint(), lexaddsym(string&, int = 2);
 string tostr(int);
 extern int progp, ivarp, svarp, strconstp, stringp, locals, strdatap;
-extern string code[], data[];
+extern string code[], data[], lexdimname;
+extern int lexdimst;
 extern map<int,Symbol*> realloca, reallocs;
+extern map<string,Symbol> names;
 extern map<int,int> reallocl, labels;
 

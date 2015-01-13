@@ -1,18 +1,17 @@
 %{
 #include <cctype>
 #include "rbkbasic.h"
-map<int,Symbol*> realloca, reallocs;
+map<int, Symbol*> realloca, reallocs;
 map<string, Symbol> names, strings;
-map<int,int> reallocl, labels;
+map<int, int> reallocl, labels;
 string code[100000], data[100000];
-int iop;
 %}
 %union {
   Symbol *sym;
   int num;
 }
 %token <sym> SVAR IVAR STR STRING CHR INKEY MID 
-%token <num> NUMBER ASC CLS DIM ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
+%token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %type <sym> var ivar svar
 %type <num> oper operlist assign print for if locate input markop then
@@ -22,7 +21,9 @@ int iop;
 %left '+' '-'
 %left NOT
 %%
-operlist: markop {relocate(); throw 1;}
+prog: operlist {relocate(); throw 1;}
+;
+operlist: markop 
 //| oper '\n' operlist  //immediate mode
 | NUMBER {
     code[progp++] = tostr(locals) + "$:\n";
@@ -30,25 +31,10 @@ operlist: markop {relocate(); throw 1;}
   } oper '\n' operlist
 | NUMBER '\n' operlist
 ;
-ioperlist: markop
-| NUMBER {
-    code[progp++] = tostr(locals) + "$:\n";
-    labels[$1] = locals++;
-  } oper '\n' ioperlist
-| NUMBER '\n' ioperlist
-;
 oper: assign
 | print
 | for
 | if
-| markop DIM var '(' NUMBER ')' {
-    $$ = progp;
-    $3->len = $5*2;
-    if ($3->type = SVAR)
-       svarp += $5*2 - 2;
-    if ($3->type = IVAR)
-       ivarp += $5*2 - 2;
-  }
 | locate
 | markop GOSUB NUMBER {
      code[progp++] = "CALL @#";
@@ -69,16 +55,20 @@ oper: assign
 assign: markop ivar '=' iexpr {
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
   }
-| markop svar '=' sexpr
+| markop svar '=' sexpr {
+     code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
+  }
 | markop MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr
 | markop MID '(' svar ',' iexpr ')' '=' sexpr
 ;
 print: PRINT prlist
 | PRINT '#' prlist
 ;
-prlist: 
-| pexpr ',' prlist
-| pexpr ';' {code[progp++] = "MOV #32,R0\nEMT ^O16\n";} prlist
+prlist: prcomma prlist
+| prcomma
+| prsemicol prlist
+| prsemicol
+| pexpr prlist
 | pexpr {code[progp++] = "MOV #10,R0\nEMT ^O16\n";}
 ;
 pexpr: iexpr {
@@ -90,6 +80,10 @@ pexpr: iexpr {
      locals++;
   }
 //| PBLTIN '(' iexpr ')'
+;
+prsemicol: pexpr ';' {code[progp++] = "MOV #32,R0\nEMT ^O16\n";}
+;
+prcomma: pexpr ','
 ;
 input: INPUT varlist
 | INPUT '#' varlist
@@ -106,7 +100,7 @@ for: markop FOR IVAR '=' iexpr {
   } TO iexpr step '\n' {
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
-  } ioperlist next {
+  } operlist next {
      code[progp++] = "MOVB #7,R3\n";   //BLE
      code[progp++] = "TST @SP\n";
      code[progp++] = "BPL " + tostr(locals) + "$\n";
@@ -216,13 +210,18 @@ ivar: IVAR {
      code[progp++] = "\n";
   }
 | IVAR '(' iexpr ')' {
-     code[progp++] = "POP R3\nADD #";
+     code[progp++] = "POP R3\nASL R3\nADD #";
      realloca[progp] = $1;
      code[progp++] = tostr($1->addr);
-     code[progp++] = "R3\nPUSH R3\n";
+     code[progp++] = ",R3\nPUSH R3\n";
   }
 ;
-svar: SVAR
+svar: SVAR {
+     code[progp++] = "PUSH #";
+     realloca[progp] = $1;
+     code[progp++] = tostr($1->addr);
+     code[progp++] = "\n";
+  }
 | SVAR '(' iexpr ')'
 ;
 iexpr: NUMBER {
@@ -315,7 +314,9 @@ sexpr: STRING {
 | INKEY
 | STRING '(' iexpr ',' iexpr ')'
 | STRING '(' iexpr ',' sexpr ')'
-| CHR '(' iexpr ')'
+| CHR '(' iexpr ')' {
+     code[progp++] = "POP R3\nADD #";
+  }
 | sexpr '+' sexpr
 ;
 %%
@@ -331,13 +332,11 @@ int yyerror(const string &s) {
 
 main () {
    try {
-     initcode();
-     yyparse();
-     printcode();
+      initcode();
+      yyparse();
    }
    catch (string s) {
       cerr << s << endl;
-      printcode();
    }
    catch (int) {
       printcode();

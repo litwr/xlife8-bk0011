@@ -584,11 +584,7 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;y8pos    = t1  = R3 low
 ;         jsr xchgxy
          call @#xchgxy
-
-;         lda crsrbit
-;         jsr calcx
          mov @#x0,r4
-         movb @#crsrbit,r1
          call @#calcx
 
 ;         stx m1+1
@@ -611,7 +607,7 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         bcs cont2
          cmpb r1,r2
          bcs 100$
-         
+
          sub r2,r1
          br 2$
 

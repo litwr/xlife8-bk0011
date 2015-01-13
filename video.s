@@ -364,7 +364,7 @@ showtinfo:  mov #tinfo,r0
             asrb r2
             asrb r2
             beq 2$
-            
+
 ;           ld (tinfo+1),a
             movb r2,1(r0)
 
@@ -378,22 +378,13 @@ showtinfo:  mov #tinfo,r0
             mov #todata,@#pageport
             return
 
-calcx:       ;$80 -> 0, $40 -> 1, ...
-;         ldx #$ff
-;cl2      inx
-;         asl
-;         bcc cl2
-;
-;         txa
-;         rts
-         bic #^B1111111100000000,r1
-         add #65280,r1    ;$ff00, IN: R1, OUT: R1
+calcx:   movb @#crsrbit,r1  ;$80 -> 0, $40 -> 1, ...
+         bis #65280,r1      ;$ff00, IN: R1, OUT: R1
 1$:      add #256,r1
          aslb r1
          bcc 1$
 
          swab r1
-         movb r1,r1
          return
 
 crsrpg:  clrb @#i1
@@ -534,13 +525,6 @@ showscnz:
          movb @#crsrbyte,r2
          sub r2,r1
          movb r1,@#i1+1
-
-;         ld a,(crsrbit)
-;         call calcx
-;         ld a,8
-;         sub b
-;         ld (temp),a
-         movb @#crsrbit,r1
          call @#calcx
          mov #8,r2
          sub r1,r2
@@ -1180,7 +1164,7 @@ showrect: mov #toandos,@#pageport
          .byte 146,',,32,145
          .asciz "KT"
          .byte 0
-       
+
          clr @#xdir
          clrb @#xchgdir
 10$:     call @#drawrect
@@ -1265,7 +1249,6 @@ exit7:   return
 drawrect: call @#xchgxy
          clr @#xcut       ;0 -> xcut,ycut
          movb @#crsrbyte,@#y8byte
-         movb @#crsrbit,r1
          call @#calcx
          bis @#crsrx,r1
          mov r1,r3   ;r1 - rectulx
@@ -1506,7 +1489,6 @@ exitdrawrect: return
 
 clrrect:  ;in: x8poscp, y8poscp
          call @#xchgxy
-         movb @#crsrbit,r1
          call @#calcx
          tstb @#xdir
          beq 3$
@@ -1901,13 +1883,6 @@ setviewport:
         movb @#crsrbyte,r1
         swab r1
         add r1,@r0    ;vptilecy
-
-;         ld a,(crsrbit)
-;         call calcx
-;         add a,(ix)
-;         ld (ix),a
-;         ret
-        movb @#crsrbit,r1
         call @#calcx
         add r1,@r0
         return

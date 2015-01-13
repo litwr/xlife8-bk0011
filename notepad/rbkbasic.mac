@@ -1,0 +1,11 @@
+          .macro TOSTRING
+          mov #tobasic,@#pageport
+          .endm
+
+          .macro TOSCREEN
+          mov #toandos,@#pageport
+          .endm
+
+          .macro TOIO
+          mov #toio,@#pageport
+          .endm
