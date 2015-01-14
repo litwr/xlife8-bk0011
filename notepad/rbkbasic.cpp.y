@@ -331,17 +331,17 @@ sexpr: STRING {
 | STRING '(' iexpr ',' iexpr ')'
 | STRING '(' iexpr ',' sexpr ')'
 | CHR '(' iexpr ')' {
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nPUSH R2\nMOVB #1,(R2)+\nMOVB R3,(R2)+\nMOV R2,@#strdcurre\n";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\nMOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5";
   }
 | sexpr '+' sexpr {
-     code[progp++] = "CALL @#gc\nPOP R3\nPOP R4\nMOV @#strdcurre,R2\nMOV R2,R5\n";
+     code[progp++] = "POP R3\nPOP R4\nMOV @#strdcurre,R2\nMOV R2,R5\n";
      code[progp++] = "CLR R0\nBISB (R4)+,R0\nMOVB R0,(R2)+\nBEQ " + tostr(locals) +"$\n" 
         + tostr(locals + 1) + "$:MOVB (R4)+,(R2)+\nSOB r0," + tostr(locals + 1)
         + "$\n" + tostr(locals)
         + "$:CLR R0\nBISB (R3)+,R0\nMOVB @R5,R4\nADD R0,R4\nMOVB R4,@r5\nTST R0\nBEQ "
         + tostr(locals + 2) +"$\n" 
         + tostr(locals + 3) + "$:MOVB (R3)+,(R2)+\nSOB r0," + tostr(locals + 3)
-        + "$\n" + tostr(locals + 2) + "$:MOV R2,@#strdcurre\nPUSH R5\n";
+        + "$\n" + tostr(locals + 2) + "$:MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
      locals += 4;
   }
 ;

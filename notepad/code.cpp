@@ -1,3 +1,4 @@
+#include <fstream>
 #include "rbkbasic.h"
 #include "y.tab.h"
 #define datastart 16384
@@ -24,14 +25,15 @@ int toint(string s) {
 }
 
 void printcode() {
+   ofstream fo("rbkbasicx.mac");
    int k;
-   cout << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
+   cout << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.include notepad/rbkbasicx.mac\n.asect\n.="
       << progstart << endl;
+   fo << "strsstatic=lib_end+" << ivarp << "\nstrestatic =lib_end+" << ivarp + svarp + 2 << endl;
+   fo.close();
    cout << "MOV #" + tostr(datastart) +",R3\nMOV R3,SP\nTOSTRINGCO\nCLRB (R3)+\n";
-   cout << "MOV #lib_end+" + tostr(ivarp) + ",@#strsstatic\n";
-   cout << "MOV #lib_end+" << tostr(ivarp + svarp) << ",R1\n";
-   cout << "MOV R1,@#strestatic\n";
    if (strconstp) {
+   cout << "MOV #lib_end+" << tostr(ivarp + svarp) << ",R1\n";
       cout << "MOV #" << tostr(strconstp) << ",R2\n";
       cout << "inistr:MOVB (R1)+,(R3)+\nSOB R2,inistr\n";  //R1,R3 are set above
       cout << "MOV R3,@#strdstart\nMOV R3,@#strdcurre\n";

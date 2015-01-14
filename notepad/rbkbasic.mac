@@ -43,8 +43,6 @@ loaded_sz  = ^O266               ;$b6
           .endm
 
 strdmax   = 32512        ;32768-256
-strsstatic = 508
-strestatic = 510
-savesp     = 506     ;for gc only
-stringbuf  = 502
+savesp     = 510     ;for gc only
+stringbuf  = 506
 
