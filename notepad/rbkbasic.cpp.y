@@ -256,7 +256,7 @@ iexpr: NUMBER {
      code[progp++] = "POP R3\nPOP R4\nADD R3,R4\nPUSH R4\n";
   }
 | iexpr '-' iexpr {
-     code[progp++] = "POP R3\nPOP R4\nSUB R4,R3\nPUSH R3\n";
+     code[progp++] = "POP R3\nPOP R4\nSUB R3,R4\nPUSH R4\n";
   }
 | '-' iexpr %prec NOT {
      code[progp++] = "POP R4\nNEG R4\nPUSH R4\n";

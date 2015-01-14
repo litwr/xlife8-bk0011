@@ -1,29 +1,35 @@
 tobin:     .word 10000,1000,100,10,1
-todec:    mov #stringbuf,r2  ;IN: r3 to decimal, no negative numbers support
+todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
+          mov r1,r5
+          movb #'0,r2
           mov #tobin,r4
+          tst r3
+          bpl 1$
+
+          movb #'-,(r1)+
+          inc r5
+          neg r3
 1$:       mov (r4)+,r0
-          movb #'0,@r2
-5$:       incb @r2
+          movb r2,@r1
+          clrb 1(r1)
+5$:       incb @r1
           sub r0,r3
           bcc 5$
 
           add r0,r3
-          decb (r2)+
+          decb @r1
+          cmpb r2,@r1
+          bne 4$
+
+          cmp r5,r1
+          bne 4$
+
+          dec r1         
+4$:       inc r1
           cmp r0,#1
           bne 1$
 
-          clrb @r2
           mov #stringbuf,r1
-3$:       cmpb @r1,#'0
-          bne 2$
-
-          cmp r1,#stringbuf+4
-          beq 2$
-
-          inc r1
-          br 3$
-
-2$:       mov #5,r2
           return   ;high(r2)=0, r2 should be set to >4
 
 gc:       cmp #strdmax,@#strdcurre
