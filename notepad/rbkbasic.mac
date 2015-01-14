@@ -1,11 +1,50 @@
-          .macro TOSTRING
-          mov #tobasic,@#pageport
+kbdstport  = ^O177660            ;kbd state, $ffb0
+kbddtport  = ^O177662            ;kbd data, palette, timer, $ffb2
+yshift     = ^O177664            ;y-scroller, $ffb4
+timerport1 = ^O177706            ;$ffc6
+timerport2 = ^O177710            ;$ffc8
+timerport3 = ^O177712            ;$ffca
+pageport   = ^O177716            ;$ffce
+andos_iobuff = ^O120110          ;$a048
+andos_disk = ^O120154            ;$a06c
+andos_curdsk = ^O120155          ;$a06d
+andos_size = ^O120162            ;$a072
+andos_init = ^O120204            ;$a084
+andos_diren2 = ^O120214          ;$a08c
+andos_rdfat = ^O120230           ;$a098
+io_op      = ^O320               ;$d0
+io_start   = ^O322
+io_len     = ^O324
+io_fn      = ^O326
+loaded_sz  = ^O266               ;$b6
+
+         .macro push arg
+         mov arg,-(sp)
+         .endm
+
+         .macro pop arg
+         mov (sp)+,arg
+         .endm
+
+          .macro TOSTRINGIO
+          mov #^B010100000000000,@#pageport        ;open pages 2 (strings) and 0 (soft 1, io)
+          .endm
+
+          .macro TOSTRINGCO
+          mov #^B010101100000000,@#pageport        ;open pages 2 (strings) and 3 (gc)
           .endm
 
           .macro TOSCREEN
-          mov #toandos,@#pageport
+          mov #^B001110000000000,@#pageport        ;open pages 1 (soft 5, screen) and 4 (AnDOS)
           .endm
 
           .macro TOIO
-          mov #toio,@#pageport
+          mov #^B000110000000000,@#pageport        ;open pages 0 (soft 1, io) and 4 (AnDOS)
           .endm
+
+strdmax   = 32512        ;32768-256
+strsstatic = 508
+strestatic = 510
+savesp     = 506     ;for gc only
+stringbuf  = 502
+

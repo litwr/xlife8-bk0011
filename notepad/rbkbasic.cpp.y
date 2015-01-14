@@ -71,20 +71,20 @@ prlist: prcomma prlist
 | prsemicol prlist
 | prsemicol
 | pexpr prlist
-| pexpr {code[progp++] = "MOV #10,R0\nEMT ^O16\n";}
+| pexpr {code[progp++] = "MOV #10,R0\nTOSCREEN\nEMT ^O16\nTOSTRINGCO\n";}
 ;
 pexpr: iexpr {
-     code[progp++] = "POP R3\nCALL @#todec\nEMT ^O20\n";
+     code[progp++] = "POP R3\nCALL @#todec\nTOSCREEN\nEMT ^O20\nTOSTRINGCO\n";
   }
 | sexpr {
-     code[progp++] = "POP R1\nTOSTRING\nCLR R2\nBISB (R1)+,R2\nBEQ " + tostr(locals + 1)
-       + "$\n" + tostr(locals) + "$:TOSTRING\nMOVB (R1)+,R0\nTOSCREEN\nEMT ^O16\nSOB R2," 
-       + tostr(locals) + "$\n" + tostr(locals + 1) + "$:TOSCREEN\n";
+     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nBEQ " + tostr(locals + 1)
+       + "$\n" + tostr(locals) + "$:MOVB (R1)+,R0\nTOSCREEN\nEMT ^O16\nTOSTRINGCO\nSOB R2," 
+       + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
      locals += 2;
   }
 //| PBLTIN '(' iexpr ')'
 ;
-prsemicol: pexpr ';' {code[progp++] = "MOV #32,R0\nEMT ^O16\n";}
+prsemicol: pexpr ';' {code[progp++] = "MOV #32,R0\nTOSCREEN\nEMT ^O16\nTOSTRINGCO\n";}
 ;
 prcomma: pexpr ','
 ;
@@ -194,11 +194,11 @@ elseoper: oper
    }
 ;
 locate: LOCATE iexpr ',' iexpr ',' iexpr {
-   code[progp++] = "POP R1\nMOVB R1,@#^O56\n";
-   code[progp++] = "POP R2\nPOP R1\nEMT ^O24\n";
+   code[progp++] = "TOSCREEN\nPOP R1\nMOVB R1,@#^O56\n";
+   code[progp++] = "POP R2\nPOP R1\nEMT ^O24\nTOSTRINGCO\n";            //TOSCREEN?
 }
 | LOCATE iexpr ',' iexpr {
-   code[progp++] = "POP R2\nPOP R1\nEMT ^O24\n";
+   code[progp++] = "TOSCREEN\nPOP R2\nPOP R1\nEMT ^O24\nTOSTRINGCO\n";   //TOSCREEN?
 }
 ;
 markop: {$$ = progp;}
@@ -244,12 +244,12 @@ iexpr: NUMBER {
      code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
   }
 | ASC '(' sexpr ')' {
-     code[progp++] = "POP R4\nTOSTRING\nCLR R3\nBISB (R4)+,R3\nBEQ " + tostr(locals)
-        + "$\nCLR R3\nBISB @R4,R3\n" + tostr(locals) + "$:TOSCREEN\nPUSH R3\n";
+     code[progp++] = "POP R4\nCLR R3\nBISB (R4)+,R3\nBEQ " + tostr(locals)
+        + "$\nCLR R3\nBISB @R4,R3\n" + tostr(locals) + "$:PUSH R3\n";
      locals++;
   }
 | LEN '(' sexpr ')' {
-     code[progp++] = "POP R4\nTOSTRING\nCLR R3\nBISB @R4,R3\nTOSCREEN\nPUSH R3\n";
+     code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
   }
 | VAL '(' sexpr ')'
 | iexpr '+' iexpr {
@@ -331,9 +331,19 @@ sexpr: STRING {
 | STRING '(' iexpr ',' iexpr ')'
 | STRING '(' iexpr ',' sexpr ')'
 | CHR '(' iexpr ')' {
-     code[progp++] = "POP R3\nADD #";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nPUSH R2\nMOVB #1,(R2)+\nMOVB R3,(R2)+\nMOV R2,@#strdcurre\n";
   }
-| sexpr '+' sexpr
+| sexpr '+' sexpr {
+     code[progp++] = "CALL @#gc\nPOP R3\nPOP R4\nMOV @#strdcurre,R2\nMOV R2,R5\n";
+     code[progp++] = "CLR R0\nBISB (R4)+,R0\nMOVB R0,(R2)+\nBEQ " + tostr(locals) +"$\n" 
+        + tostr(locals + 1) + "$:MOVB (R4)+,(R2)+\nSOB r0," + tostr(locals + 1)
+        + "$\n" + tostr(locals)
+        + "$:CLR R0\nBISB (R3)+,R0\nMOVB @R5,R4\nADD R0,R4\nMOVB R4,@r5\nTST R0\nBEQ "
+        + tostr(locals + 2) +"$\n" 
+        + tostr(locals + 3) + "$:MOVB (R3)+,(R2)+\nSOB r0," + tostr(locals + 3)
+        + "$\n" + tostr(locals + 2) + "$:MOV R2,@#strdcurre\nPUSH R5\n";
+     locals += 4;
+  }
 ;
 %%
 int lineno = 1;
