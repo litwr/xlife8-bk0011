@@ -6,7 +6,7 @@ using namespace std;
 struct Symbol {
   string *name;
   short type; //IVAR, SVAR, STRING
-  int addr, len;
+  int addr, len, used;
 };
 int yylex(), yyparse(), yyerror(const string &), toint(string);
 void initcode(), printcode(), relocate(), breakpoint(), lexaddsym(string&, int = 2);

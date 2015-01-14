@@ -30,7 +30,7 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           bne 1$
 
           mov #stringbuf,r1
-          return   ;high(r2)=0, r2 should be set to >4
+          return
 
 gc:       cmp #strdmax,@#strdcurre
           bcc exitgc

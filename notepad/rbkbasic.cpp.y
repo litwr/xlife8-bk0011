@@ -17,7 +17,7 @@ string code[100000], data[100000];
 %type <num> oper operlist assign print for if locate input markop then
 %left OR
 %left AND
-%left GT GE LT LE EQ NE  //> >= < <= == !=
+%left GT GE LT LE '=' NE  //> >= < <= = !=
 %left '+' '-'
 %left NOT
 %%
@@ -282,7 +282,7 @@ iexpr: NUMBER {
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
   }
-| iexpr EQ iexpr {
+| iexpr '=' iexpr {
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R3,R4\nBNE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
@@ -298,23 +298,80 @@ iexpr: NUMBER {
 | iexpr OR iexpr {
      code[progp++] = "POP R3\nPOP R4\nBIS R3,R4\nPUSH R4\n";
   }
-| sexpr GT sexpr {}
-| sexpr GE sexpr {}
-| sexpr LT sexpr {}
-| sexpr LE sexpr {}
-| sexpr EQ sexpr {}
-| sexpr NE sexpr {}
+| sexpr GT sexpr {
+     code[progp++] = "POP R3\nPOP R4\nCLR R5\nMOVB (R3)+,R2\nMOVB (R4)+,R1\n";
+     code[progp++] = tostr(locals + 1) + "$:";
+     code[progp++] = "DECB R1\n";
+     code[progp++] = "BMI " + tostr(locals) + "$\n";
+     code[progp++] = "DECB R2\n";
+     code[progp++] = "BMI " + tostr(locals + 2) + "$\n";
+     code[progp++] = "CMPB (R4)+,(R3)+\n";
+     code[progp++] = "BCS " + tostr(locals) + "$\n";
+     code[progp++] = "BEQ " + tostr(locals + 1) + "$\n";
+     code[progp++] =  tostr(locals + 2) + "$:COM R5\n" + tostr(locals) + "$:PUSH R5\n";
+     locals += 3;
+  }
+| sexpr GE sexpr {
+     code[progp++] = "POP R3\nPOP R4\nCLR R5\nMOVB (R3)+,R2\nMOVB (R4)+,R1\n";
+     code[progp++] = tostr(locals + 1) + "$:";
+     code[progp++] = "DECB R2\n";
+     code[progp++] = "BMI " + tostr(locals + 2) + "$\n";
+     code[progp++] = "DECB R1\n";
+     code[progp++] = "BMI " + tostr(locals) + "$\n";
+     code[progp++] = "CMPB (R4)+,(R3)+\n";
+     code[progp++] = "BCS " + tostr(locals) + "$\n";
+     code[progp++] = "BEQ " + tostr(locals + 1) + "$\n";
+     code[progp++] =  tostr(locals + 2) + "$:COM R5\n" + tostr(locals) + "$:PUSH R5\n";
+     locals += 3;
+  }
+| sexpr LT sexpr {
+     code[progp++] = "POP R3\nPOP R4\nCLR R5\nMOVB (R3)+,R2\nMOVB (R4)+,R1\n";
+     code[progp++] = tostr(locals + 1) + "$:";
+     code[progp++] = "DECB R2\n";
+     code[progp++] = "BMI " + tostr(locals) + "$\n";
+     code[progp++] = "DECB R1\n";
+     code[progp++] = "BMI " + tostr(locals + 2) + "$\n";
+     code[progp++] = "CMPB (R3)+,(R4)+\n";
+     code[progp++] = "BCS " + tostr(locals) + "$\n";
+     code[progp++] = "BEQ " + tostr(locals + 1) + "$\n";
+     code[progp++] =  tostr(locals + 2) + "$:COM R5\n" + tostr(locals) + "$:PUSH R5\n";
+     locals += 3;
+  }
+| sexpr LE sexpr {
+     code[progp++] = "POP R3\nPOP R4\nCLR R5\nMOVB (R3)+,R2\nMOVB (R4)+,R1\n";
+     code[progp++] = tostr(locals + 1) + "$:";
+     code[progp++] = "DECB R1\n";
+     code[progp++] = "BMI " + tostr(locals + 2) + "$\n";
+     code[progp++] = "DECB R2\n";
+     code[progp++] = "BMI " + tostr(locals) + "$\n";
+     code[progp++] = "CMPB (R3)+,(R4)+\n";
+     code[progp++] = "BCS " + tostr(locals) + "$\n";
+     code[progp++] = "BEQ " + tostr(locals + 1) + "$\n";
+     code[progp++] =  tostr(locals + 2) + "$:COM R5\n" + tostr(locals) + "$:PUSH R5\n";
+     locals += 3;
+  }
+| sexpr '=' sexpr {
+     code[progp++] = "POP R3\nPOP R4\nCLR R5\nMOVB (R3)+,R2\nCMPB R2,(R4)+\nBNE " + tostr(locals) 
+       + "$\nTST R2\nBEQ " + tostr(locals + 2) + "$\n"
+       + tostr(locals + 1) + "$:CMPB (R3)+,(R4)+\nBNE " + tostr(locals)
+       + "$\nSOB R2," + tostr(locals + 1) + "$\n" + tostr(locals + 2)
+       + "$:COM R5\n" + tostr(locals) + "$:PUSH R5\n";
+     locals += 3;
+  }
+| sexpr NE sexpr {
+     code[progp++] = "POP R3\nPOP R4\nMOV #65535,R5\nMOVB (R3)+,R2\nCMPB R2,(R4)+\nBNE " + tostr(locals) 
+       + "$\nTST R2\nBEQ " + tostr(locals + 2) + "$\n"
+       + tostr(locals + 1) + "$:CMPB (R3)+,(R4)+\nBNE " + tostr(locals)
+       + "$\nSOB R2," + tostr(locals + 1) + "$\n" + tostr(locals + 2)
+       + "$:COM R5\n" + tostr(locals) + "$:PUSH R5\n";
+     locals += 3;
+  }
 ;
 sexpr: STRING {
-     data[stringp++] = ".byte " + tostr($1->name->length());
-     if ($1->name->find("\"") == string::npos)
-         data[stringp++] = "\n.ascii \"" + *$1->name + "\"\n";
-     else {
-         int i;
-         stringp--;
-         for (i = 0; i < $1->name->length() - 1; i++)
-            data[stringp] += "," + tostr((int)(*$1->name)[i]);
-         data[stringp++] += "," + tostr((int)(*$1->name)[i]) + "\n";
+     if ($1->used == 0) {
+        $1->used++;
+        data[stringp++] = ".byte " + tostr($1->name->length());
+        data[stringp++] = "\n.ascii \"" + *$1->name + "\"\n";
      }
      code[progp++] = "PUSH #";
      reallocs[progp] = $1;
@@ -326,21 +383,38 @@ sexpr: STRING {
   }
 | MID '(' sexpr ',' iexpr ')'
 | MID '(' sexpr ',' iexpr ',' iexpr ')'
-| STR '(' iexpr ')'
+| STR '(' iexpr ')' {
+     code[progp++] = "POP R3\nCALL @#TODEC\nMOV @#strdcurre,R3\nMOV R3,R5\nINC R3\nCMPB #'-,@R1\nBEQ "
+         + tostr(locals) + "$\nMOVB #32,-(R1)\n" + tostr(locals)
+         + "$:MOVB (R1)+,R0\nBEQ " + tostr(locals + 1) + "$\nMOVB R0,(R3)+\nBR " + tostr(locals) 
+         + "$\n" + tostr(locals + 1)
+         + "$:MOV R3,@#strdcurre\nSUB R5,R3\nMOVB R3,@R5\nCALL @#gc\nPUSH R5\n";
+     locals += 2;
+   }
 | INKEY
-| STRING '(' iexpr ',' iexpr ')'
-| STRING '(' iexpr ',' sexpr ')'
+| STRING '(' iexpr ',' iexpr ')' {
+     code[progp++] = "POP R3\nPOP R4\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB R4,(R2)+\nBEQ "
+       + tostr(locals) + "$\n" + tostr(locals + 1) + "$:MOVB R3,(R2)+\nSOB R4,"
+       + tostr(locals + 1) + "$\n" + tostr(locals) + "$:MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     locals += 2;
+   }
+| STRING '(' iexpr ',' sexpr ')' {
+     code[progp++] = "POP R3\nMOVB 1(R3),R3\nPOP R4\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB R4,(R2)+\nBEQ "
+       + tostr(locals) + "$\n" + tostr(locals + 1) + "$:MOVB R3,(R2)+\nSOB R4,"
+       + tostr(locals + 1) + "$\n" + tostr(locals) + "$:MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     locals += 2;
+   }
 | CHR '(' iexpr ')' {
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\nMOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\nMOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
   }
 | sexpr '+' sexpr {
      code[progp++] = "POP R3\nPOP R4\nMOV @#strdcurre,R2\nMOV R2,R5\n";
      code[progp++] = "CLR R0\nBISB (R4)+,R0\nMOVB R0,(R2)+\nBEQ " + tostr(locals) +"$\n" 
-        + tostr(locals + 1) + "$:MOVB (R4)+,(R2)+\nSOB r0," + tostr(locals + 1)
+        + tostr(locals + 1) + "$:MOVB (R4)+,(R2)+\nSOB R0," + tostr(locals + 1)
         + "$\n" + tostr(locals)
         + "$:CLR R0\nBISB (R3)+,R0\nMOVB @R5,R4\nADD R0,R4\nMOVB R4,@r5\nTST R0\nBEQ "
         + tostr(locals + 2) +"$\n" 
-        + tostr(locals + 3) + "$:MOVB (R3)+,(R2)+\nSOB r0," + tostr(locals + 3)
+        + tostr(locals + 3) + "$:MOVB (R3)+,(R2)+\nSOB R0," + tostr(locals + 3)
         + "$\n" + tostr(locals + 2) + "$:MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
      locals += 4;
   }

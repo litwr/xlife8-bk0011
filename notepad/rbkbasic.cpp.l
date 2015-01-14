@@ -8,9 +8,10 @@ space      [ \t]+
 (?i:REM).*$ 
 (?i:THEN)  yylval.num = progp; return THEN;
 [0-9]+[ ]*(?i:NEXT)  return NEXT;
->= 	   return GE;
+>=	   return GE;
+=>	   return GE;
 \<= 	   return LE;
-== 	   return EQ;
+=\< 	   return LE;
 \<> 	   return NE;
 >\< 	   return NE;
 > 	   return GT;
@@ -43,6 +44,14 @@ space      [ \t]+
 (?i:LEN)   return LEN;
 (?i:VAL)   return VAL; /*READ,DATA,CSRLIN*/
 (?i:DIM)   lexdimst = 1;
+{number}   {
+              istringstream iss(yytext);
+              iss >> yylval.num;
+              if (lexdimst == 2)
+                 lexaddsym(lexdimname, yylval.num*2);
+              else
+                 return NUMBER;
+           }
 {symbol}   {
               string sbuf(yytext);
               if (lexdimst == 1) {
@@ -58,15 +67,6 @@ space      [ \t]+
 \(         {
               if (lexdimst == 0) return '(';
            }
-{number}   {
-              istringstream iss(yytext);
-breakpoint();
-              iss >> yylval.num;
-              if (lexdimst == 2)
-                 lexaddsym(lexdimname, yylval.num*2);
-              else
-                 return NUMBER;
-           }
 \)         {
               if (lexdimst)
                  lexdimst = 0;
@@ -75,13 +75,13 @@ breakpoint();
            }
 {string}   {
               string istr(yytext + 1);
-              unsigned long p;
-              while ((p = istr.find("\"")) != string::npos)
-                 istr.erase(p, 1);
+              istr.erase(istr.length() - 1);
+breakpoint();
               if (strings.find(istr) == strings.end()) {
                  strings[istr].addr = strconstp;
                  strconstp += (strings[istr].len = istr.length()) + 1;
                  strings[istr].name = &(string&)strings.find(istr)->first;
+                 strings[istr].used = 0;
               }
               yylval.sym = &strings[istr];
               return yylval.sym->type = STRING;
