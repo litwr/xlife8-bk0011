@@ -58,10 +58,14 @@ assign: markop ivar '=' iexpr {
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
   }
 | markop svar '=' sexpr {
-     code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
+     code[progp++] = "POP R3\nPOP R4\nCALL @#s_ASSIGN_s\n";
   }
-| markop MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr
-| markop MID '(' svar ',' iexpr ')' '=' sexpr
+| markop MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr {
+     code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nCALL @#midS_s_i_i_s\n";
+  }
+| markop MID '(' svar ',' iexpr ')' '=' sexpr {
+     code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
+  }
 ;
 print: PRINT prlist
 | PRINT '#' prlist

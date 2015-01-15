@@ -32,6 +32,22 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           mov #stringbuf,r1
           return
 
+s_ASSIGN_s:
+     MOV @#strdcurre,R2
+     MOV R2,@R4
+     CLR R0
+     BISB (R3)+,R0
+     MOVB R0,(R2)+
+     TST R0
+     BEQ 1$
+
+2$:  MOVB (R3)+,(R2)+
+     SOB R0,2$
+
+     MOV R2,@#strdcurre
+1$:  CLR R5
+     BR gc
+
 s_PLUS_s:
      MOV @#strdcurre,R2
      MOV R2,R5
@@ -49,26 +65,26 @@ s_PLUS_s:
      ADD R0,R4
      MOVB R4,@r5
      TST R0
-     BEQ string$_i_i0
+     BEQ stringS_i_i0
 
 3$:  MOVB (R3)+,(R2)+
      SOB R0,3$
-     BR string$_i_i0
+     BR stringS_i_i0
 
 stringS_i_s:
      MOVB 1(R3),R3
 
-string$_i_i:
+stringS_i_i:
      MOV @#strdcurre,R2
      MOV R2,R5
      MOVB R4,(R2)+
-     BEQ string$_i_i0
+     BEQ stringS_i_i0
 
-string$_i_i1:
+stringS_i_i1:
      MOVB R3,(R2)+
-     SOB R4,string$_i_i1
+     SOB R4,stringS_i_i1
 
-string$_i_i0:
+stringS_i_i0:
      MOV R2,@#strdcurre
      BR gc
 
@@ -291,6 +307,37 @@ s_EQ_s0:
      BNE s_GE_s1
      SOB R2,1$
      BR s_GE_s0
+
+midS_s_i_s:
+     MOV #256,R2
+
+midS_s_i_i_s:
+     TST R3
+     BLE 1$
+
+     MOV @R4,R4
+     CLR R0
+     BISB @R4,R0
+     CMP R0,R3
+     BCS 1$
+
+     ADD R3,R4
+     SUB R3,R0
+     CLR R3
+     BISB (R1)+,R3
+     BEQ 1$
+
+2$:  MOVB (R1)+,(R4)+
+     DEC R0
+     BMI 1$
+
+     DEC R2
+     BEQ 1$
+
+     DEC R3
+     BNE 2$
+
+1$:  RETURN
 
 strdstart: .word 16385
 strdcurre: .word 16385
