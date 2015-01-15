@@ -342,6 +342,23 @@ midS_s_i_i_s:
 
 1$:  RETURN
 
+charout: TOSCREEN
+     EMT ^O16
+     TOSTRINGCO
+     RETURN
+
+stringout:
+     TOSCREEN
+     EMT ^O20
+     TOSTRINGCO
+     RETURN
+
+setcrsr:
+     TOSCREEN
+     EMT ^O24
+     TOSTRINGCO
+     RETUERN
+
 strdstart: .word 16385
 strdcurre: .word 16385
 lib_end:
