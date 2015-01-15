@@ -382,13 +382,24 @@ sexpr: STRING {
      code[progp++] = "POP R3\nMOV @R3,R3\nPUSH R3\n";
   }
 | MID '(' sexpr ',' iexpr ')'
-| MID '(' sexpr ',' iexpr ',' iexpr ')'
+| MID '(' sexpr ',' iexpr ',' iexpr ')' {
+     code[progp++] = "POP R3\nPOP R4\nPOP R2\nMOV @#strdcurre,R1\nMOV R1,R5\nCLR R0\nBISB @R2,R0\nSUB R4,R0\n";
+     code[progp++] = "BPL " + tostr(locals) + "$\n";
+     code[progp++] = tostr(locals + 2) + "$:CLRB (R1)+\nBR " + tostr(locals + 1) + "$\n";
+     code[progp++] = tostr(locals) + "$:TST R3\nBLE " + tostr(locals + 2) + "$\nINC R1\nADD R4,R2\n";
+     code[progp++] = tostr(locals + 3) + "$:DEC R0\nBMI " + tostr(locals + 4) 
+         + "$\nDEC R3\nBMI " + tostr(locals + 4) 
+         + "$\nMOVB (R2)+,(R1)+\nBR " + tostr(locals + 3) + "$\n";
+     code[progp++] = tostr(locals + 4) + "$:MOV R1,R3\nSUB R5,R3\nMOVB R3,@R5\n";
+     code[progp++] = tostr(locals + 1) + "$:MOV R1,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     locals += 5;
+   }
 | STR '(' iexpr ')' {
      code[progp++] = "POP R3\nCALL @#TODEC\nMOV @#strdcurre,R3\nMOV R3,R5\nINC R3\nCMPB #'-,@R1\nBEQ "
          + tostr(locals) + "$\nMOVB #32,-(R1)\n" + tostr(locals)
          + "$:MOVB (R1)+,R0\nBEQ " + tostr(locals + 1) + "$\nMOVB R0,(R3)+\nBR " + tostr(locals) 
          + "$\n" + tostr(locals + 1)
-         + "$:MOV R3,@#strdcurre\nSUB R5,R3\nMOVB R3,@R5\nCALL @#gc\nPUSH R5\n";
+         + "$:MOV R3,@#strdcurre\nSUB R5,R3\nDEC R3\nMOVB R3,@R5\nCALL @#gc\nPUSH R5\n";
      locals += 2;
    }
 | INKEY

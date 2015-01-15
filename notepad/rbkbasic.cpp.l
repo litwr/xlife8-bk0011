@@ -32,6 +32,7 @@ space      [ \t]+
 (?i:IF)    return IF;
 (?i:ELSE)  return ELSE;
 (?i:PRINT) return PRINT;
+\? return PRINT;
 (?i:LOCATE) return LOCATE;
 (?i:POKE)  return POKE;
 (?i:CHR)\$ return CHR;
