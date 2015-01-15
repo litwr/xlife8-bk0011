@@ -4,7 +4,7 @@
 #define datastart 16384
 #define progstart 512
 
-int progp, ivarp, svarp, strconstp, stringp, locals;
+int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 1;
 int lexdimst;
 string lexdimname;
 
@@ -93,6 +93,11 @@ void lexaddsym(string& sbuf, int len) {
       }
       names[sbuf].name = &(string&)names.find(sbuf)->first;
    }
+}
+
+void asmcomm(const string &s) {
+   if (comm_on)
+      code[progp++] = ";" + s + "\n";
 }
 
 void breakpoint() {
