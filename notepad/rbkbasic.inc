@@ -32,21 +32,14 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           mov #stringbuf,r1
           return
 
-s_ASSIGN_s:
+svar2expr:
      MOV @#strdcurre,R2
-     MOV R2,@R4
+     MOV R2,R5
      CLR R0
+     MOV @R3,R3
      BISB (R3)+,R0
      MOVB R0,(R2)+
-     TST R0
-     BEQ 1$
-
-2$:  MOVB (R3)+,(R2)+
-     SOB R0,2$
-
-     MOV R2,@#strdcurre
-1$:  CLR R5
-     BR gc
+     BR s_PLUS_s0
 
 s_PLUS_s:
      MOV @#strdcurre,R2
@@ -63,12 +56,13 @@ s_PLUS_s:
      BISB (R3)+,R0
      MOVB @R5,R4
      ADD R0,R4
-     MOVB R4,@r5
+     MOVB R4,@R5
      TST R0
+s_PLUS_s0:
      BEQ stringS_i_i0
 
-3$:  MOVB (R3)+,(R2)+
-     SOB R0,3$
+2$:  MOVB (R3)+,(R2)+
+     SOB R0,2$
      BR stringS_i_i0
 
 stringS_i_s:
@@ -119,65 +113,55 @@ gc:       cmp #strdmax,@#strdcurre
           beq 1$
           
           mov r1,r3
-          cmp (r1)+,@#strdstart   ;+1?
+          cmp (r1)+,@#strdstart
           bcs 4$
 
+          TOGC
           mov r3,(r0)+
           clr (r0)+
           clr (r0)+
+          TOMAIN
           cmp #strestatic,r1
           beq 1$
 
-          cmp @r1,@#strdstart   ;+1?
+          cmp @r1,@#strdstart
           bcs 4$
 
           mov #32768,r2     ;pointer to the root
 5$:       mov r2,r3
-          cmp @r1,@0(r2)
+          TOGC
+          mov @r2,r4
+          TOMAIN
+          cmp @r1,@r4
           bcc 2$
 
           add #2,r3      ;@r1 < @@r2, left
-6$:       mov @r3,r2
+6$:       TOGC
+          mov @r3,r2
           bne 5$
 
           mov r0,@r3
+          TOMAIN
           br 4$
 
 2$:       add #4,r3      ;@r1 > @@r2, right
           br 6$
 
 1$:       mov sp,@#savesp
+          mtps #128
           mov #49152,sp
           mov @#strdstart,r1
+          TOGC
           push #7$
           push #32768
           br treesurvey
 
-7$:       mov r1,@#strdcurre
+7$:       TOMAIN
           mov @#savesp,sp
+          mtps #0
+          mov r1,@#strdcurre
           mov @#strestatic-2,r5
 exitgc:   return
-
-treesurvey: pop r2
-          beq exitgc
-
-          push r2
-          push #1$
-          push 2(r2)
-          br treesurvey
-
-1$:       pop r2
-          mov @r2,r4
-          mov @r4,r0
-          mov r1,@r4
-          clr r3
-          bisb @r0,r3
-          inc r3
-2$:       movb (r0)+,(r1)+
-          sob r3,2$
-
-          push 4(r2)
-          br treesurvey
 
 midS_s_i:
      MOV @#strdcurre,R1
@@ -190,7 +174,7 @@ midS_s_i:
      BR midS_s_i0
 
 1$:  INC R1
-     ADD R4,R2\n";
+     ADD R4,R2
 3$:  MOVB (R2)+,(R1)+
      DEC R0
      BPL 3$
@@ -203,6 +187,29 @@ midS_s_i1:
 midS_s_i0:
      MOV R1,@#strdcurre
      BR gc
+
+treesurvey: pop r2
+          beq exitgc
+
+          push r2
+          push #1$
+          push 2(r2)
+          br treesurvey
+
+1$:       pop r2
+          mov @r2,r4
+          TOMAIN
+          mov @r4,r0
+          mov r1,@r4
+          clr r3
+          bisb @r0,r3
+          inc r3
+2$:       movb (r0)+,(r1)+
+          sob r3,2$
+
+          TOGC
+          push 4(r2)
+          br treesurvey
 
 midS_s_i_i:
      MOV @#strdcurre,R1
@@ -344,22 +351,22 @@ midS_s_i_i_s:
 
 charout: TOSCREEN
      EMT ^O16
-     TOSTRINGCO
+     TOMAIN
      RETURN
 
 stringout:
      TOSCREEN
      EMT ^O20
-     TOSTRINGCO
+     TOMAIN
      RETURN
 
 setcrsr:
      TOSCREEN
      EMT ^O24
-     TOSTRINGCO
-     RETUERN
+     TOMAIN
+     RETURN
 
-strdstart: .word 16385
-strdcurre: .word 16385
+strdstart: .word strsdyn
+strdcurre: .word strsdyn
 lib_end:
 

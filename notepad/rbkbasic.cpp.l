@@ -36,7 +36,7 @@ space      [ \t]+
 (?i:LOCATE) return LOCATE;
 (?i:POKE)  return POKE;
 (?i:CHR)\$ return CHR;
-(?i:FRE)   return FRE;
+(?i:FRE)(\(.*\))?   return FRE;
 (?i:PEEK)  return PEEK;
 (?i:POS)   return POS;
 (?i:ASC)   return ASC;
