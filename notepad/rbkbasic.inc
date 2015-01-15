@@ -128,19 +128,22 @@ gc:       cmp #strdmax,@#strdcurre
           cmp #strestatic,r1
           beq 1$
 
+          cmp @r1,@#strdstart   ;+1?
+          bcs 4$
+
           mov #32768,r2     ;pointer to the root
 5$:       mov r2,r3
           cmp @r1,@0(r2)
           bcc 2$
 
-          add #2,r3      ;@r1 < @r2, left
+          add #2,r3      ;@r1 < @@r2, left
 6$:       mov @r3,r2
           bne 5$
 
           mov r0,@r3
           br 4$
 
-2$:       add #4,r3      ;@r1 > @r2, right
+2$:       add #4,r3      ;@r1 > @@r2, right
           br 6$
 
 1$:       mov sp,@#savesp

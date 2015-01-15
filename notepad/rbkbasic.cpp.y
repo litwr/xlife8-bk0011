@@ -47,7 +47,7 @@ oper: assign
       reallocl[progp] = $3;
       code[progp++] = "";
    }
-| CLS {code[progp++] = "MOV #12,R0\nENT ^O16\n";}
+| CLS {code[progp++] = "MOV #12,R0\nTOSCREEN\nEMT ^O16\nTOSTRINGCO\n";}
 | input
 | POKE iexpr ',' iexpr {
       code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
