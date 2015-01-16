@@ -4,16 +4,18 @@
 map<int, Symbol*> realloca, reallocs;
 map<string, Symbol> names, strings;
 map<int, int> reallocl, labels;
+int argcount;
 string code[100000], data[100000];
 %}
 %union {
   Symbol *sym;
   int num;
 }
-%token <sym> SVAR IVAR STR STRING CHR INKEY MID 
+%token <sym> SVAR IVAR STR STRING CHR INKEY MID
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
-%type <sym> var ivar svar
+%token <num> CLOSE OUTPUT BEOF OPEN FIND
+%type <sym> ivar svar
 %type <num> markop then
 %left OR
 %left AND
@@ -36,12 +38,21 @@ oper: assign
 | for
 | if
 | locate
+| open
+| CLOSE {
+     asmcomm("CLOSE");
+     code[progp++] = "CMPB #2,@#io_op\n";
+     code[progp++] = "BNE " + tostr(locals) + "$\n";
+     code[progp++] = "MOV @#filepos,@#io_len\n";
+     code[progp++] = "CALL @#emt36\n";
+     code[progp++] = tostr(locals++) + "$:CLR @#filepos\n";
+}
 | GOSUB NUMBER {
      asmcomm("GOSUB NUMBER");
      code[progp++] = "CALL @#";
      reallocl[progp] = $2;
      code[progp++] = "";
-   }
+}
 | RETURN {asmcomm("RETURN"); code[progp++] = "RETURN\n";}
 | GOTO NUMBER {
       asmcomm("GOTU NUMBER");
@@ -50,7 +61,7 @@ oper: assign
       code[progp++] = "";
    }
 | CLS {asmcomm("CLS"); code[progp++] = "MOV #12,R0\nCALL @#charout\n";}
-| input
+| input {argcount = 0;}
 | POKE iexpr ',' iexpr {
       asmcomm("POKE i,i");
       code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
@@ -90,13 +101,13 @@ prlist: prcomma prlist
 ;
 pexpr: iexpr {
      code[progp++] = "POP R3\nCALL @#todec\nCALL @#stringout\n";
-  }
+}
 | sexpr {
      code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nBEQ " + tostr(locals + 1)
        + "$\n" + tostr(locals) + "$:MOVB (R1)+,R0\nCALL @#charout\nSOB R2," 
        + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
      locals += 2;
-  }
+}
 //| PBLTIN '(' iexpr ')'
 ;
 prsemicol: pexpr ';' {code[progp++] = "MOV #32,R0\nCALL @#charout\n";}
@@ -104,11 +115,17 @@ prsemicol: pexpr ';' {code[progp++] = "MOV #32,R0\nCALL @#charout\n";}
 prcomma: pexpr ','
 ;
 input: INPUT varlist
-| INPUT '#' varlist
+| INPUT '#' varlist {
+     asmcomm("INPUT#");
+     code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinputf\n";
+     code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+}
 | INPUT STRING ';' varlist
 ;
-varlist: var
-| var ',' varlist
+varlist: svar {argcount++; code[progp++] = "PUSH #strfromfile\n";}
+| svar {argcount++; code[progp++] = "PUSH #strfromfile\n";} ',' varlist
+| ivar
+| ivar ',' varlist
 ;
 for: markop FOR IVAR '=' iexpr {
      asmcomm("FOR");
@@ -210,7 +227,7 @@ thenoper: oper
      code[progp++] = "JMP @#";
      reallocl[progp] = $1;
      code[progp++] = "";
-   }
+}
 ;
 elseoper: oper
 | NUMBER {
@@ -218,7 +235,7 @@ elseoper: oper
      code[progp++] = "JMP @#";
      reallocl[progp] = $1;
      code[progp++] = "";
-   }
+}
 ;
 locate: LOCATE iexpr ',' iexpr ',' iexpr {
    asmcomm("LOCATE i,i,i");
@@ -230,10 +247,20 @@ locate: LOCATE iexpr ',' iexpr ',' iexpr {
    code[progp++] = "POP R2\nPOP R1\nCALL @#setcrsr\n";
 }
 ;
-markop: {$$ = progp;}
+open: OPEN sexpr {
+   asmcomm("OPEN s");
+   code[progp++] = "POP R3\nCALL @#openread\nCALL @#emt36\nADD #16384,@#loaded_sz\n";
+}
+| OPEN sexpr FOR INPUT {
+   asmcomm("OPEN s FOR INPUT");
+   code[progp++] = "POP R3\nCALL @#openread\nCALL @#emt36\nADD #16384,@#loaded_sz\n";
+}
+| OPEN sexpr FOR OUTPUT {
+   asmcomm("OPEN s FOR OUTPUT");
+   code[progp++] = "POP R3\nCALL @#openwrite\n";
+}
 ;
-var: ivar
-| svar
+markop: {$$ = progp;}
 ;
 ivar: IVAR {
      asmcomm("IVAR");
@@ -241,14 +268,14 @@ ivar: IVAR {
      realloca[progp] = $1;
      code[progp++] = tostr($1->addr);
      code[progp++] = "\n";
-  }
+}
 | IVAR '(' iexpr ')' {
      asmcomm("IVAR(i)");
      code[progp++] = "POP R3\nASL R3\nADD #";
      realloca[progp] = $1;
      code[progp++] = tostr($1->addr);
      code[progp++] = ",R3\nPUSH R3\n";
-  }
+}
 ;
 svar: SVAR {
      asmcomm("SVAR");
@@ -256,67 +283,75 @@ svar: SVAR {
      realloca[progp] = $1;
      code[progp++] = tostr($1->addr);
      code[progp++] = "\n";
-  }
+}
 | SVAR '(' iexpr ')' {
      asmcomm("SVAR(i)");
      code[progp++] = "POP R3\nASL R3\nADD #";
      realloca[progp] = $1;
      code[progp++] = tostr($1->addr);
      code[progp++] = ",R3\nPUSH R3\n";
-  }
+}
 ;
 iexpr: NUMBER {
      asmcomm("NUMBER");
      code[progp++] = "PUSH #" + tostr($1) + "\n";
-  }
+}
 | ivar {
      asmcomm("ivar");
      code[progp++] = "POP R4\nMOV @R4,R4\nPUSH R4\n";
-  }
+}
 | FRE {
      asmcomm("FRE");
      code[progp++] = "MOV #strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
-  }
+}
 | PEEK '(' iexpr ')' {
      asmcomm("PEEK(i)");
      code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
-  }
+}
 | ASC '(' sexpr ')' {
      asmcomm("ASC(s)");
      code[progp++] = "POP R4\nCLR R3\nBISB (R4)+,R3\nBEQ " + tostr(locals)
         + "$\nCLR R3\nBISB @R4,R3\n" + tostr(locals) + "$:PUSH R3\n";
      locals++;
-  }
+}
 | LEN '(' sexpr ')' {
      asmcomm("LEN(s)");
      code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
-  }
+}
 | VAL '(' sexpr ')'
+| BEOF {
+     asmcomm("EOF");
+     code[progp++] = "CLR R0\n";
+     code[progp++] = "CMP @#filepos,@#loaded_sz\n";
+     code[progp++] = "BCS " + tostr(locals) + "$\n";
+     code[progp++] = "DEC R0\n";
+     code[progp++] = tostr(locals++) + "$:PUSH R0\n";
+}
 | iexpr '+' iexpr {
      asmcomm("i + i");
      code[progp++] = "POP R3\nPOP R4\nADD R3,R4\nPUSH R4\n";
-  }
+}
 | iexpr '-' iexpr {
      asmcomm("i - i");
      code[progp++] = "POP R3\nPOP R4\nSUB R3,R4\nPUSH R4\n";
-  }
+}
 | '-' iexpr %prec NOT {
      asmcomm("-i");
      code[progp++] = "POP R4\nNEG R4\nPUSH R4\n";
-  }
+}
 | '(' iexpr ')'
 | iexpr GT iexpr {
      asmcomm("i > i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
-  }
+}
 | iexpr GE iexpr {
      asmcomm("i >= i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBLT " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
-  }
+}
 | iexpr LT iexpr {
      asmcomm("i < i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGE " + tostr(locals)
@@ -413,7 +448,8 @@ sexpr: STRING {
    }
 | CHR '(' iexpr ')' {
      asmcomm("chr$(i)");
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\nMOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\n";
+     code[progp++] = "MOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
   }
 | sexpr '+' sexpr {
      asmcomm("s+s");

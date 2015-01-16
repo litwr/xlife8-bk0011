@@ -32,6 +32,49 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           mov #stringbuf,r1
           return
 
+intfromkbd:
+strfromkbd:
+intfromfile:
+strfromfile:
+     MOV @#strdcurre,R2
+     MOV R2,@R5
+     INC R2
+     MOV @#filepos,R4
+     CLR R3
+2$:  CMP R3,#255
+     BEQ 1$
+
+     CMP R4,@#loaded_sz
+     BCC 1$
+
+     TOIO
+     MOVB (R4)+,R1
+     TOMAIN
+     CMPB #10,R1
+     BEQ 1$
+
+     MOVB R1,(R2)+
+     INC R3
+     BR 2$
+
+1$:  MOVB R3,@0(R5)
+     MOV @R5,R5
+     MOV R4,@#filepos
+     BR stringS_i_i0
+
+doinputf:
+     MOV 2(SP),R0
+     ADD SP,R0
+2$:  MOV -(R0),R5   ;param
+     MOV -(R0),R4   ;subr for param
+     CMP R0,SP
+     BEQ 1$
+
+     CALL @R4
+     BR 2$
+
+1$:  RETURN
+
 s_ASSIGN_s:
      MOV @#strdcurre,R2
      MOV R2,@R4
@@ -102,7 +145,7 @@ strS_i:
      MOVB R3,@R5
      ;JMP @#gc    ;gc is the next!
 
-gc:       cmp #strdmax,@#strdcurre
+gc:       cmp #strdmax,@#strdcurre      ;R2 instead of @#strdcurre - requires check
           bcc exitgc
 
           mov #32768,r0        ;end of tree pointer
@@ -348,6 +391,43 @@ midS_s_i_i_s:
 
 1$:  RETURN
 
+openwrite:
+     MOV #2,R1
+     BR openread0
+
+openread:
+     MOV #3,R1
+openread0:
+     MOV #16384,R5
+openread1:
+     TST @#filepos
+     BNE 3$
+
+     MOV #io_op,R4
+     CLR R2
+     BISB (R3)+,R2
+     MOV R1,(R4)+
+     MOV #12,R1
+     MOV R5,(R4)+
+     MOV R5,@#filepos
+     CLR (R4)+
+0$:  MOVB (R3)+,(R4)+
+     DEC R1
+     BEQ 1$
+     SOB R2,0$
+
+1$:  ADD #4,R1
+2$:  CLRB (R4)+
+     SOB R1,2$
+
+3$:  RETURN
+
+emt36: TOIO
+     MOV #io_OP,R1\n
+     EMT ^O36
+     TOMAIN
+     RETURN
+
 charout: TOSCREEN
      EMT ^O16
      TOMAIN
@@ -367,5 +447,6 @@ setcrsr:
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
+filepos:   .word 0
 lib_end:
 

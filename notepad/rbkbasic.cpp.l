@@ -1,5 +1,5 @@
 %option    noyywrap
-number	   [0-9]+
+number	   [0-9]+\%?
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 string     \"[^"]*\"
 space      [ \t]+
@@ -43,6 +43,11 @@ space      [ \t]+
 (?i:AND)   return AND;
 (?i:OR)    return OR;
 (?i:LEN)   return LEN;
+(?i:OPEN)  return OPEN;
+(?i:CLOSE) return CLOSE;
+(?i:FIND)  return FIND;
+(?i:OUTPUT)  return OUTPUT;
+(?i:EOF)    return BEOF;
 (?i:VAL)   return VAL; /*READ,DATA,CSRLIN*/
 (?i:DIM)   lexdimst = 1;
 {number}   {

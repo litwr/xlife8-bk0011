@@ -16,6 +16,7 @@ io_op      = ^O320               ;$d0
 io_start   = ^O322
 io_len     = ^O324
 io_fn      = ^O326
+loaded_1   = ^O264               ;$b4
 loaded_sz  = ^O266               ;$b6
 
          .macro push arg
@@ -43,5 +44,5 @@ loaded_sz  = ^O266               ;$b6
           .endm
 
 savesp     = 510     ;for gc only
-stringbuf  = 506
+stringbuf  = 510
 
