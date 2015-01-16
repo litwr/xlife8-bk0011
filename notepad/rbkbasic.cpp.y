@@ -117,13 +117,15 @@ for: markop FOR IVAR '=' iexpr {
      code[progp++] = tostr($3->addr);
      code[progp++] = "\n";
   } TO iexpr step '\n' {
+     asmcomm("TO of FOR");
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
   } operlist next {
-     code[progp++] = "MOVB #7,R3\n";   //BLE
+     asmcomm("NEXT of FOR");
+     code[progp++] = "MOVB #6,R3\n";   //BGT = 6
      code[progp++] = "TST @SP\n";
      code[progp++] = "BPL " + tostr(locals) + "$\n";
-     code[progp++] = "MOVB #4,R3\n";   //BGE
+     code[progp++] = "DEC R3\n";   //BLT = 5
      code[progp++] = tostr(locals++) + "$:MOVB R3,@#";
      code[progp++] = tostr(locals) + "$+1\n";
      code[progp++] = "ADD @SP,@#";
@@ -134,9 +136,10 @@ for: markop FOR IVAR '=' iexpr {
      code[progp++] = tostr($3->addr);
      code[progp++] = ",2(SP)\n";
      code[progp++] = tostr(locals++) + "$:BGE ";
+     code[progp++] = tostr(locals) + "$\nJMP @#";
      reallocl[progp] = -$1;
      code[progp++] = "";
-     code[progp++] = "ADD #4,SP\n";
+     code[progp++] = tostr(locals++) + "$:ADD #4,SP\n";
   }
 ;
 next: NEXT IVAR
@@ -146,11 +149,13 @@ step: {code[progp++] = "PUSH #1\n";}
 | STEP iexpr
 ;
 if: markop IF iexpr then thenoper {
+     asmcomm("IF THEN thenoper");
      asmcomm("IF");
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$4] = locals++;
    }
 | markop IF iexpr then thenoper ELSE {
+     asmcomm("IF THEN thenoper ELSE");
      code[progp++] = "BR ";
      reallocl[progp] = -$1;
      code[progp++] = "";
@@ -161,6 +166,7 @@ if: markop IF iexpr then thenoper {
      labels[-$1] = locals++;
    }
 | markop IF iexpr GOTO NUMBER {
+     asmcomm("IF GOTO NUMBER");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
      reallocl[progp] = -$1;
@@ -172,6 +178,7 @@ if: markop IF iexpr then thenoper {
      labels[-$1] = locals++;
    }
 | markop IF iexpr GOTO NUMBER ELSE {
+     asmcomm("IF GOTO NUMBER ELSE");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
      reallocl[progp] = -$1;
@@ -190,6 +197,7 @@ if: markop IF iexpr then thenoper {
    }
 ;
 then: THEN {
+     asmcomm("then");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
      reallocl[progp] = -$1;
@@ -198,6 +206,7 @@ then: THEN {
 ;
 thenoper: oper
 | NUMBER {
+     asmcomm("then NUMBER");
      code[progp++] = "JMP @#";
      reallocl[progp] = $1;
      code[progp++] = "";
@@ -205,6 +214,7 @@ thenoper: oper
 ;
 elseoper: oper
 | NUMBER {
+     asmcomm("else NUMBER");
      code[progp++] = "JMP @#";
      reallocl[progp] = $1;
      code[progp++] = "";
