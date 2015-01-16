@@ -32,6 +32,22 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           mov #stringbuf,r1
           return
 
+dogetf:
+     MOV @#strdcurre,R2
+     MOV R2,@R5
+     INC R2
+     MOV @#filepos,R4
+     CLR R3
+     CMP R4,@#loaded_sz
+     BCC strfromfile0
+
+     TOIO
+     MOVB (R4)+,R1
+     TOMAIN
+     MOVB R1,(R2)+
+     INC R3
+     BR strfromfile0
+
 intfromkbd:
 strfromkbd:
 intfromfile:
@@ -42,22 +58,23 @@ strfromfile:
      MOV @#filepos,R4
      CLR R3
 2$:  CMP R3,#255
-     BEQ 1$
+     BEQ strfromfile0
 
      CMP R4,@#loaded_sz
-     BCC 1$
+     BCC strfromfile0
 
      TOIO
      MOVB (R4)+,R1
      TOMAIN
      CMPB #10,R1
-     BEQ 1$
+     BEQ strfromfile0
 
      MOVB R1,(R2)+
      INC R3
      BR 2$
 
-1$:  MOVB R3,@0(R5)
+strfromfile0:
+     MOVB R3,@0(R5)
      MOV @R5,R5
      MOV R4,@#filepos
      BR stringS_i_i0

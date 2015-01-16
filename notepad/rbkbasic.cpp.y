@@ -14,7 +14,7 @@ string code[100000], data[100000];
 %token <sym> SVAR IVAR STR STRING CHR INKEY MID
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
-%token <num> CLOSE OUTPUT BEOF OPEN FIND
+%token <num> CLOSE OUTPUT BEOF OPEN FIND GET
 %type <sym> ivar svar
 %type <num> markop then
 %left OR
@@ -59,27 +59,31 @@ oper: assign
       code[progp++] = "JMP @#";
       reallocl[progp] = $2;
       code[progp++] = "";
-   }
+}
 | CLS {asmcomm("CLS"); code[progp++] = "MOV #12,R0\nCALL @#charout\n";}
 | input {argcount = 0;}
+| GET '#' svar {
+      asmcomm("GET# s");
+      code[progp++] = "POP R5\nCALL @#dogetf\n";
+}
 | POKE iexpr ',' iexpr {
       asmcomm("POKE i,i");
       code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
-   }
+}
 | END {code[progp++] = "JMP @#finalfinish\n";}
 ;
 assign: ivar '=' iexpr {
      asmcomm("ivar ASSIGN i");
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
-  }
+}
 | svar '=' svar {
      asmcomm("svar ASSIGN s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_ASSIGN_s\n";
-  }
+}
 | svar '=' sexpr {
      asmcomm("svar ASSIGN s");
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
-  }
+}
 | MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,i,s)");
      code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nCALL @#midS_s_i_i_s\n";
@@ -110,7 +114,7 @@ pexpr: iexpr {
 }
 //| PBLTIN '(' iexpr ')'
 ;
-prsemicol: pexpr ';' {code[progp++] = "MOV #32,R0\nCALL @#charout\n";}
+prsemicol: pexpr ';' //{code[progp++] = "MOV #32,R0\nCALL @#charout\n";}
 ;
 prcomma: pexpr ','
 ;

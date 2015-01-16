@@ -16,6 +16,7 @@ space      [ \t]+
 >\< 	   return NE;
 > 	   return GT;
 \< 	   return LT;
+(?i:GET)   return GET;
 (?i:MID)\$ return MID;
 (?i:STR)\$ return STR;
 (?i:STRING)\$ return STRING;
