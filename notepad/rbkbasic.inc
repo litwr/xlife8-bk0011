@@ -32,11 +32,10 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           mov #stringbuf,r1
           return
 
-svar2expr:
+s_ASSIGN_s:
      MOV @#strdcurre,R2
-     MOV R2,R5
+     MOV R2,@R4
      CLR R0
-     MOV @R3,R3
      BISB (R3)+,R0
      MOVB R0,(R2)+
      BR s_PLUS_s0
