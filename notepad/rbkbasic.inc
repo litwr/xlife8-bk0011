@@ -409,6 +409,7 @@ midS_s_i_i_s:
 1$:  RETURN
 
 openwrite:
+     MOV #16384,@#eolpos
      MOV #2,R1
      BR openread0
 
@@ -470,8 +471,33 @@ getcrsr:
      EMT ^O26
      BR charout0
 
+fnstringout:
+     CMPB #'-,@R1
+     BEQ 1$
+
+     MOVB #32,-(R1)
+1$:  MOVB (R1)+,R0
+     BEQ charout0
+
+     PUSH #1$
+fcharout:
+     MOV @#filepos,R2
+     CMPB #10,R0
+     BNE 1$
+
+     MOV R2,@#eolpos
+1$:  CMP R2,#32768
+     BCC 0$
+
+     TOIO
+     MOVB R0,(R2)+
+0$:  MOV R2,@#filepos
+     BR charout0
+
+     
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
 filepos:   .word 0
+eolpos:    .word 0
 lib_end:
 

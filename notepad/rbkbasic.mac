@@ -44,5 +44,5 @@ loaded_sz  = ^O266               ;$b6
           .endm
 
 savesp     = 510     ;for gc only
-stringbuf  = 510
+stringbuf  = 506
 

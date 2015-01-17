@@ -29,6 +29,7 @@ void printcode() {
       << progstart << endl;
    cout << "strsstatic=lib_end+" << ivarp << "\nstrestatic =lib_end+" << l 
       << "\nstrsdyn =lib_end+" << l + strconstp + 1 << "\nstrdmax =" << 48*1024-256 << endl ;
+   cout << "MOV #240*256+240,@#^O120140\n";
    cout << "TOMAIN\n";
    cout << ".REPT 40\nNOP\n.ENDR\nMOV #startstack,SP\nstartstack:\n";
    for (int i = 0; i < progp; i++)

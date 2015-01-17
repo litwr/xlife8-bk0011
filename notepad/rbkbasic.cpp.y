@@ -43,7 +43,7 @@ oper: assign
      asmcomm("CLOSE");
      code[progp++] = "CMPB #2,@#io_op\n";
      code[progp++] = "BNE " + tostr(locals) + "$\n";
-     code[progp++] = "MOV @#filepos,@#io_len\n";
+     code[progp++] = "MOV @#filepos,R2\nSUB #16384,R2\nMOV R2,@#io_len\n";
      code[progp++] = "CALL @#emt36\n";
      code[progp++] = tostr(locals++) + "$:CLR @#filepos\n";
 }
@@ -55,7 +55,7 @@ oper: assign
 }
 | RETURN {asmcomm("RETURN"); code[progp++] = "RETURN\n";}
 | GOTO NUMBER {
-      asmcomm("GOTU NUMBER");
+      asmcomm("GOTO NUMBER");
       code[progp++] = "JMP @#";
       reallocl[progp] = $2;
       code[progp++] = "";
@@ -94,17 +94,26 @@ assign: ivar '=' iexpr {
   }
 ;
 print: PRINT prdelim prlist
-//| PRINT '#' fprdelim fprlist
+| PRINT '#' prdelim fprlist
 ;
-prlist: sexpr prdelim printstring prlist
-| iexpr prdelim printint prlist
-| sexpr prdelim printstring printnl
-| iexpr prdelim printint printnl
+prlist: sexpr ',' printstring print2tab prlist
+| sexpr prempty printstring prlist
+| iexpr ',' printint print2tab prlist
+| iexpr prempty printint prlist
+| sexpr printstring printnl
+| iexpr printint printnl
+| sexpr ',' printstring print2tab
+| sexpr ';' printstring
+| iexpr ',' printint print2tab
+| iexpr ';' printint
 ;
-prdelim: 
-| ',' print2tab
-| ';'
 //| PBLTIN '(' iexpr ')'
+;
+prempty:
+| ';'
+;
+prdelim: prempty
+| ','
 ;
 printnl: {code[progp++] = "MOV #10,R0\nCALL @#charout\n";}
 ;
@@ -113,12 +122,49 @@ printint: {
 }
 ;
 print2tab: {
-     code[progp++] = "CALL @#getcrsr\nBIC #15,R1\nINC R1\nCALL @#setcrsr\n";
+     code[progp++] = "CALL @#getcrsr\nMOV #16,R2\nSUB R1,R2\nBIC #65520,R2\nMOVB #32,R0\n";
+     code[progp++] = tostr(locals) + "$:CALL @#charout\nSOB R2," + tostr(locals) + "$\n";
+     locals++;
 }
 ;
 printstring: {
-     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nBEQ " + tostr(locals + 1)
-       + "$\n" + tostr(locals) + "$:MOVB (R1)+,R0\nCALL @#charout\nSOB R2," 
+     code[progp++] = "POP R1\nCLR R3\nBISB (R1)+,R3\nBEQ " + tostr(locals + 1)
+       + "$\n" + tostr(locals) + "$:MOVB (R1)+,R0\nCALL @#charout\nSOB R3," 
+       + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
+     locals += 2;
+}
+;
+fprlist: sexpr ',' fprintstring fprint2tab fprlist
+| sexpr prempty fprintstring fprlist
+| iexpr ',' fprintint fprint2tab fprlist
+| iexpr prempty fprintint fprlist
+| sexpr fprintstring fprintnl
+| iexpr fprintint fprintnl
+| sexpr ',' fprintstring fprint2tab
+| sexpr ';' fprintstring
+| iexpr ',' fprintint fprint2tab
+| iexpr ';' fprintint
+;
+//| PBLTIN '(' iexpr ')'
+fprintnl: {
+     code[progp++] = "MOV #10,R0\nCALL @#fcharout\n";
+}
+;
+fprintint: {
+     code[progp++] = "POP R3\nCALL @#todec\nCALL @#fnstringout\nMOV #32,R0\nCALL @#fcharout\n";
+}
+;
+fprint2tab: {
+     code[progp++] = "MOV @#filepos,R1\nSUB @#eolpos,R1\nMOV R1,R2\nBIC #15,R1\nADD #16,R1\nSUB R2,R1\n";
+     code[progp++] = "BLOS " + tostr(locals) + "$\n";
+     code[progp++] = "MOV #32,R0\n" + tostr(locals + 1) + "$:CALL @#fcharout\nSOB R1," + tostr(locals + 1) + "$:\n";
+     code[progp++] = tostr(locals) + "$:\n";
+     locals += 2;
+}
+;
+fprintstring: {
+     code[progp++] = "POP R1\nCLR R3\nBISB (R1)+,R3\nBEQ " + tostr(locals + 1)
+       + "$\n" + tostr(locals) + "$:MOVB (R1)+,R0\nCALL @#fcharout\nSOB R3," 
        + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
      locals += 2;
 }

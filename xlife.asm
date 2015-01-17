@@ -13,7 +13,8 @@
          .asect
          .=512
 
-start:   mov #128,@#^O102
+start:   MOV #240*256+240,@#^O120140   ;allows a fast rewrite of a file
+         mov #128,@#^O102
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
          call @#copyr
