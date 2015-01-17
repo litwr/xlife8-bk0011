@@ -27,35 +27,23 @@ void printcode() {
    int k, l = ivarp + svarp + 2;
    cout << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
       << progstart << endl;
-   cout << "strsstatic=lib_end+" << ivarp << "\nstrestatic =lib_end+" << l 
-      << "\nstrsdyn =lib_end+" << l + strconstp + 1 << "\nstrdmax =" << 48*1024-256 << endl ;
+   cout << "strdmax =" << 48*1024-256 << endl ;
    cout << "MOV #240*256+240,@#^O120140\n";
    cout << "TOMAIN\n";
    cout << ".REPT 40\nNOP\n.ENDR\nMOV #startstack,SP\nstartstack:\n";
    for (int i = 0; i < progp; i++)
       cout << code[i];
    cout << "finalfinish:WAIT\nHALT\n.include notepad/rbkbasic.inc\n";
-   if (k = ivarp/2) {
-      cout << ".word ";
-      for (int i = 0; i < k - 1; i++)
-         if (i%40 == 0)
-            cout << "0\n.word ";
-         else
-            cout << "0,";
-      cout << "0\n";
-   }
-   if (k = svarp/2 + 1) {
-      cout << ".word ";
-      for (int i = 0; i < k - 1; i++)
-         if (i%20 == 0)
-            cout << "lib_end+" << l << "\n.word ";
-         else
-            cout << "lib_end+" << l << ",";
-      cout << "lib_end+" << l << "\n";
-   }
+   if (k = ivarp/2)
+      cout << ".REPT " << k << "\n.word 0\n.ENDR\n";
+   cout << "strsstatic:\n";
+   if (k = svarp/2 + 1)
+      cout << ".REPT " << k << "\n.word strestatic\n.ENDR\n";
+   cout << "strestatic:\n";
    cout << ".byte 0\n";
    for (int i = 0; i < stringp; i++)
       cout << data[i];
+   cout << "strsdyn:\n";
 }
 
 void relocate() {

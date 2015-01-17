@@ -1,90 +1,36 @@
-ABS
-*+AND
-*+ASC
-AT
--ATN
--AUTO
+Supported:
+AND ASC CHR$ CLS DIM ELSE END EOF FOR GOSUB GOTO IF LEN MID$ NEXT OR PEEK POKE PRINT REM RETURN STEP STR$ STRING$ THEN TO
+
+Partially:
+INPUT LOCATE
+
+Supported not exactly:
+FRE - ignores an argument, shows total about of free memory. The garbage collector does not make its job before this function call so it may show less amount than presents.
+
+New
+GET#
+
+Planned:
+ABS AT BIN$ BLOAD BSAVE CLEAR CSRLIN FIND HEX$ IMP INKEY$ MONIT NOT OCT$ ON OUT POS SGN TAB VAL READ DATA RESTORE
+UINT$
+
+Graphics:
+CIRCLE DRAW PAINT POINT PRESET PSET
+
+Arithmetic:
+* / INT MOD
+
+Floating point:
+ATN CDBL COS FIX EXP LOG PI RND SIN SQR TAN CSNG
+
+The program manipulation:
+AUTO CLOAD CONT CSAVE DELETE LOAD LIST LLIST NEW RENUM RUN SAVE STOP TROFF TRON
+
+
 BEEP
-BIN$
-BLOAD
-BSAVE
--CDBL
-*+CHR$
 CINT
-CIRCLE
-CLEAR
--CLOAD
-*+CLS
 COLOR
--CONT
--COS
--CSAVE
--CSNG
-CSRLIN
--DELETE
-*+DIM
-DRAW
-*+ELSE
-*+END
-EOF
--EXP
-FIND
--FIX
-*+FOR
-+FRE
-*+GOSUB
-*+GOTO
-HEX$
-*+IF
-IMP
-+INKEY$
-+INPUT
-INT
 KEY
-*+LEN
--LIST
--LLIST
--LOAD
-+LOCATE
--LOG
+
 -LPOS
-*+MID$
-MOD
-MONIT
--NEW
-+NEXT
-NOT
-OCT$
-ON
-*+OR
-OUT
-PAINT
-*+PEEK
--PI
-POINT
-*+POKE
-POS
-PRESET
-+PRINT
-PSET
-*+REM
--RENUM
-*+RETURN
--RND
--RUN
--SAVE
-SGN
--SIN
--SQR
-*+STEP
--STOP
-*+STR$
-*+STRING$
-TAB
--TAN
-*+THEN
-*+TO
--TROFF
--TRON
-+VAL
 
