@@ -1,5 +1,5 @@
 %option    noyywrap
-number	   [0-9]+\%?
+number	   (-)?[0-9 ]+\%?
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 string     \"[^"]*\"
 space      [ \t]+
@@ -52,7 +52,11 @@ space      [ \t]+
 (?i:VAL)   return VAL; /*READ,DATA,CSRLIN*/
 (?i:DIM)   lexdimst = 1;
 {number}   {
-              istringstream iss(yytext);
+              string sbuf(yytext);
+              unsigned long p;
+              while ((p = sbuf.find(" ")) != string::npos)
+                 sbuf.erase(p, 1);
+              istringstream iss(sbuf);
               iss >> yylval.num;
               if (lexdimst == 2)
                  lexaddsym(lexdimname, yylval.num*2);

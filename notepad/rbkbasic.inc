@@ -450,6 +450,11 @@ charout: TOSCREEN
      TOMAIN
      RETURN
 
+nstringout:
+     CMPB #'-,@R1
+     BEQ stringout
+
+     MOVB #32,-(R1)
 stringout:
      TOSCREEN
      EMT ^O20

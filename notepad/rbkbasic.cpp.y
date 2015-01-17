@@ -96,27 +96,32 @@ assign: ivar '=' iexpr {
 print: PRINT prlist
 | PRINT '#' prlist
 ;
-prlist: prcomma prlist
-| prcomma
-| prsemicol prlist
-| prsemicol
-| pexpr prlist
-| pexpr {code[progp++] = "MOV #10,R0\nCALL @#charout\n";}
+prlist: sexpr ',' prlist
+| sexpr printstring prlist
+| sexpr ';' printstring prlist
+| iexpr ',' prlist
+| iexpr printint prlist
+| iexpr ';' printint prlist
+| sexpr printstring  printnl
+| sexpr ','
+| sexpr ';' printstring
+| iexpr printint printnl
+| iexpr ','
+| iexpr ';' printint
 ;
-pexpr: iexpr {
-     code[progp++] = "POP R3\nCALL @#todec\nCALL @#stringout\n";
+printnl: {code[progp++] = "MOV #10,R0\nCALL @#charout\n";}
+;
+printint: {
+     code[progp++] = "POP R3\nCALL @#todec\nCALL @#nstringout\nMOV #32,R0\nCALL @#charout\n";
 }
-| sexpr {
+;
+printstring: {
      code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nBEQ " + tostr(locals + 1)
        + "$\n" + tostr(locals) + "$:MOVB (R1)+,R0\nCALL @#charout\nSOB R2," 
        + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
      locals += 2;
 }
 //| PBLTIN '(' iexpr ')'
-;
-prsemicol: pexpr ';' //{code[progp++] = "MOV #32,R0\nCALL @#charout\n";}
-;
-prcomma: pexpr ','
 ;
 input: INPUT varlist
 | INPUT '#' varlist {
