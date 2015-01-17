@@ -93,26 +93,27 @@ assign: ivar '=' iexpr {
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
   }
 ;
-print: PRINT prlist
-| PRINT '#' prlist
+print: PRINT prdelim prlist
+//| PRINT '#' fprdelim fprlist
 ;
-prlist: sexpr ',' prlist
-| sexpr printstring prlist
-| sexpr ';' printstring prlist
-| iexpr ',' prlist
-| iexpr printint prlist
-| iexpr ';' printint prlist
-| sexpr printstring  printnl
-| sexpr ','
-| sexpr ';' printstring
-| iexpr printint printnl
-| iexpr ','
-| iexpr ';' printint
+prlist: sexpr prdelim printstring prlist
+| iexpr prdelim printint prlist
+| sexpr prdelim printstring printnl
+| iexpr prdelim printint printnl
+;
+prdelim: 
+| ',' print2tab
+| ';'
+//| PBLTIN '(' iexpr ')'
 ;
 printnl: {code[progp++] = "MOV #10,R0\nCALL @#charout\n";}
 ;
 printint: {
      code[progp++] = "POP R3\nCALL @#todec\nCALL @#nstringout\nMOV #32,R0\nCALL @#charout\n";
+}
+;
+print2tab: {
+     code[progp++] = "CALL @#getcrsr\nBIC #15,R1\nINC R1\nCALL @#setcrsr\n";
 }
 ;
 printstring: {
@@ -121,7 +122,6 @@ printstring: {
        + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
      locals += 2;
 }
-//| PBLTIN '(' iexpr ')'
 ;
 input: INPUT varlist
 | INPUT '#' varlist {

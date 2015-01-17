@@ -442,11 +442,11 @@ openread1:
 emt36: TOIO
      MOV #io_OP,R1\n
      EMT ^O36
-     TOMAIN
-     RETURN
+     BR charout0
 
 charout: TOSCREEN
      EMT ^O16
+charout0:
      TOMAIN
      RETURN
 
@@ -458,14 +458,17 @@ nstringout:
 stringout:
      TOSCREEN
      EMT ^O20
-     TOMAIN
-     RETURN
+     BR charout0
 
 setcrsr:
      TOSCREEN
      EMT ^O24
-     TOMAIN
-     RETURN
+     BR charout0
+
+getcrsr:
+     TOSCREEN
+     EMT ^O26
+     BR charout0
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
