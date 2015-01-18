@@ -11,29 +11,35 @@ string code[100000], data[100000];
   Symbol *sym;
   int num;
 }
-%token <sym> SVAR IVAR STR STRING CHR INKEY MID
-%token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO
+%token <sym> SVAR IVAR STR STRINGTYPE CHR INKEY MID
+%token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
-%token <num> CLOSE OUTPUT BEOF OPEN FIND GET
+%token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN
 %type <sym> ivar svar
 %type <num> markop then
 %left OR
 %left AND
-%left GT GE LT LE '=' NE  //> >= < <= = !=
+%left '=' GT GE LT LE NE
 %left '+' '-'
 %left NOT
 %%
-prog: operlist {relocate(); throw 1;}
+prog: linenumber operlist {throw 1;}
 ;
-operlist: markop 
-//| oper '\n' operlist  //immediate mode
-| NUMBER {
+operlist: oper {asmcomm("oper");}
+| oper operend operlist {asmcomm("oper operend operlist");}
+;
+linenumber: LABEL {
+    asmcomm("NUMBER");
     code[progp++] = tostr(locals) + "$:\n";
     labels[$1] = locals++;
-  } oper '\n' operlist
-| NUMBER '\n' operlist
+} 
 ;
-oper: assign
+operend: linenumber {asmcomm("linenumber");}
+| ':'
+;
+oper: 
+| LET assign
+| assign
 | print
 | for
 | if
@@ -93,7 +99,7 @@ assign: ivar '=' iexpr {
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
   }
 ;
-print: PRINT prdelim prlist
+print: PRINT prdelim prlist {asmcomm("PRINT prdelim prlist");}
 | PRINT '#' prdelim fprlist
 ;
 prlist: sexpr ',' printstring print2tab prlist
@@ -106,8 +112,6 @@ prlist: sexpr ',' printstring print2tab prlist
 | sexpr ';' printstring
 | iexpr ',' printint print2tab
 | iexpr ';' printint
-;
-//| PBLTIN '(' iexpr ')'
 ;
 prempty:
 | ';'
@@ -145,7 +149,6 @@ fprlist: sexpr ',' fprintstring fprint2tab fprlist
 | iexpr ',' fprintint fprint2tab
 | iexpr ';' fprintint
 ;
-//| PBLTIN '(' iexpr ')'
 fprintnl: {
      code[progp++] = "MOV #10,R0\nCALL @#fcharout\n";
 }
@@ -175,7 +178,7 @@ input: INPUT varlist
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinputf\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
 }
-| INPUT STRING ';' varlist
+| INPUT STRINGTYPE ';' varlist
 ;
 varlist: svar {argcount++; code[progp++] = "PUSH #strfromfile\n";}
 | svar {argcount++; code[progp++] = "PUSH #strfromfile\n";} ',' varlist
@@ -188,11 +191,11 @@ for: markop FOR IVAR '=' iexpr {
      realloca[progp] = $3;
      code[progp++] = tostr($3->addr);
      code[progp++] = "\n";
-  } TO iexpr step '\n' {
+} TO iexpr step operend {
      asmcomm("TO of FOR");
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
-  } operlist next {
+} operlist next {
      asmcomm("NEXT of FOR");
      code[progp++] = "MOVB #6,R3\n";   //BGT = 6
      code[progp++] = "TST @SP\n";
@@ -212,7 +215,7 @@ for: markop FOR IVAR '=' iexpr {
      reallocl[progp] = -$1;
      code[progp++] = "";
      code[progp++] = tostr(locals++) + "$:ADD #4,SP\n";
-  }
+}
 ;
 next: NEXT IVAR
 | NEXT
@@ -225,7 +228,7 @@ if: markop IF iexpr then thenoper {
      asmcomm("IF");
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$4] = locals++;
-   }
+}
 | markop IF iexpr then thenoper ELSE {
      asmcomm("IF THEN thenoper ELSE");
      code[progp++] = "BR ";
@@ -233,10 +236,10 @@ if: markop IF iexpr then thenoper {
      code[progp++] = "";
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$4] = locals++;
-   } elseoper {
+} elseoper {
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
-   }
+}
 | markop IF iexpr GOTO NUMBER {
      asmcomm("IF GOTO NUMBER");
      code[progp++] = "POP R3\nTST R3\n";
@@ -248,7 +251,7 @@ if: markop IF iexpr then thenoper {
      code[progp++] = "";
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
-   }
+}
 | markop IF iexpr GOTO NUMBER ELSE {
      asmcomm("IF GOTO NUMBER ELSE");
      code[progp++] = "POP R3\nTST R3\n";
@@ -263,10 +266,10 @@ if: markop IF iexpr then thenoper {
      code[progp++] = "";
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
-   } elseoper {
+} elseoper {
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1 - 10000] = locals++;
-   }
+}
 ;
 then: THEN {
      asmcomm("then");
@@ -274,7 +277,7 @@ then: THEN {
      code[progp++] = "BEQ ";
      reallocl[progp] = -$1;
      code[progp++] = "";
-   }
+}
 ;
 thenoper: oper
 | NUMBER {
@@ -362,6 +365,18 @@ iexpr: NUMBER {
 | PEEK '(' iexpr ')' {
      asmcomm("PEEK(i)");
      code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
+}
+| ABS '(' iexpr ')' {
+     asmcomm("ABS(i)");
+     code[progp++] = "POP R4\nBPL " + tostr(locals) + "$\nNEG R4\n";
+     code[progp++] = tostr(locals++) + "$:PUSH R4\n";
+}
+| SGN '(' iexpr ')' {
+     asmcomm("SGN(i)");
+     code[progp++] = "CLR R3\nPOP R4\nBEQ " + tostr(locals) + "$\nBMI " + tostr(locals + 1) + "$\n";
+     code[progp++] = "INC R3\nBR " + tostr(locals) + "$\n" + tostr(locals + 1) + "$:DEC R3\n";
+     code[progp++] = tostr(locals) + "$:PUSH R3\n";
+     locals += 2;
 }
 | ASC '(' sexpr ')' {
      asmcomm("ASC(s)");
@@ -464,7 +479,7 @@ iexpr: NUMBER {
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_NE_s\nPUSH R5\n";
   }
 ;
-sexpr: STRING {
+sexpr: STRINGTYPE {
      asmcomm("s");
      if ($1->used == 0) {
         $1->used++;
@@ -523,6 +538,7 @@ int yyerror(const string &s) {
 }
 
 main () {
+//   yydebug = 1;
    try {
       initcode();
       yyparse();
@@ -531,6 +547,7 @@ main () {
       cerr << s << endl;
    }
    catch (int) {
+      relocate(); 
       printcode();
    }
 }

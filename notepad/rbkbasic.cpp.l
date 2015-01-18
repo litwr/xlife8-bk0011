@@ -1,13 +1,16 @@
+%{
+int lexeol = 1;
+%}
 %option    noyywrap
-number	   (-)?[0-9 ]+\%?
+number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 string     \"[^"]*\"
 space      [ \t]+
 %%
-{space}
+{space}    
 (?i:REM).*$ 
 (?i:THEN)  yylval.num = progp; return THEN;
-[0-9]+[ ]*(?i:NEXT)  return NEXT;
+(?i:NEXT)  return NEXT;
 >=	   return GE;
 =>	   return GE;
 \<= 	   return LE;
@@ -17,6 +20,9 @@ space      [ \t]+
 > 	   return GT;
 \< 	   return LT;
 (?i:GET)   return GET;
+(?i:ABS)   return ABS;
+(?i:SGN)   return SGN;
+(?i:LET)   return LET;
 (?i:MID)\$ return MID;
 (?i:STR)\$ return STR;
 (?i:STRING)\$ return STRING;
@@ -33,7 +39,7 @@ space      [ \t]+
 (?i:IF)    return IF;
 (?i:ELSE)  return ELSE;
 (?i:PRINT) return PRINT;
-\? return PRINT;
+\?         return PRINT;
 (?i:LOCATE) return LOCATE;
 (?i:POKE)  return POKE;
 (?i:CHR)\$ return CHR;
@@ -49,7 +55,7 @@ space      [ \t]+
 (?i:FIND)  return FIND;
 (?i:OUTPUT)  return OUTPUT;
 (?i:EOF)    return BEOF;
-(?i:VAL)   return VAL; /*READ,DATA,CSRLIN*/
+(?i:VAL)   return VAL;
 (?i:DIM)   lexdimst = 1;
 {number}   {
               string sbuf(yytext);
@@ -60,6 +66,8 @@ space      [ \t]+
               iss >> yylval.num;
               if (lexdimst == 2)
                  lexaddsym(lexdimname, yylval.num*2);
+              else if (lexeol)
+                 return lexeol = 0, LABEL;
               else
                  return NUMBER;
            }
@@ -87,7 +95,6 @@ space      [ \t]+
 {string}   {
               string istr(yytext + 1);
               istr.erase(istr.length() - 1);
-breakpoint();
               if (strings.find(istr) == strings.end()) {
                  strings[istr].addr = strconstp;
                  strconstp += (strings[istr].len = istr.length()) + 1;
@@ -95,8 +102,8 @@ breakpoint();
                  strings[istr].used = 0;
               }
               yylval.sym = &strings[istr];
-              return yylval.sym->type = STRING;
+              return yylval.sym->type = STRINGTYPE;
            }
-\n	   ++lineno; return '\n';
+\n	   ++lineno; lexeol = 1;
 .          return yytext[0];
 

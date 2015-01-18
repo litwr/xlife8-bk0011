@@ -1,3 +1,4 @@
+;much faster but requires one additional page of memory
           .macro TOGC
           mov #^B010111100000000,@#pageport        ;open pages 2 (maybe any, 5 for the better gc) and 7 (2nd scrbuf)
           .endm
@@ -10,7 +11,7 @@ gc:       cmp #strdmax,@#strdcurre      ;R2 instead of @#strdcurre - requires ch
           mov r5,@#strestatic-2
 4$:       cmp #strestatic,r1
           beq 1$
-          
+
           mov r1,r3
           cmp (r1)+,@#strdstart
           bcs 4$

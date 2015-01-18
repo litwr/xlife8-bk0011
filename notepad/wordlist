@@ -1,5 +1,6 @@
 Supported:
-AND ASC CHR$ CLS DIM ELSE END EOF FOR GOSUB GOTO IF LEN MID$ NEXT OR PEEK POKE PRINT REM RETURN STEP STR$ STRING$ THEN TO
+ABS AND ASC CHR$ CLS DIM ELSE END EOF FOR GOSUB GOTO IF LEN LET MID$ NEXT OR PEEK POKE PRINT REM RETURN
+SGN STEP STR$ STRING$ THEN TO
 
 Partially:
 INPUT LOCATE
@@ -8,10 +9,10 @@ Supported not exactly:
 FRE - ignores an argument, shows total about of free memory. The garbage collector does not make its job before this function call so it may show less amount than presents.
 
 New
-GET#
+GET# :
 
 Planned:
-ABS AT BIN$ BLOAD BSAVE CLEAR CSRLIN FIND HEX$ IMP INKEY$ MONIT NOT OCT$ ON OUT POS SGN TAB VAL READ DATA RESTORE
+AT BIN$ BLOAD BSAVE CLEAR CSRLIN FIND HEX$ IMP INKEY$ MONIT NOT OCT$ ON OUT POS TAB VAL READ DATA RESTORE
 UINT$
 
 Graphics:

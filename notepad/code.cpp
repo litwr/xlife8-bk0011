@@ -3,7 +3,7 @@
 #include "y.tab.h"
 #define progstart 512
 
-int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 1;
+int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 2;
 int lexdimst;
 string lexdimname;
 
@@ -79,8 +79,10 @@ void lexaddsym(string& sbuf, int len) {
 }
 
 void asmcomm(const string &s) {
-   if (comm_on)
+   if (comm_on == 1)
       code[progp++] = ";" + s + "\n";
+   else if (comm_on == 2)
+      cerr << "-- " + s + "\n";
 }
 
 void breakpoint() {

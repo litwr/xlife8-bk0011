@@ -11,7 +11,7 @@ code.o: code.cpp rbkbasic.h y.tab.c makefile
 	g++ -g -c code.cpp
 
 y.tab.c: rbkbasic.cpp.y rbkbasic.h makefile
-	yacc -d -v rbkbasic.cpp.y
+	bison -y -d -t -v rbkbasic.cpp.y
 
 clean:
 	rm -f y.tab.[ch] lex.yy.c rbkbasic *.o
