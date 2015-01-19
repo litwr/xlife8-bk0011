@@ -366,6 +366,7 @@ charout: TOSCREEN
      EMT ^O16
 charout0:
      TOMAIN
+charout1:
      RETURN
 
 nstringout:
@@ -411,7 +412,44 @@ fcharout:
 0$:  MOV R2,@#filepos
      BR charout0
 
-     
+showdir: mov @#andos_init,r1
+         call @r1
+         clr r0
+         clr r5
+1$:   ;;  mov #svfn,r3
+         mov @#andos_diren2,r1
+         call @r1
+         beq charout1
+
+         mov #12,r2
+         mov r4,r1
+3$:      cmpb @r3,(r1)+
+         beq 2$
+
+         cmpb #'?,@r3
+         bne 1$
+
+2$:      inc r3
+         sob r2,3$
+
+         mov #stringbuf,r3
+         mov #12,r2
+         mov r4,r1
+4$:      movb (r1)+,(r3)+
+         sob r2,4$
+
+         movb #32,(r3)+
+         inc r5
+15$:     bit #4,r5
+         bne 22$
+
+         mov #10,r2
+22$:     movb r2,(r3)+
+         mov #stringbuf,r1
+         mov #19,r2
+         emt ^O20
+         br 1$
+
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
 filepos:   .word 0

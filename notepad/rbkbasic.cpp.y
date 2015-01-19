@@ -72,6 +72,10 @@ oper:
       asmcomm("GET# s");
       code[progp++] = "POP R5\nCALL @#dogetf\n";
 }
+| FIND sexpr {
+      asmcomm("FIND s");
+      code[progp++] = "POP R5\nCALL @#\n";
+}
 | POKE iexpr ',' iexpr {
       asmcomm("POKE i,i");
       code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
@@ -88,24 +92,16 @@ assign: ivar '=' iexpr {
 }
 | svar '=' sexpr {
      asmcomm("svar ASSIGN s");
-     code[progp++] = "POP R3\nPOP R4\nCALL @#s_ASSIGN_s\n";
+     code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
 }
-| MID '(' svar ',' iexpr ',' iexpr ')' '=' svar {
-     asmcomm("MID$(s,i,i,svar)");
-     code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nMOV @R1,R1\nCALL @#midS_s_i_i_s\n";
-  }
 | MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,i,s)");
      code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nCALL @#midS_s_i_i_s\n";
   }
-| MID '(' svar ',' iexpr ')' '=' svar {
-     asmcomm("MID$(s,i,svar)");
-     code[progp++] = "POP R1\nPOP R3\nPOP R4\nMOV @R1,R1\nCALL @#midS_s_i_s\n";
-  }
 | MID '(' svar ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,s)");
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
-  }
+}
 ;
 print: PRINT prdelim prlist {asmcomm("PRINT prdelim prlist");}
 | PRINT '#' prdelim fprlist
