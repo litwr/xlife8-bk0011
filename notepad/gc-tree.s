@@ -1,4 +1,5 @@
 ;much faster but requires one additional page of memory
+savesp     = 230     ;for gc only
           .macro TOGC
           mov #^B010111100000000,@#pageport        ;open pages 2 (maybe any, 5 for the better gc) and 7 (2nd scrbuf)
           .endm

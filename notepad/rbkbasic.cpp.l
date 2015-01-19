@@ -22,6 +22,9 @@ space      [ \t]+
 (?i:GET)   return GET;
 (?i:ABS)   return ABS;
 (?i:SGN)   return SGN;
+(?i:CSRLIN)(\(.*\))? return CSRLIN;
+(?i:POS)(\(.*\))? return POS;
+(?i:FRE)(\(.*\))? return FRE;
 (?i:LET)   return LET;
 (?i:MID)\$ return MID;
 (?i:STR)\$ return STR;
@@ -43,9 +46,7 @@ space      [ \t]+
 (?i:LOCATE) return LOCATE;
 (?i:POKE)  return POKE;
 (?i:CHR)\$ return CHR;
-(?i:FRE)(\(.*\))?   return FRE;
 (?i:PEEK)  return PEEK;
-(?i:POS)   return POS;
 (?i:ASC)   return ASC;
 (?i:AND)   return AND;
 (?i:OR)    return OR;

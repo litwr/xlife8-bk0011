@@ -1,9 +1,10 @@
 #include <fstream>
+#include <pcrecpp.h>
 #include "rbkbasic.h"
 #include "y.tab.h"
 #define progstart 512
 
-int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 2;
+int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 0;
 int lexdimst;
 string lexdimname;
 
@@ -25,25 +26,30 @@ int toint(string s) {
 
 void printcode() {
    int k, l = ivarp + svarp + 2;
-   cout << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
+   ostringstream ostr;
+   string wholecode;
+   ostr << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
       << progstart << endl;
-   cout << "strdmax =" << 48*1024-256 << endl ;
-   cout << "MOV #240*256+240,@#^O120140\n";
-   cout << "TOMAIN\n";
-   cout << ".REPT 40\nNOP\n.ENDR\nMOV #startstack,SP\nstartstack:\n";
+   ostr << "strdmax =" << 48*1024-256 << endl ;
+   ostr << "MOV #240*256+240,@#^O120140\n";
+   ostr << "TOMAIN\n";
+   ostr << "MOV #512,SP\n";
    for (int i = 0; i < progp; i++)
-      cout << code[i];
-   cout << "finalfinish:WAIT\nHALT\n.include notepad/rbkbasic.inc\n";
+      ostr << code[i];
+   ostr << "finalfinish:WAIT\nHALT\n.include notepad/rbkbasic.inc\n";
    if (k = ivarp/2)
-      cout << ".REPT " << k << "\n.word 0\n.ENDR\n";
-   cout << "strsstatic:\n";
+      ostr << ".REPT " << k << "\n.word 0\n.ENDR\n";
+   ostr << "strsstatic:\n";
    if (k = svarp/2 + 1)
-      cout << ".REPT " << k << "\n.word strestatic\n.ENDR\n";
-   cout << "strestatic:\n";
-   cout << ".byte 0\n";
+      ostr << ".REPT " << k << "\n.word strestatic\n.ENDR\n";
+   ostr << "strestatic:\n";
+   ostr << ".byte 0\n";
    for (int i = 0; i < stringp; i++)
-      cout << data[i];
-   cout << "strsdyn:\n";
+      ostr << data[i];
+   ostr << "strsdyn:\n";
+   wholecode = ostr.str();
+   optimizer(wholecode);
+   cout << wholecode;
 }
 
 void relocate() {
@@ -86,5 +92,15 @@ void asmcomm(const string &s) {
 }
 
 void breakpoint() {
+}
+
+using namespace pcrecpp;
+void optimizer(string &code) {
+    RE_Options opts(PCRE_MULTILINE | PCRE_DOLLAR_ENDONLY | PCRE_CASELESS | PCRE_DOTALL);
+    RE("PUSH([^\n]+)\nPUSH([^\n]+)\nPUSH([^\n]+)\nPOP ([^\n]+)\nPOP ([^\n]+)\nPOP ([^\n]+)\n", opts)
+         .GlobalReplace("MOV\\1,\\6\nMOV\\2,\\5\nMOV\\3,\\4\n", &code);
+    RE("PUSH([^\n]+)\nPUSH([^\n]+)\nPOP ([^\n]+)\nPOP ([^\n]+)\n", opts).GlobalReplace("MOV\\1,\\4\nMOV\\2,\\3\n", &code);
+    RE("PUSH([^\n]+)\nPOP ([^\n]+)\n", opts).GlobalReplace("MOV\\1,\\2\n", &code);
+    RE("MOV #([^,]+),R4\nMOV @R4,R4\n", opts).GlobalReplace("MOV @#\\1,R4\n", &code);
 }
 

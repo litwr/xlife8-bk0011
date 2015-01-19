@@ -321,9 +321,7 @@ midS_s_i_i_s:
 
      DEC R2
      BEQ 1$
-
-     DEC R3
-     BNE 2$
+     SOB R3,2$
 
 1$:  RETURN
 

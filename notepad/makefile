@@ -1,7 +1,7 @@
 OBJS = y.tab.o code.o
 
 rbkbasic: $(OBJS)
-	g++ -g $(OBJS) -o rbkbasic
+	g++ -g $(OBJS) -lpcrecpp -o rbkbasic
 
 y.tab.o: y.tab.c rbkbasic.cpp.l
 	lex rbkbasic.cpp.l

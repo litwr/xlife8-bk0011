@@ -9,7 +9,7 @@ struct Symbol {
   int addr, len, used;
 };
 int yylex(), yyparse(), yyerror(const string &), toint(string);
-void initcode(), printcode(), relocate(), breakpoint(), lexaddsym(string&, int = 2), asmcomm(const string &);
+void initcode(), printcode(), relocate(), breakpoint(), lexaddsym(string&, int = 2), asmcomm(const string&), optimizer(string&);
 string tostr(int);
 extern int progp, ivarp, svarp, strconstp, stringp, locals, strdatap;
 extern string code[], data[], lexdimname;

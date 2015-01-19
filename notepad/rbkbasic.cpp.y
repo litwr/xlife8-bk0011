@@ -14,7 +14,7 @@ string code[100000], data[100000];
 %token <sym> SVAR IVAR STR STRINGTYPE CHR INKEY MID
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
-%token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN
+%token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
 %type <sym> ivar svar
 %type <num> markop then
 %left OR
@@ -83,16 +83,24 @@ assign: ivar '=' iexpr {
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
 }
 | svar '=' svar {
-     asmcomm("svar ASSIGN s");
-     code[progp++] = "POP R3\nPOP R4\nCALL @#s_ASSIGN_s\n";
+     asmcomm("svar ASSIGN svar");
+     code[progp++] = "POP R3\nPOP R4\nMOV @R3,R3\nCALL @#s_ASSIGN_s\n";
 }
 | svar '=' sexpr {
      asmcomm("svar ASSIGN s");
-     code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
+     code[progp++] = "POP R3\nPOP R4\nCALL @#s_ASSIGN_s\n";
 }
+| MID '(' svar ',' iexpr ',' iexpr ')' '=' svar {
+     asmcomm("MID$(s,i,i,svar)");
+     code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nMOV @R1,R1\nCALL @#midS_s_i_i_s\n";
+  }
 | MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,i,s)");
      code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nCALL @#midS_s_i_i_s\n";
+  }
+| MID '(' svar ',' iexpr ')' '=' svar {
+     asmcomm("MID$(s,i,svar)");
+     code[progp++] = "POP R1\nPOP R3\nPOP R4\nMOV @R1,R1\nCALL @#midS_s_i_s\n";
   }
 | MID '(' svar ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,s)");
@@ -378,6 +386,14 @@ iexpr: NUMBER {
      code[progp++] = tostr(locals) + "$:PUSH R3\n";
      locals += 2;
 }
+| CSRLIN {
+     asmcomm("CSRLIN");
+     code[progp++] = "CALL @#getcrsr\nPUSH R2\n";
+}
+| POS {
+    asmcomm("POS");
+    code[progp++] = "CALL @#getcrsr\nPUSH R1\n";
+}
 | ASC '(' sexpr ')' {
      asmcomm("ASC(s)");
      code[progp++] = "POP R4\nCLR R3\nBISB (R4)+,R3\nBEQ " + tostr(locals)
@@ -427,41 +443,45 @@ iexpr: NUMBER {
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
-  }
+}
 | iexpr LE iexpr {
      asmcomm("i <= i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGT " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
-  }
+}
 | iexpr '=' iexpr {
      asmcomm("i EQ i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R3,R4\nBNE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
-  }
+}
 | iexpr NE iexpr {
      asmcomm("i <> i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R3,R4\nBEQ " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
-  }
+}
 | iexpr AND iexpr {
      asmcomm("i AND i");
      code[progp++] = "POP R3\nPOP R4\nCOM R3\nBIC R3,R4\nPUSH R4\n";
-  }
+}
 | iexpr OR iexpr {
      asmcomm("i OR i");
      code[progp++] = "POP R3\nPOP R4\nBIS R3,R4\nPUSH R4\n";
+}
+| NOT iexpr {
+     asmcomm("NOT i");
+     code[progp++] = "POP R3\nCOM R3\nPUSH R3\n";
   }
 | sexpr GT sexpr {
      asmcomm("s>s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_GT_s\nPUSH R5\n";
-  }
+}
 | sexpr GE sexpr {
      asmcomm("s>=s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_GE_S\nPUSH R5\n";
-  }
+}
 | sexpr LT sexpr {
      asmcomm("s<s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_LT_s\nPUSH R5\n";
