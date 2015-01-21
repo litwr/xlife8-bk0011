@@ -74,7 +74,7 @@ oper:
 }
 | FIND sexpr {
       asmcomm("FIND s");
-      code[progp++] = "POP R5\nCALL @#\n";
+      code[progp++] = "POP R4\nCALL @#cat\n";
 }
 | POKE iexpr ',' iexpr {
       asmcomm("POKE i,i");
@@ -182,7 +182,13 @@ input: INPUT varlist
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinputf\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
 }
-| INPUT STRINGTYPE ';' varlist
+| INPUT STRINGTYPE ';' {
+     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nCALL @#stringout\nMOV #\"? ,@#stringbuf\nMOV #stringbuf,R1\nMOV #2,R2\nCALL @#stringout";
+} varlist {
+     asmcomm("INPUT");
+     code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
+     code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+}
 ;
 varlist: svar {argcount++; code[progp++] = "PUSH #strfromfile\n";}
 | svar {argcount++; code[progp++] = "PUSH #strfromfile\n";} ',' varlist
@@ -506,41 +512,44 @@ sexpr: STRINGTYPE {
      reallocs[progp] = $1;
      code[progp++] = tostr($1->addr);
      code[progp++] = "\n";
-  }
+}
 | svar {
-     asmcomm("sv");
+     asmcomm("s -> sv");
      code[progp++] = "POP R3\nPUSH @R3\n";
-  }
+}
 | MID '(' sexpr ',' iexpr ')' {
-     asmcomm("mid$(s,i)");
+     asmcomm("s -> mid$(s,i)");
      code[progp++] = "POP R4\nPOP R2\nCALL @#midS_s_i\nPUSH R5\n";
-  }
+}
 | MID '(' sexpr ',' iexpr ',' iexpr ')' {
-     asmcomm("mid$(s,i,i)");
+     asmcomm("s -> mid$(s,i,i)");
      code[progp++] = "POP R3\nPOP R4\nPOP R2\nCALL @#midS_s_i_i\nPUSH R5\n";
-   }
+}
 | STR '(' iexpr ')' {
-     asmcomm("str$(i)");
+     asmcomm("s -> str$(i)");
      code[progp++] = "POP R3\nCALL @#strS_i\nPUSH R5\n";
-   }
-| INKEY
+}
+| INKEY {
+     asmcomm("s -> inkey$");
+     code[progp++] = "CALL @#inkeyS\nPUSH R5\n";
+}
 | STRING '(' iexpr ',' iexpr ')' {
-     asmcomm("string$(i,i)");
+     asmcomm("s -> string$(i,i)");
      code[progp++] = "POP R3\nPOP R4\nCALL @#stringS_i_i\nPUSH R5\n";
-   }
+}
 | STRING '(' iexpr ',' sexpr ')' {
-     asmcomm("string$(i,s)");
+     asmcomm("s -> string$(i,s)");
      code[progp++] = "POP R3\nPOP R4\nCALL @#stringS_i_S\nPUSH R5\n";
-   }
+}
 | CHR '(' iexpr ')' {
-     asmcomm("chr$(i)");
+     asmcomm("s -> chr$(i)");
      code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\n";
      code[progp++] = "MOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
-  }
+}
 | sexpr '+' sexpr {
-     asmcomm("s+s");
+     asmcomm("s -> s+s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_PLUS_s\nPUSH R5\n";
-  }
+}
 ;
 %%
 int lineno = 1;

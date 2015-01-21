@@ -1,5 +1,35 @@
+key2irq:   mov @#kbddtport,@#kbdbuf
+           beq 0$
+
+           bisb #128,@#kbdbuf
+0$:        rti
+        
+keyirq:    mov @#kbddtport,@#kbdbuf
+           rti
+
+getkey:  movb @#kbdbuf,r0    ;waitkey
+         beq getkey
+
+         clr @#kbdbuf
+exit11:  return
+
+getkey2: movb @#kbdbuf,r0
+         beq exit11
+
+kbddelay:mov #20000,r1
+1$:      bit #64,@#pageport
+         bne 2$
+
+         sob r1,1$
+         mov #2000,@#kbddelay+2
+         br 3$
+
+2$:      clr @#kbdbuf
+         mov #20000,@#kbddelay+2
+3$:      return
+
 tobin:     .word 10000,1000,100,10,1
-todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
+todec:    mov #stringbuf,r1  ;IN: r3 to decimal
           mov r1,r5
           movb #'0,r2
           mov #tobin,r4
@@ -24,13 +54,13 @@ todec:    mov #stringbuf,r1  ;IN: r3 to decimal, no negative numbers support
           cmp r5,r1
           bne 4$
 
-          dec r1         
+          dec r1
 4$:       inc r1
           cmp r0,#1
           bne 1$
 
           mov #stringbuf,r1
-          return
+exit16:   return
 
 dogetf:
      MOV @#strdcurre,R2
@@ -91,6 +121,18 @@ doinputf:
      BR 2$
 
 1$:  RETURN
+
+inkeyS:
+     CALL @#getkey2
+     MOV #strestatic,R5
+     TSTB R0
+     BEQ exit16
+
+     MOV @#strdcurre,R2
+     MOV R2,R5
+     MOVB #1,(R2)+
+     MOVB R0,(R2)+
+     BR stringS_i_i0
 
 s_ASSIGN_s:
      MOV @#strdcurre,R2
@@ -410,18 +452,87 @@ fcharout:
      TOIO
      MOVB R0,(R2)+
 0$:  MOV R2,@#filepos
+fcharout0:
      BR charout0
 
-showdir: mov @#andos_init,r1
+cat:     mov #11,r0
+         mov #stringbuf,r5
+30$:     movb #32,(r5)+
+         sob r0,30$
+         
+         clr r2     ;in: r4 - ptr to mask
+         bisb (r4)+,r2
+         beq 16$
+
+         push r4
+         mov r2,r3
+32$:     cmpb #'.,(r4)+
+         beq 31$
+         sob r3,32$
+
+31$:     pop r4
+         mov r2,r0
+         sub r3,r0
+         beq 16$
+
+         cmp r0,#8
+         bcc 16$
+
+         mov #stringbuf,r5
+         mov r0,r1
+2$:      cmpb #'*,@r4
+         beq 35$
+
+         movb (r4)+,(r5)+
+         sob r1,2$
+
+         mov #8,r1
+         sub r0,r1
+         beq 38$
+
+5$:      movb #32,(r5)+
+         sob r1,5$
+         br 38$
+
+35$:     inc r4
+         sub #9,r0
+         neg r0
+41$:     movb #'?,(r5)+
+         sob r0,41$
+
+38$:     inc r4
+         dec r3
+         beq showdir
+
+43$:     cmpb #'*,@r4
+         beq 42$
+
+         movb (r4)+,(r5)+
+         sob r3,43$
+
+         movb #3,r1
+         sub r3,r1
+         beq 16$
+
+8$:      movb #32,(r5)+
+         sob r1,8$
+16$:     return
+
+42$:     sub #4,r3
+         neg r3
+44$:     movb #'?,(r5)+
+         sob r3,44$
+
+showdir: TOSCREEN
+         mov @#andos_init,r1
          call @r1
          clr r0
-         clr r5
-1$:   ;;  mov #svfn,r3
+1$:      mov #stringbuf,r3
          mov @#andos_diren2,r1
          call @r1
-         beq charout1
+         beq fcharout0
 
-         mov #12,r2
+         mov #11,r2
          mov r4,r1
 3$:      cmpb @r3,(r1)+
          beq 2$
@@ -432,21 +543,23 @@ showdir: mov @#andos_init,r1
 2$:      inc r3
          sob r2,3$
 
-         mov #stringbuf,r3
-         mov #12,r2
+         mov #stringbuf+11,r3
+         mov #11,r2
          mov r4,r1
 4$:      movb (r1)+,(r3)+
-         sob r2,4$
+         cmp #4,r2
+         bne 7$
 
-         movb #32,(r3)+
-         inc r5
-15$:     bit #4,r5
-         bne 22$
+         movb #'.,(r3)+
+7$:      sob r2,4$
 
-         mov #10,r2
-22$:     movb r2,(r3)+
-         mov #stringbuf,r1
-         mov #19,r2
+         mov #32,r1
+         movb r1,(r3)+
+         movb r1,(r3)+
+         movb r1,(r3)+
+         movb r1,(r3)+
+         mov #stringbuf+11,r1
+         mov #16,r2
          emt ^O20
          br 1$
 
@@ -454,5 +567,6 @@ strdstart: .word strsdyn
 strdcurre: .word strsdyn
 filepos:   .word 0
 eolpos:    .word 0
+kbdbuf:    .word 0
 lib_end:
 
