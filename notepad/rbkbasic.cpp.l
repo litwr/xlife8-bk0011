@@ -51,6 +51,7 @@ space      [ \t]+
 (?i:ASC)   return ASC;
 (?i:AND)   return AND;
 (?i:OR)    return OR;
+(?i:ON)    return ON;
 (?i:LEN)   return LEN;
 (?i:OPEN)  return OPEN;
 (?i:CLOSE) return CLOSE;

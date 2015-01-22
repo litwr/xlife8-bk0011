@@ -1,5 +1,5 @@
 Supported:
-ABS AND ASC CHR$ CLS CSRLIN DIM ELSE END EOF FOR GOSUB GOTO IF INKEY$ INPUT LEN LET MID$ NEXT NOT OR PEEK POKE POS PRINT
+ABS AND ASC CHR$ CLS CSRLIN DIM ELSE END EOF FOR GOSUB GOTO IF INKEY$ INPUT LEN LET MID$ NEXT NOT ON OR PEEK POKE POS PRINT
 REM RETURN SGN STEP STR$ STRING$ THEN TO UINT$ VAL
 
 Partially:
@@ -19,13 +19,13 @@ Special notes:
 
 * FRE - ignores an argument, shows total about of free memory. The garbage collector is only invoked if the argument type is string. So in the case of the integer or absent argument the shown amount of memory maybe less than the actual.
 
-* Only the syntax errors are detected.
+* Only some syntax errors are detected.
 
 * New function UINT$ provides the conversion to unsigned integer.  For example, UINT$(-1) gives "65535".
 
 
 Planned:
-AT BIN$ BLOAD BSAVE CLEAR FIND HEX$ IMP MONIT OCT$ ON OUT TAB READ DATA RESTORE
+AT BIN$ BLOAD BSAVE CLEAR FIND HEX$ IMP MONIT OCT$ OUT TAB READ DATA RESTORE
 
 
 Graphics:

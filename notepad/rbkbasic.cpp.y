@@ -15,7 +15,7 @@ string code[100000], data[100000];
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
-%token <num> UINT
+%token <num> UINT ON
 %type <sym> ivar svar
 %type <num> markop then
 %left OR
@@ -47,7 +47,7 @@ oper:
 | locate
 | open
 | CLOSE {
-     asmcomm("CLOSE");
+     asmcomm("oper -> CLOSE");
      code[progp++] = "CMPB #2,@#io_op\n";
      code[progp++] = "BNE " + tostr(locals) + "$\n";
      code[progp++] = "MOV @#filepos,R2\nSUB #16384,R2\nMOV R2,@#io_len\n";
@@ -55,33 +55,69 @@ oper:
      code[progp++] = tostr(locals++) + "$:CLR @#filepos\n";
 }
 | GOSUB NUMBER {
-     asmcomm("GOSUB NUMBER");
+     asmcomm("oper -> GOSUB NUMBER");
      code[progp++] = "CALL @#";
      reallocl[progp] = $2;
      code[progp++] = "";
 }
-| RETURN {asmcomm("RETURN"); code[progp++] = "RETURN\n";}
+| RETURN {asmcomm("oper -> RETURN"); code[progp++] = "RETURN\n";}
 | GOTO NUMBER {
-      asmcomm("GOTO NUMBER");
+      asmcomm("oper -> GOTO NUMBER");
       code[progp++] = "JMP @#";
       reallocl[progp] = $2;
       code[progp++] = "";
 }
-| CLS {asmcomm("CLS"); code[progp++] = "MOV #12,R0\nCALL @#charout\n";}
+| ON iexpr GOTO {
+      asmcomm("oper -> ON i GOTO");
+      code[progp++] = tostr(locals + 1) + "$:\n";
+      code[progp++] = "BR " + tostr(locals) + "$\n";
+} labellist {
+      code[progp++] = tostr(locals) + "$:\n";
+      code[progp++] = "POP R3\n";
+      code[progp++] = "BLE " + tostr(locals + 2) + "$\n";
+      code[progp++] = "ASL R3\n";
+      code[progp++] = "CMP R3,#" + tostr(locals) + "$-" + tostr(locals + 1) + "$\n";
+      code[progp++] = "BCC " + tostr(locals + 2) + "$\n";
+      code[progp++] = "JMP @" + tostr(locals + 1) + "$(R3)\n";
+      code[progp++] = tostr(locals + 2) + "$:\n";
+      locals += 3;
+}
+| ON iexpr GOSUB {
+      asmcomm("oper -> ON i GOSUB");
+      argcount = 0;
+      code[progp++] = tostr(locals + 1) + "$:\n";
+      code[progp++] = "BR " + tostr(locals) + "$\n";
+} labellist {
+      code[progp++] = tostr(locals) + "$:\n";
+      code[progp++] = "POP R3\n";
+      code[progp++] = "BLE " + tostr(locals + 2) + "$\n";
+      code[progp++] = "ASL R3\n";
+      code[progp++] = "CMP R3,#" + tostr(locals) + "$-" + tostr(locals + 1) + "$\n";
+      code[progp++] = "BCC " + tostr(locals + 2) + "$\n";
+      code[progp++] = "CALL @" + tostr(locals + 1) + "$(R3)\n";
+      code[progp++] = tostr(locals + 2) + "$:\n";
+      locals += 3;
+}
+| CLS {asmcomm("oper -> CLS"); code[progp++] = "MOV #12,R0\nCALL @#charout\n";}
 | input {argcount = 0;}
 | GET '#' svar {
-      asmcomm("GET# s");
+      asmcomm("oper -> GET# s");
       code[progp++] = "POP R5\nCALL @#dogetf\n";
 }
 | FIND sexpr {
-      asmcomm("FIND s");
+      asmcomm("oper -> FIND s");
       code[progp++] = "POP R4\nCALL @#cat\n";
 }
 | POKE iexpr ',' iexpr {
-      asmcomm("POKE i,i");
+      asmcomm("oper -> POKE i,i");
       code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
 }
 | END {code[progp++] = "JMP @#finalfinish\n";}
+;
+labellist: lablistel
+| lablistel ',' labellist
+;
+lablistel: NUMBER {code[progp++] = ".WORD "; reallocl[progp] = $1; code[progp++] = "";}
 ;
 assign: ivar '=' iexpr {
      asmcomm("ivar ASSIGN i");
@@ -98,7 +134,7 @@ assign: ivar '=' iexpr {
 | MID '(' svar ',' iexpr ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,i,s)");
      code[progp++] = "POP R1\nPOP R2\nPOP R3\nPOP R4\nCALL @#midS_s_i_i_s\n";
-  }
+}
 | MID '(' svar ',' iexpr ')' '=' sexpr {
      asmcomm("MID$(s,i,s)");
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
