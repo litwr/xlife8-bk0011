@@ -1,6 +1,6 @@
 Supported:
-ABS AND ASC CHR$ CLS CSRLIN DIM ELSE END EOF FOR GOSUB GOTO IF INKEY$ INPUT LEN LET MID$ NEXT NOT ON OR PEEK POKE POS PRINT
-REM RETURN SGN STEP STR$ STRING$ THEN TO UINT$ VAL
+ABS AND ASC CHR$ CLS CSRLIN DIM ELSE END EOF FIND FOR GOSUB GOTO HEX$ IF INKEY$ INPUT LEN LET MID$ NEXT NOT ON OR PEEK POKE
+POS PRINT REM RETURN SGN STEP STR$ STRING$ THEN TO UINT$ VAL
 
 Partially:
 LOCATE
@@ -23,10 +23,11 @@ Special notes:
 
 * New function UINT$ provides the conversion to unsigned integer.  For example, UINT$(-1) gives "65535".
 
+* FIND may use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensetive.
+
 
 Planned:
-AT BIN$ BLOAD BSAVE CLEAR FIND HEX$ IMP MONIT OCT$ OUT TAB READ DATA RESTORE
-
+AT BIN$ BLOAD BSAVE CLEAR IMP MONIT OCT$ OUT INP TAB SPC READ DATA RESTORE DEF FN USR
 
 Graphics:
 CIRCLE DRAW PAINT POINT PRESET PSET

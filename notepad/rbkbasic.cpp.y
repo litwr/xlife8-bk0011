@@ -11,11 +11,11 @@ string code[100000], data[100000];
   Symbol *sym;
   int num;
 }
-%token <sym> SVAR IVAR STR STRINGTYPE CHR INKEY MID
+%token <sym> SVAR IVAR STRINGTYPE
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
-%token <num> UINT ON
+%token <num> UINT ON STR CHR INKEY MID HEX
 %type <sym> ivar svar
 %type <num> markop then
 %left OR
@@ -140,7 +140,9 @@ assign: ivar '=' iexpr {
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
 }
 ;
-print: PRINT prdelim prlist {asmcomm("PRINT prdelim prlist");}
+print: PRINT printnl
+| PRINT prdelim prlist {asmcomm("PRINT prdelim prlist");}
+| PRINT '#' fprintnl
 | PRINT '#' prdelim fprlist
 ;
 prlist: sexpr ',' printstring print2tab prlist
@@ -612,6 +614,15 @@ sexpr: STRINGTYPE {
      asmcomm("s -> chr$(i)");
      code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\n";
      code[progp++] = "MOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+}
+| HEX '(' iexpr ')' {
+     asmcomm("s -> hex$(i)");
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #4,(R2)+\n";
+     code[progp++] = "MOV R3,R4\nCLC\nSWAB R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
+     code[progp++] = "MOV R3,R4\nSWAB R4\nBIC #240,R4\nCALL @#hexconv\n";
+     code[progp++] = "MOV R3,R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
+     code[progp++] = "BIC #240,R3\nMOV R3,R4\nCALL @#hexconv\n";
+     code[progp++] = "MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
 }
 | UINT '(' iexpr ')' {
      asmcomm("s -> uint$(i)");

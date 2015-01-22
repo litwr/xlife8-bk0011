@@ -661,6 +661,15 @@ str2dec: clr r1           ;IN: R4; OUT: R3
          neg r3
 10$:     return
 
+hexconv: ADD #48,R4
+         CMPB R4,#'9+1
+         BCS 1$
+
+         ADD #7,R4
+1$:      MOVB R4,(R2)+
+         CLC
+         RETURN
+
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
 filepos:   .word 0

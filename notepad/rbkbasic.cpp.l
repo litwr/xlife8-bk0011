@@ -28,6 +28,7 @@ space      [ \t]+
 (?i:LET)   return LET;
 (?i:MID)\$ return MID;
 (?i:STR)\$ return STR;
+(?i:HEX)\$ return HEX;
 (?i:STRING)\$ return STRING;
 (?i:INKEY)\$ return INKEY;
 (?i:UINT)\$ return UINT;
