@@ -1654,7 +1654,7 @@ setdirmsk: jsr r3,@#printstr
          cmpb r0,#126
          bcc 1$
 
-         mov #nofnchar,r3
+         mov #nofnchar + 1,r3
 50$:     cmpb r0,(r3)+
          beq 1$
 
@@ -1678,12 +1678,10 @@ setdirmsk: jsr r3,@#printstr
 
 11$:     mov #svfn,r4
          mov r2,r3
-         tstb r2
          beq 16$
 
          mov #stringbuf,r5
-2$:      mov @r5,r0
-         cmpb #'*,r0
+2$:      cmpb #'*,@r5
          beq 16$
 
          movb (r5)+,(r4)+

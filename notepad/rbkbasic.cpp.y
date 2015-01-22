@@ -176,24 +176,43 @@ fprintstring: {
      locals += 2;
 }
 ;
-input: INPUT varlist
-| INPUT '#' varlist {
-     asmcomm("INPUT#");
-     code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinputf\n";
-     code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
-}
-| INPUT STRINGTYPE ';' {
-     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nCALL @#stringout\nMOV #\"? ,@#stringbuf\nMOV #stringbuf,R1\nMOV #2,R2\nCALL @#stringout";
-} varlist {
-     asmcomm("INPUT");
+input: INPUT '#' varlistf {
+     asmcomm("input -> INPUT# varlist");
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
 }
+| INPUT varlist {
+     asmcomm("input -> INPUT varlist");
+     code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
+     code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+     code[progp++] = "MOV #10,R0\nCALL @#charout\n";
+}
+| INPUT sexpr ';' {
+     asmcomm("input -> INPUT s; varlist");
+     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nCALL @#stringout\nMOV #\"? ,@#stringbuf\nMOV #stringbuf,R1\nMOV #2,R2\nCALL @#stringout\n";
+} varlist {
+     code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
+     code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+     code[progp++] = "MOV #10,R0\nCALL @#charout\n";
+}
 ;
-varlist: svar {argcount++; code[progp++] = "PUSH #strfromfile\n";}
-| svar {argcount++; code[progp++] = "PUSH #strfromfile\n";} ',' varlist
-| ivar
-| ivar ',' varlist
+varlistf: svarf 
+| svarf ',' varlistf
+| ivarf
+| ivarf ',' varlistf
+;
+svarf: svar {argcount++; code[progp++] = "PUSH #strfromfile\n";}
+;
+ivarf:
+;
+varlist: svark
+| svark ',' varlist
+| ivark
+| ivark ',' varlist
+;
+svark: svar {argcount++; code[progp++] = "PUSH #strfromkbd\n";}
+;
+ivark:
 ;
 for: markop FOR IVAR '=' iexpr {
      asmcomm("FOR");
@@ -382,33 +401,36 @@ iexpr: NUMBER {
      code[progp++] = tostr(locals++) + "$:PUSH R4\n";
 }
 | SGN '(' iexpr ')' {
-     asmcomm("SGN(i)");
+     asmcomm("i -> SGN(i)");
      code[progp++] = "CLR R3\nPOP R4\nBEQ " + tostr(locals) + "$\nBMI " + tostr(locals + 1) + "$\n";
      code[progp++] = "INC R3\nBR " + tostr(locals) + "$\n" + tostr(locals + 1) + "$:DEC R3\n";
      code[progp++] = tostr(locals) + "$:PUSH R3\n";
      locals += 2;
 }
 | CSRLIN {
-     asmcomm("CSRLIN");
+     asmcomm("i -> CSRLIN");
      code[progp++] = "CALL @#getcrsr\nPUSH R2\n";
 }
 | POS {
-    asmcomm("POS");
+    asmcomm("i -> POS");
     code[progp++] = "CALL @#getcrsr\nPUSH R1\n";
 }
 | ASC '(' sexpr ')' {
-     asmcomm("ASC(s)");
+     asmcomm("i -> ASC(s)");
      code[progp++] = "POP R4\nCLR R3\nBISB (R4)+,R3\nBEQ " + tostr(locals)
         + "$\nCLR R3\nBISB @R4,R3\n" + tostr(locals) + "$:PUSH R3\n";
      locals++;
 }
 | LEN '(' sexpr ')' {
-     asmcomm("LEN(s)");
+     asmcomm("i -> LEN(s)");
      code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
 }
-| VAL '(' sexpr ')'
+| VAL '(' sexpr ')' {
+     asmcomm("i -> VAL(s)");
+     code[progp++] = "POP R4\nCALL @#str2dec\nPUSH R3\n";
+}
 | BEOF {
-     asmcomm("EOF");
+     asmcomm("i -> EOF");
      code[progp++] = "CLR R0\n";
      code[progp++] = "CMP @#filepos,@#loaded_sz\n";
      code[progp++] = "BCS " + tostr(locals) + "$\n";
@@ -416,15 +438,15 @@ iexpr: NUMBER {
      code[progp++] = tostr(locals++) + "$:PUSH R0\n";
 }
 | iexpr '+' iexpr {
-     asmcomm("i + i");
+     asmcomm("i -> i + i");
      code[progp++] = "POP R3\nPOP R4\nADD R3,R4\nPUSH R4\n";
 }
 | iexpr '-' iexpr {
-     asmcomm("i - i");
+     asmcomm("i -> i - i");
      code[progp++] = "POP R3\nPOP R4\nSUB R3,R4\nPUSH R4\n";
 }
 | '-' iexpr %prec NOT {
-     asmcomm("-i");
+     asmcomm("i -> -i");
      code[progp++] = "POP R4\nNEG R4\nPUSH R4\n";
 }
 | '(' iexpr ')'

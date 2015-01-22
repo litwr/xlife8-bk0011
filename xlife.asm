@@ -189,7 +189,7 @@ msgtore:  .asciz "TORUS"
 msgplan:  .asciz "PLAIN"
 msgrun:   .asciz "RUN "
 msgstop:  .asciz "STOP"
-nofnchar: .asciz "?%(),./:;<=>[\]|"
+nofnchar: .asciz "?%(),./:;<=>[\]|"   ;? - must be the first
 
           .odd
 stringbuf: .blkb 19       ;it must be at odd addr!

@@ -7,14 +7,8 @@ key2irq:   mov @#kbddtport,@#kbdbuf
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
-getkey:  movb @#kbdbuf,r0    ;waitkey
-         beq getkey
-
-         clr @#kbdbuf
-exit11:  return
-
 getkey2: movb @#kbdbuf,r0
-         beq exit11
+         beq exit16
 
 kbddelay:mov #20000,r1
 1$:      bit #64,@#pageport
@@ -80,6 +74,30 @@ dogetf:
 
 intfromkbd:
 strfromkbd:
+     MOV @#strdcurre,R2
+     MOV R2,@R5
+     INC R2
+     CLR R3
+2$:  CMP R3,#255
+     BEQ strfromfile1
+
+3$:  CALL @#getkey2
+     TSTB R0
+     BEQ 3$
+
+     CMPB #10,R0
+     BEQ strfromfile1
+
+     MOVB R0,(R2)+
+     CMPB #24,R0  ;zaboy/backspace
+     BNE 1$
+ 
+     SUB #2,R2
+     SUB #2,R3
+1$:  CALL @#charout
+     INC R3
+     BR 2$
+
 intfromfile:
 strfromfile:
      MOV @#strdcurre,R2
@@ -104,12 +122,13 @@ strfromfile:
      BR 2$
 
 strfromfile0:
+     MOV R4,@#filepos
+strfromfile1:
      MOVB R3,@0(R5)
      MOV @R5,R5
-     MOV R4,@#filepos
      BR stringS_i_i0
 
-doinputf:
+doinput:
      MOV 2(SP),R0
      ADD SP,R0
 2$:  MOV -(R0),R5   ;param
@@ -117,7 +136,9 @@ doinputf:
      CMP R0,SP
      BEQ 1$
 
+     PUSH R0
      CALL @R4
+     POP R0
      BR 2$
 
 1$:  RETURN
@@ -462,7 +483,7 @@ cat:     mov #11,r0
          
          clr r2     ;in: r4 - ptr to mask
          bisb (r4)+,r2
-         beq 16$
+         beq charout1
 
          push r4
          mov r2,r3
@@ -473,10 +494,10 @@ cat:     mov #11,r0
 31$:     pop r4
          mov r2,r0
          sub r3,r0
-         beq 16$
+         beq charout1
 
          cmp r0,#8
-         bcc 16$
+         bcc charout1
 
          mov #stringbuf,r5
          mov r0,r1
@@ -502,21 +523,18 @@ cat:     mov #11,r0
 
 38$:     inc r4
          dec r3
-         beq showdir
+         ble showdir
 
+         cmpb #3,r3
+         bcc 43$
+
+         mov #3,r3
 43$:     cmpb #'*,@r4
          beq 42$
 
          movb (r4)+,(r5)+
          sob r3,43$
-
-         movb #3,r1
-         sub r3,r1
-         beq 16$
-
-8$:      movb #32,(r5)+
-         sob r1,8$
-16$:     return
+         br showdir
 
 42$:     sub #4,r3
          neg r3
@@ -562,6 +580,47 @@ showdir: TOSCREEN
          mov #16,r2
          emt ^O20
          br 1$
+
+str2dec: clr r1
+         bisb (r4)+,r1
+         clr r3
+         cmp #5,r1
+         bcs 5$
+
+1$:      dec r1
+         beq 2$
+
+         cmpb #'0,(r4)+
+         beq 1$
+
+         dec r4
+2$:      mov r1,r2
+         sub #4,r2
+         neg r2
+         asl r2
+6$:      mov tobin(r2),r0
+         cmpb #'0,@r4
+         bcc 8$
+
+         cmpb #'9,@r4
+         bcs 8$
+
+4$:      cmpb #'0,@r4
+         beq 3$
+
+         add r0,r3
+         decb @r4
+         br 4$ 
+
+3$:      cmp #8,r2
+         beq 5$
+
+7$:      add #2,r2
+         inc r4
+         br 6$
+
+8$:      clr r3
+5$:      return
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
