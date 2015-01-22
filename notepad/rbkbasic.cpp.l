@@ -24,12 +24,13 @@ space      [ \t]+
 (?i:SGN)   return SGN;
 (?i:CSRLIN)(\(.*\))? return CSRLIN;
 (?i:POS)(\(.*\))? return POS;
-(?i:FRE)(\(.*\))? return FRE;
+(?i:FRE)   return FRE;
 (?i:LET)   return LET;
 (?i:MID)\$ return MID;
 (?i:STR)\$ return STR;
 (?i:STRING)\$ return STRING;
 (?i:INKEY)\$ return INKEY;
+(?i:UINT)\$ return UINT;
 (?i:GOTO)  return GOTO;
 (?i:INPUT) return INPUT;
 (?i:FOR)   return FOR;

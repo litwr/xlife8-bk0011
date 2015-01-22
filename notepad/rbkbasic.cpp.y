@@ -15,6 +15,7 @@ string code[100000], data[100000];
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
+%token <num> UINT
 %type <sym> ivar svar
 %type <num> markop then
 %left OR
@@ -212,7 +213,7 @@ varlist: svark
 ;
 svark: svar {argcount++; code[progp++] = "PUSH #strfromkbd\n";}
 ;
-ivark:
+ivark: ivar {argcount++; code[progp++] = "PUSH #intfromkbd\n";}
 ;
 for: markop FOR IVAR '=' iexpr {
      asmcomm("FOR");
@@ -391,6 +392,14 @@ iexpr: NUMBER {
      asmcomm("FRE");
      code[progp++] = "MOV #strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
 }
+| FRE '(' iexpr ')' {
+     asmcomm("FRE(i)");
+     code[progp++] = "POP R3\nMOV #strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
+}
+| FRE '(' sexpr ')' {
+     asmcomm("FRE(s)");
+     code[progp++] = "POP R5\nCLR R5\nCALL @#gc0\nMOV #strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
+}
 | PEEK '(' iexpr ')' {
      asmcomm("PEEK(i)");
      code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
@@ -567,6 +576,11 @@ sexpr: STRINGTYPE {
      asmcomm("s -> chr$(i)");
      code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\n";
      code[progp++] = "MOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+}
+| UINT '(' iexpr ')' {
+     asmcomm("s -> uint$(i)");
+     code[progp++] = "POP R3\nMOV @#strdcurre,R5\nINC R5\nPUSH R5\nCALL @#todec0\nMOV @#strdcurre,R3\nMOV R5,R4\nSUB (SP)+,R4\n";
+     code[progp++] = "MOV R5,@#strdcurre\nMOVB R4,@R3\nMOV R3,R5\nCALL @#gc\nPUSH R5\n";
 }
 | sexpr '+' sexpr {
      asmcomm("s -> s+s");

@@ -23,35 +23,34 @@ kbddelay:mov #20000,r1
 3$:      return
 
 tobin:     .word 10000,1000,100,10,1
-todec:    mov #stringbuf,r1  ;IN: r3 to decimal
-          mov r1,r5
+todec:    mov #stringbuf,r5  ;IN: r3 to decimal
+          tst r3
+          bpl todec0
+
+          movb #'-,(r5)+
+          neg r3
+todec0:   mov r5,r1
           movb #'0,r2
           mov #tobin,r4
-          tst r3
-          bpl 1$
-
-          movb #'-,(r1)+
-          inc r5
-          neg r3
-1$:       mov (r4)+,r0
-          movb r2,@r1
-          clrb 1(r1)
-5$:       incb @r1
+7$:       mov (r4)+,r0
+          movb r2,@r5
+          clrb 1(r5)
+5$:       incb @r5
           sub r0,r3
           bcc 5$
 
           add r0,r3
-          decb @r1
-          cmpb r2,@r1
+          decb @r5
+          cmpb r2,@r5
           bne 4$
 
-          cmp r5,r1
+          cmp r1,r5
           bne 4$
 
-          dec r1
-4$:       inc r1
+          dec r5
+4$:       inc r5
           cmp r0,#1
-          bne 1$
+          bne 7$
 
           mov #stringbuf,r1
 exit16:   return
@@ -72,34 +71,53 @@ dogetf:
      INC R3
      BR strfromfile0
 
-intfromkbd:
-strfromkbd:
+commonfromkbd:
      MOV @#strdcurre,R2
      MOV R2,@R5
      INC R2
      CLR R3
 2$:  CMP R3,#255
-     BEQ strfromfile1
+     BEQ exit16
 
 3$:  CALL @#getkey2
      TSTB R0
      BEQ 3$
 
      CMPB #10,R0
-     BEQ strfromfile1
+     BEQ exit16
 
      MOVB R0,(R2)+
      CMPB #24,R0  ;zaboy/backspace
-     BNE 1$
+     BEQ 5$
  
-     SUB #2,R2
+     CMPB R0,#32
+     BCC 1$
+
+     DEC R2
+     BR 3$
+
+5$:  SUB #2,R2
      SUB #2,R3
 1$:  CALL @#charout
      INC R3
      BR 2$
 
-intfromfile:
-strfromfile:
+intfromkbd:
+     CALL @#commonfromkbd
+intfromkbd0:
+     MOV @#strdcurre,R4
+     MOVB R3,@R4
+     PUSH R5
+     CALL @#str2dec
+     POP R5
+     MOV R3,@R5
+     RETURN
+
+strfromkbd:
+     CALL @#commonfromkbd
+     BR strfromfile1
+
+commonfromfile:
      MOV @#strdcurre,R2
      MOV R2,@R5
      INC R2
@@ -109,17 +127,25 @@ strfromfile:
      BEQ strfromfile0
 
      CMP R4,@#loaded_sz
-     BCC strfromfile0
+     BCC exit16
 
      TOIO
      MOVB (R4)+,R1
      TOMAIN
      CMPB #10,R1
-     BEQ strfromfile0
+     BEQ exit16
 
      MOVB R1,(R2)+
      INC R3
      BR 2$
+
+intfromfile:
+     CALL @#commonfromfile
+     BR intfromkbd0
+
+strfromfile:
+     CALL @#commonfromfile
+     BR strfromfile0
 
 strfromfile0:
      MOV R4,@#filepos
@@ -581,13 +607,20 @@ showdir: TOSCREEN
          emt ^O20
          br 1$
 
-str2dec: clr r1
+str2dec: clr r1           ;IN: R4; OUT: R3
          bisb (r4)+,r1
          clr r3
-         cmp #5,r1
+         clr r5
+         cmpb #'-,@r4
+         bne 1$
+
+         inc r5
+         dec r1
+         inc r4
+1$:      cmp #5,r1
          bcs 5$
 
-1$:      dec r1
+         dec r1
          beq 2$
 
          cmpb #'0,(r4)+
@@ -599,7 +632,7 @@ str2dec: clr r1
          neg r2
          asl r2
 6$:      mov tobin(r2),r0
-         cmpb #'0,@r4
+         cmpb #'0-1,@r4
          bcc 8$
 
          cmpb #'9,@r4
@@ -620,7 +653,13 @@ str2dec: clr r1
          br 6$
 
 8$:      clr r3
-5$:      return
+         return
+
+5$:      tst r5
+         beq 10$
+
+         neg r3
+10$:     return
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn

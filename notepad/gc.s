@@ -1,7 +1,7 @@
 gc:       cmp #strdmax,@#strdcurre      ;R2 instead of @#strdcurre - requires check
           bcc exitgc
 
-          mov @#strdstart,r3
+gc0:      mov @#strdstart,r3
           mov r5,@#strestatic-2
 7$:       mov #strsstatic,r1
           clr r0

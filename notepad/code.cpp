@@ -104,5 +104,6 @@ void optimizer(string &code) {
     RE("PUSH([^\n]+)\nPOP ([^\n]+)\n", opts).GlobalReplace("MOV\\1,\\2\n", &code);
     RE("MOV #([^,]+),R4\nMOV @R4,R4\n", opts).GlobalReplace("MOV @#\\1,R4\n", &code);
     RE("MOV R([0-9]),R\\1\n", opts).GlobalReplace("", &code);
+    //RE("MOV ([^,]+),R4\nMOV R4,(R[0-5])\n", opts).GlobalReplace("MOV \\1,\\2\n", &code);
 }
 
