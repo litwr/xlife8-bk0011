@@ -415,6 +415,7 @@ midS_s_i_i_s:
 
 openwrite:
      MOV #16384,@#eolpos
+openwrite0:
      MOV #2,R1
      BR openread0
 
@@ -422,17 +423,16 @@ openread:
      MOV #3,R1
 openread0:
      MOV #16384,R5
-openread1:
      TST @#filepos
-     BNE 3$
+     BNE exit20
 
+     MOV R5,@#filepos
      MOV #io_op,R4
+     MOV R1,(R4)+
      CLR R2
      BISB (R3)+,R2
-     MOV R1,(R4)+
-     MOV #12,R1
      MOV R5,(R4)+
-     MOV R5,@#filepos
+     MOV #12,R1
      CLR (R4)+
 0$:  MOVB (R3)+,(R4)+
      DEC R1
@@ -443,10 +443,11 @@ openread1:
 2$:  CLRB (R4)+
      SOB R1,2$
 
-3$:  RETURN
+exit20:
+     RETURN
 
 emt36: TOIO
-     MOV #io_OP,R1\n
+     MOV #io_OP,R1
      EMT ^O36
      BR charout0
 
@@ -682,12 +683,11 @@ str2dec: clr r1           ;IN: R4; OUT: R3
 10$:     return
 
 hexconv: ADD #48,R4
-         CMPB R4,#'9+1
-         BCS 1$
+         CMPB #'9,R4
+         BCC 1$
 
          ADD #7,R4
 1$:      MOVB R4,(R2)+
-         CLC
          RETURN
 
 strdstart: .word strsdyn
@@ -696,5 +696,6 @@ filepos:   .word 0
 eolpos:    .word 0
 kbdbuf:    .word 0
 cursorst:  .word 65535
+strdmax:   .word 48*1024-256
 lib_end:
 

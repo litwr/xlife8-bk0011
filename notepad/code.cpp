@@ -30,7 +30,6 @@ void printcode() {
    string wholecode;
    ostr << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
       << progstart << endl;
-   ostr << "strdmax =" << 48*1024-256 << endl ;
    ostr << "MOV #240*256+240,@#^O120140\n";
    ostr << "TOMAIN\n";
    ostr << "MOV #keyirq,@#^O60\nMOV #key2irq,@#^O274\n";

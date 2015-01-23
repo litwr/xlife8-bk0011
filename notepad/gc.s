@@ -1,4 +1,4 @@
-gc:       cmp #strdmax,@#strdcurre      ;R2 instead of @#strdcurre - requires check
+gc:       cmp @#strdmax,@#strdcurre
           bcc exitgc
 
 gc0:      mov @#strdstart,r3

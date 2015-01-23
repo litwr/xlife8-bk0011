@@ -1,33 +1,40 @@
 Supported:
-ABS AND ASC CHR$ CLS CSRLIN DIM ELSE END EOF FIND FOR GOSUB GOTO HEX$ IF INKEY$ INPUT LEN LET MID$ NEXT NOT ON OR PEEK POKE
-POS PRINT REM RETURN SGN STEP STR$ STRING$ THEN TO UINT$ VAL
-
-Partially:
-LOCATE
+ABS AND ASC BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DIM ELSE END EOF FIND FOR GOSUB GOTO HEX$ IF INKEY$ INPUT LEN LET LOCATE MID$ NEXT NOT ON OR PEEK POKE POS PRINT REM RETURN SGN STEP STR$ STRING$ THEN TO UINT$ VAL
 
 Special notes:
+* Executable file size up to 32256 bytes. 16384 additional bytes maybe used for strings or machine code.  The executable starts from address 512.
+
+* The pages 2, 3, and 6 are used to keep the program and data. Page 0 is used as io-buffer. Page 4 contains AnDOS.  Other pages of memory are free for any usage.
 
 * Supported only integer and string types.
 
+* &H, &B, &O number prefixes are not supported.
+
 * DIM should be used for any array (even with less than 10 elements) and its number argument has to be a constant.  Only one dimensional arrays are supported.
 
-* New statement GET# allows to use char-by-char data transmission, e.g., GET#a$ inputs one character or the empty string to a$ from a file opened to read.
+* New statement GET# allows to use char-by-char data transmission, e.g., GET#a$ inputs one character or the empty string to a$ from a file opened to read.  It is the file equvalent of INKEY$.
+
+* CLEAR requires exactly two arguments but the first argument is ignored because all free memory is available for the strings. CLEAR calls the garbage collector at first.  The secont argument sets the upper border of memory for BASIC.  The default value for this border is 49152.  It may be set to 16384 to program compatibility with BK0010.
 
 * INPUT may have a bit different interface.
 
 * CSRLIN and POS completely ignore their arguments.
 
-* FRE - ignores an argument, shows total about of free memory. The garbage collector is only invoked if the argument type is string. So in the case of the integer or absent argument the shown amount of memory maybe less than the actual.
+* FRE shows total about of free memory. The garbage collector is only invoked if the argument type is string. So in the case of the integer or absent argument the shown amount of memory maybe less than the actual.
 
 * Only some syntax errors are detected.
 
 * New function UINT$ provides the conversion to unsigned integer.  For example, UINT$(-1) gives "65535".
 
-* FIND may use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensetive.
+* FIND may use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensitive.
+
+* BLOAD always requires three arguments, e.g. BLOAD "MC",,32768 or BLOAD "MC.BIN",R,47*1024.
+
+* BLOAD and BSAVE can't work with the file bigger than 16 KB.
 
 
 Planned:
-AT BIN$ BLOAD BSAVE CLEAR IMP MONIT OCT$ OUT INP TAB SPC READ DATA RESTORE DEF FN USR
+AT IMP MONIT OCT$ OUT INP TAB SPC READ DATA RESTORE DEF FN USR
 
 Graphics:
 CIRCLE DRAW PAINT POINT PRESET PSET
