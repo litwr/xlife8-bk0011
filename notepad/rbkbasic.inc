@@ -124,7 +124,7 @@ commonfromfile:
      MOV @#filepos,R4
      CLR R3
 2$:  CMP R3,#255
-     BEQ strfromfile0
+     BEQ exit16
 
      CMP R4,@#loaded_sz
      BCC exit16
@@ -141,12 +141,11 @@ commonfromfile:
 
 intfromfile:
      CALL @#commonfromfile
+     MOV R4,@#filepos
      BR intfromkbd0
 
 strfromfile:
      CALL @#commonfromfile
-     BR strfromfile0
-
 strfromfile0:
      MOV R4,@#filepos
 strfromfile1:
@@ -609,6 +608,12 @@ showdir: TOSCREEN
 
 str2dec: clr r1           ;IN: R4; OUT: R3
          bisb (r4)+,r1
+11$:     dec r1
+         cmpb (r4)+,#32
+         beq 11$
+
+         dec r4
+         inc r1
          clr r3
          clr r5
          cmpb #'-,@r4

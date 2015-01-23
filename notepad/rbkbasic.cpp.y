@@ -148,13 +148,13 @@ print: PRINT printnl
 prlist: sexpr ',' printstring print2tab prlist
 | sexpr prempty printstring prlist
 | iexpr ',' printint print2tab prlist
-| iexpr prempty printint prlist
+| iexpr prempty printint printspc prlist
 | sexpr printstring printnl
 | iexpr printint printnl
 | sexpr ',' printstring print2tab
 | sexpr ';' printstring
 | iexpr ',' printint print2tab
-| iexpr ';' printint
+| iexpr ';' printint printspc
 ;
 prempty:
 | ';'
@@ -164,8 +164,10 @@ prdelim: prempty
 ;
 printnl: {code[progp++] = "MOV #10,R0\nCALL @#charout\n";}
 ;
+printspc: {code[progp++] = "MOV #32,R0\nCALL @#charout\n";}
+;
 printint: {
-     code[progp++] = "POP R3\nCALL @#todec\nCALL @#nstringout\nMOV #32,R0\nCALL @#charout\n";
+     code[progp++] = "POP R3\nCALL @#todec\nCALL @#nstringout\n";
 }
 ;
 print2tab: {
@@ -184,20 +186,24 @@ printstring: {
 fprlist: sexpr ',' fprintstring fprint2tab fprlist
 | sexpr prempty fprintstring fprlist
 | iexpr ',' fprintint fprint2tab fprlist
-| iexpr prempty fprintint fprlist
+| iexpr prempty fprintint fprintspc fprlist
 | sexpr fprintstring fprintnl
 | iexpr fprintint fprintnl
 | sexpr ',' fprintstring fprint2tab
 | sexpr ';' fprintstring
 | iexpr ',' fprintint fprint2tab
-| iexpr ';' fprintint
+| iexpr ';' fprintint fprintspc
 ;
 fprintnl: {
      code[progp++] = "MOV #10,R0\nCALL @#fcharout\n";
 }
 ;
 fprintint: {
-     code[progp++] = "POP R3\nCALL @#todec\nCALL @#fnstringout\nMOV #32,R0\nCALL @#fcharout\n";
+     code[progp++] = "POP R3\nCALL @#todec\nCALL @#fnstringout\n";
+}
+;
+fprintspc: {
+     code[progp++] = "MOV #32,R0\nCALL @#fcharout\n";
 }
 ;
 fprint2tab: {
@@ -242,7 +248,7 @@ varlistf: svarf
 ;
 svarf: svar {argcount++; code[progp++] = "PUSH #strfromfile\n";}
 ;
-ivarf:
+ivarf: ivar {argcount++; code[progp++] = "PUSH #intfromfile\n";}
 ;
 varlist: svark
 | svark ',' varlist

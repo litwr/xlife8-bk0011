@@ -60,6 +60,7 @@ space      [ \t]+
 (?i:OUTPUT) return OUTPUT;
 (?i:EOF)   return BEOF;
 (?i:VAL)   return VAL;
+(?i:NOT)   return NOT;
 (?i:DIM)   lexdimst = 1;
 {number}   {
               string sbuf(yytext);
