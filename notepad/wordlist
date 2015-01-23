@@ -1,8 +1,10 @@
 Supported:
-ABS AND ASC BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DIM ELSE END EOF FIND FOR GOSUB GOTO HEX$ IF INKEY$ INPUT LEN LET LOCATE MID$ NEXT NOT ON OR PEEK POKE POS PRINT REM RETURN SGN STEP STR$ STRING$ THEN TO UINT$ VAL
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DEF DIM ELSE END EOF FIND FOR GOSUB GOTO HEX$ IF INKEY$ INP INPUT LEN LET LOCATE MID$ NEXT NOT ON OR OUT PEEK POKE POS PRINT REM RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ USR VAL
 
 Special notes:
 * Executable file size up to 32256 bytes. 16384 additional bytes maybe used for strings or machine code.  The executable starts from address 512.
+
+* Keyboard interrupts are used to provide the key autorepeat.
 
 * The pages 2, 3, and 6 are used to keep the program and data. Page 0 is used as io-buffer. Page 4 contains AnDOS.  Other pages of memory are free for any usage.
 
@@ -32,9 +34,10 @@ Special notes:
 
 * BLOAD and BSAVE can't work with the file bigger than 16 KB.
 
+* USRn(X) call puts X at R5 and then use CALL.  So the return from this ML subroutine may be achieved by RETURN instruction.  The result should be placed at R5.
 
 Planned:
-AT IMP MONIT OCT$ OUT INP TAB SPC READ DATA RESTORE DEF FN USR
+IMP MONIT OCT$ READ DATA RESTORE DEF FN
 
 Graphics:
 CIRCLE DRAW PAINT POINT PRESET PSET

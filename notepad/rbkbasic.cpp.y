@@ -15,8 +15,8 @@ string code[100000], data[100000];
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
-%token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE
-%type <sym> ivar svar
+%token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
+%token <num> USR SPC TAB AT INP OUT
 %type <num> markop then
 %left OR
 %left AND
@@ -48,6 +48,10 @@ oper:
 | open
 | bload
 | bsave
+| DEF USR '=' iexpr {
+     asmcomm("oper -> DEF USR0 = i");
+     code[progp++] = "POP @#512+" + tostr(2*$2) + "\n";
+}
 | CLOSE {
      asmcomm("oper -> CLOSE");
      code[progp++] = "CMPB #2,@#io_op\n";
@@ -118,6 +122,10 @@ oper:
       asmcomm("oper -> POKE i,i");
       code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
 }
+| OUT iexpr ',' iexpr ',' iexpr {
+      asmcomm("oper -> OUT i,i,i");
+      code[progp++] = "POP R3\nPOP R2\nPOP R4\nCOM R2\nBIC R2,R3\nBIS @R4,R3\nMOV R3,@R4\n";
+}
 | END {code[progp++] = "JMP @#finalfinish\n";}
 ;
 labellist: lablistel
@@ -153,14 +161,33 @@ print: PRINT printnl
 ;
 prlist: sexpr ',' printstring print2tab prlist
 | sexpr prempty printstring prlist
-| iexpr ',' printint print2tab prlist
-| iexpr prempty printint printspc prlist
 | sexpr printstring printnl
-| iexpr printint printnl
 | sexpr ',' printstring print2tab
 | sexpr ';' printstring
+| iexpr ',' printint print2tab prlist
+| iexpr prempty printint printspc prlist
+| iexpr printint printnl
 | iexpr ',' printint print2tab
 | iexpr ';' printint printspc
+| pexpr ',' print2tab prlist
+| pexpr prempty prlist
+| pexpr printnl
+| pexpr ',' print2tab
+| pexpr ';'
+;
+pexpr: SPC '(' iexpr ')' {
+      code[progp++] = "POP R3\nMOV #32,R0\n";
+      code[progp++] = tostr(locals) + "$:CALL @#charout\nSOB R3," + tostr(locals) + "$\n";
+      locals++;
+}
+| TAB '(' iexpr ')' {
+      code[progp++] = "POP R3\nCALL @#getcrsr\nSUB R1,R3\nBLOS " + tostr(locals + 1) + "$\nMOV #32,R0\n";
+      code[progp++] = tostr(locals) + "$:CALL @#charout\nSOB R3," + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
+      locals += 2;
+}
+| AT '(' iexpr ',' iexpr ')' {
+      code[progp++] = "POP R2\nPOP R1\nCALL @#setcrsr\n";
+}
 ;
 prempty:
 | ';'
@@ -191,14 +218,30 @@ printstring: {
 ;
 fprlist: sexpr ',' fprintstring fprint2tab fprlist
 | sexpr prempty fprintstring fprlist
-| iexpr ',' fprintint fprint2tab fprlist
-| iexpr prempty fprintint fprintspc fprlist
 | sexpr fprintstring fprintnl
-| iexpr fprintint fprintnl
 | sexpr ',' fprintstring fprint2tab
 | sexpr ';' fprintstring
+| iexpr ',' fprintint fprint2tab fprlist
+| iexpr prempty fprintint fprintspc fprlist
+| iexpr fprintint fprintnl
 | iexpr ',' fprintint fprint2tab
 | iexpr ';' fprintint fprintspc
+| fpexpr ',' fprint2tab fprlist
+| fpexpr prempty fprlist
+| fpexpr fprintnl
+| fpexpr ',' fprint2tab
+| fpexpr ';'
+;
+fpexpr: SPC '(' iexpr ')' {
+      code[progp++] = "POP R3\nMOV #32,R0\n";
+      code[progp++] = tostr(locals) + "$:CALL @#fcharout\nSOB R3," + tostr(locals) + "$\n";
+      locals++;
+}
+| TAB '(' iexpr ')' {
+      code[progp++] = "POP R3\nADD @#eolpos,R3\nSUB @#filepos,R3\nBLOS " + tostr(locals + 1) + "$\nMOV #32,R0\n";
+      code[progp++] = tostr(locals) + "$:CALL @#fcharout\nSOB R3," + tostr(locals) + "$\n" + tostr(locals + 1) + "$:\n";
+      locals += 2;
+}
 ;
 fprintnl: {
      code[progp++] = "MOV #10,R0\nCALL @#fcharout\n";
@@ -463,31 +506,35 @@ svar: SVAR {
 }
 ;
 iexpr: NUMBER {
-     asmcomm("NUMBER");
+     asmcomm("i -> NUMBER");
      code[progp++] = "PUSH #" + tostr($1) + "\n";
 }
 | ivar {
-     asmcomm("ivar");
+     asmcomm("i -> ivar");
      code[progp++] = "POP R4\nMOV @R4,R4\nPUSH R4\n";
 }
 | FRE {
-     asmcomm("FRE");
+     asmcomm("i -> FRE");
      code[progp++] = "MOV @#strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
 }
 | FRE '(' iexpr ')' {
-     asmcomm("FRE(i)");
+     asmcomm("i -> FRE(i)");
      code[progp++] = "POP R3\nMOV @#strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
 }
 | FRE '(' sexpr ')' {
-     asmcomm("FRE(s)");
+     asmcomm("i -> FRE(s)");
      code[progp++] = "POP R5\nCLR R5\nCALL @#gc0\nMOV @#strdmax,R3\nSUB @#strdcurre,R3\nPUSH R3\n";
 }
 | PEEK '(' iexpr ')' {
-     asmcomm("PEEK(i)");
-     code[progp++] = "POP R4\nCLR R3\nBISB @R4,R3\nPUSH R3\n";
+     asmcomm("i -> PEEK(i)");
+     code[progp++] = "POP R4\nMOV @R4,R3\nPUSH R3\n";
+}
+| INP '(' iexpr ',' iexpr ')' {
+     asmcomm("i -> INP(i,i)");
+     code[progp++] = "POP R5\nPOP R4\nMOV @R4,R3\nCOM R5\nBIC R5,R3\nPUSH R3\n";
 }
 | ABS '(' iexpr ')' {
-     asmcomm("ABS(i)");
+     asmcomm("i -> ABS(i)");
      code[progp++] = "POP R4\nBPL " + tostr(locals) + "$\nNEG R4\n";
      code[progp++] = tostr(locals++) + "$:PUSH R4\n";
 }
@@ -542,75 +589,79 @@ iexpr: NUMBER {
 }
 | '(' iexpr ')'
 | iexpr GT iexpr {
-     asmcomm("i > i");
+     asmcomm("i -> i>i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }
 | iexpr GE iexpr {
-     asmcomm("i >= i");
+     asmcomm("i -> i>=i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBLT " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }
 | iexpr LT iexpr {
-     asmcomm("i < i");
+     asmcomm("i -> i<i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }
 | iexpr LE iexpr {
-     asmcomm("i <= i");
+     asmcomm("i -> i<=i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGT " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }
 | iexpr '=' iexpr {
-     asmcomm("i EQ i");
+     asmcomm("i -> i EQ i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R3,R4\nBNE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }
 | iexpr NE iexpr {
-     asmcomm("i <> i");
+     asmcomm("i -> i<>i");
      code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R3,R4\nBEQ " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }
 | iexpr AND iexpr {
-     asmcomm("i AND i");
+     asmcomm("i -> i AND i");
      code[progp++] = "POP R3\nPOP R4\nCOM R3\nBIC R3,R4\nPUSH R4\n";
 }
 | iexpr OR iexpr {
-     asmcomm("i OR i");
+     asmcomm("i -> i OR i");
      code[progp++] = "POP R3\nPOP R4\nBIS R3,R4\nPUSH R4\n";
 }
 | NOT iexpr {
-     asmcomm("NOT i");
+     asmcomm("i -> NOT i");
      code[progp++] = "POP R3\nCOM R3\nPUSH R3\n";
-  }
+}
+| USR '(' iexpr ')' {
+     asmcomm("i -> USR(i)");
+     code[progp++] = "POP R5\nMOV @#512+" + tostr($1*2) + ",R1\nCALL @R1\nPUSH R5\n";  //linker!
+}
 | sexpr GT sexpr {
-     asmcomm("s>s");
+     asmcomm("i -> s>s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_GT_s\nPUSH R5\n";
 }
 | sexpr GE sexpr {
-     asmcomm("s>=s");
+     asmcomm("i -> s>=s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_GE_S\nPUSH R5\n";
 }
 | sexpr LT sexpr {
-     asmcomm("s<s");
+     asmcomm("i -> s<s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_LT_s\nPUSH R5\n";
   }
 | sexpr LE sexpr {
-     asmcomm("s<=s");
+     asmcomm("i -> s<=s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_LE_s\nPUSH R5\n";
   }
 | sexpr '=' sexpr {
-     asmcomm("s=s");
+     asmcomm("i -> s=s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_EQ_s\nPUSH R5\n";
   }
 | sexpr NE sexpr {
-     asmcomm("s<>s");
+     asmcomm("i -> s<>s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_NE_s\nPUSH R5\n";
   }
 ;
@@ -684,6 +735,10 @@ sexpr: STRINGTYPE {
 | sexpr '+' sexpr {
      asmcomm("s -> s+s");
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_PLUS_s\nPUSH R5\n";
+}
+| USR '(' sexpr ')' {
+     asmcomm("s -> USR(s)");
+     code[progp++] = "POP R5\nMOV @#512+" + tostr($1*2) + ",R1\nCALL @R1\nPUSH R5\n";  //linker!
 }
 ;
 %%

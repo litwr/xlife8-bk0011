@@ -9,8 +9,6 @@ space      [ \t]+
 %%
 {space}    
 (?i:REM).*$ 
-(?i:THEN)  yylval.num = progp; return THEN;
-(?i:NEXT)  return NEXT;
 >=	   return GE;
 =>	   return GE;
 \<= 	   return LE;
@@ -19,53 +17,65 @@ space      [ \t]+
 >\< 	   return NE;
 > 	   return GT;
 \< 	   return LT;
-(?i:GET)   return GET;
+\?         return PRINT;
 (?i:ABS)   return ABS;
-(?i:SGN)   return SGN;
-(?i:CSRLIN)(\(.*\))? return CSRLIN;
-(?i:POS)(\(.*\))? return POS;
-(?i:FRE)   return FRE;
-(?i:LET)   return LET;
-(?i:MID)\$ return MID;
-(?i:STR)\$ return STR;
-(?i:HEX)\$ return HEX;
+(?i:AND)   return AND;
+(?i:ASC)   return ASC;
+(?i:AT)    return AT;
 (?i:BIN)\$ return BIN;
-(?i:STRING)\$ return STRING;
-(?i:INKEY)\$ return INKEY;
-(?i:UINT)\$ return UINT;
-(?i:GOTO)  return GOTO;
-(?i:CLEAR) return CLEAR;
-(?i:INPUT) return INPUT;
-(?i:FOR)   return FOR;
-(?i:END)   return END;
-(?i:TO)    return TO;
-(?i:STEP)  return STEP;
 (?i:BLOAD)  return BLOAD;
 (?i:BSAVE)  return BSAVE;
-(?i:RETURN) return RETURN;
-(?i:GOSUB) return GOSUB;
-(?i:CLS)   return CLS;
-(?i:IF)    return IF;
-(?i:ELSE)  return ELSE;
-(?i:PRINT) return PRINT;
-\?         return PRINT;
-(?i:LOCATE) return LOCATE;
-(?i:POKE)  return POKE;
 (?i:CHR)\$ return CHR;
-(?i:PEEK)  return PEEK;
-(?i:ASC)   return ASC;
-(?i:AND)   return AND;
-(?i:OR)    return OR;
-(?i:ON)    return ON;
-(?i:LEN)   return LEN;
-(?i:OPEN)  return OPEN;
+(?i:CLEAR) return CLEAR;
 (?i:CLOSE) return CLOSE;
-(?i:FIND)  return FIND;
-(?i:OUTPUT) return OUTPUT;
-(?i:EOF)   return BEOF;
-(?i:VAL)   return VAL;
-(?i:NOT)   return NOT;
+(?i:CLS)   return CLS;
+(?i:CSRLIN)(\(.*\))? return CSRLIN;
+(?i:DEF)   return DEF;
 (?i:DIM)   lexdimst = 1;
+(?i:ELSE)  return ELSE;
+(?i:END)   return END;
+(?i:EOF)   return BEOF;
+(?i:FIND)  return FIND;
+(?i:FOR)   return FOR;
+(?i:FRE)   return FRE;
+(?i:GET)   return GET;
+(?i:GOTO)  return GOTO;
+(?i:GOSUB) return GOSUB;
+(?i:HEX)\$ return HEX;
+(?i:IF)    return IF;
+(?i:INKEY)\$ return INKEY;
+(?i:INP)   return INP;
+(?i:INPUT) return INPUT;
+(?i:LEN)   return LEN;
+(?i:LET)   return LET;
+(?i:LOCATE) return LOCATE;
+(?i:MID)\$ return MID;
+(?i:NEXT)  return NEXT;
+(?i:NOT)   return NOT;
+(?i:ON)    return ON;
+(?i:OPEN)  return OPEN;
+(?i:OR)    return OR;
+(?i:OUT)  return OUT;
+(?i:OUTPUT) return OUTPUT;
+(?i:PEEK)  return PEEK;
+(?i:POKE)  return POKE;
+(?i:POS)(\(.*\))? return POS;
+(?i:PRINT) return PRINT;
+(?i:RETURN) return RETURN;
+(?i:SGN)   return SGN;
+(?i:SPC)   return SPC;
+(?i:STEP)  return STEP;
+(?i:STR)\$ return STR;
+(?i:STRING)\$ return STRING;
+(?i:TAB)   return TAB;
+(?i:THEN)  yylval.num = progp; return THEN;
+(?i:TO)    return TO;
+(?i:UINT)\$ return UINT;
+(?i:USR) yylval.num = 0; return USR;
+(?i:USR)[0-9] yylval.num = yytext[3] - '0'; return USR;
+(?i:VAL)   return VAL;
+\(         if (lexdimst == 0) return '(';
+\)         if (lexdimst) lexdimst = 0; else return ')';
 {number}   {
               string sbuf(yytext);
               unsigned long p;
@@ -91,15 +101,6 @@ space      [ \t]+
                  yylval.sym = &names[sbuf];
                  return yylval.sym->type;
               }
-           }
-\(         {
-              if (lexdimst == 0) return '(';
-           }
-\)         {
-              if (lexdimst)
-                 lexdimst = 0;
-              else
-                 return ')';
            }
 {string}   {
               string istr(yytext + 1);
