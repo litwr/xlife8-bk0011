@@ -467,6 +467,21 @@ stringout:
      EMT ^O20
      BR charout0
 
+togglecrsr:
+     MOV #154,R0
+     TST @#cursorst
+     BNE 1$
+
+     TST R3
+     BEQ charout1
+     BR 2$
+
+1$:  TST R3
+     BNE charout1
+
+2$:  COM @#cursorst
+     BR charout
+
 setcrsr:
      TOSCREEN
      EMT ^O24
@@ -680,5 +695,6 @@ strdcurre: .word strsdyn
 filepos:   .word 0
 eolpos:    .word 0
 kbdbuf:    .word 0
+cursorst:  .word 65535
 lib_end:
 

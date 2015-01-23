@@ -230,6 +230,7 @@ input: INPUT '#' varlistf {
      asmcomm("input -> INPUT varlist");
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+     code[progp++] = "MOV SP,R3\nCALL @#togglecrsr\n";
      code[progp++] = "MOV #10,R0\nCALL @#charout\n";
 }
 | INPUT sexpr ';' {
@@ -238,6 +239,7 @@ input: INPUT '#' varlistf {
 } varlist {
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+     code[progp++] = "MOV SP,R3\nCALL @#togglecrsr\n";
      code[progp++] = "MOV #10,R0\nCALL @#charout\n";
 }
 ;
@@ -371,8 +373,8 @@ elseoper: oper
 ;
 locate: LOCATE iexpr ',' iexpr ',' iexpr {
    asmcomm("LOCATE i,i,i");
-   code[progp++] = "POP R1\nMOVB R1,@#^O56\n";
-   code[progp++] = "POP R2\nPOP R1\nCALL @#setcrsr\n";
+   code[progp++] = "POP R3\nPOP R2\nPOP R1\n";
+   code[progp++] = "CALL @#togglecrsr\nCALL @#setcrsr\n";
 }
 | LOCATE iexpr ',' iexpr {
    asmcomm("LOCATE i,i");
