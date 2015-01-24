@@ -690,6 +690,35 @@ hexconv: ADD #48,R4
 1$:      MOVB R4,(R2)+
          RETURN
 
+mul16:   CLR R5     ;R1*R2->R0
+         TST R1
+         BPL 1$
+
+         NEG R1
+         COM R5
+1$:      TST R2
+         BPL 2$
+
+         NEG R2
+         COM R5
+2$:      CLR R0      ;clear CF
+         MOV #15,R3
+         ROR R2
+         BCC 3$
+
+         ADD R1,R0
+3$:      ASL R1
+         ASR R2
+         BCC 4$
+
+         ADD R1,R0
+4$:      SOB R3,3$
+         TST R5
+         BEQ 5$
+
+         NEG R0
+5$:      RETURN
+
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
 filepos:   .word 0

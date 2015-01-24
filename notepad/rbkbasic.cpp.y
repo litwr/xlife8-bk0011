@@ -22,6 +22,7 @@ string code[100000], data[100000];
 %left AND
 %left '=' GT GE LT LE NE
 %left '+' '-'
+%left '*'
 %left NOT
 %%
 prog: linenumber operlist {throw 1;}
@@ -574,6 +575,10 @@ iexpr: NUMBER {
      code[progp++] = "BCS " + tostr(locals) + "$\n";
      code[progp++] = "DEC R0\n";
      code[progp++] = tostr(locals++) + "$:PUSH R0\n";
+}
+| iexpr '*' iexpr {
+     asmcomm("i -> i*i");
+     code[progp++] = "POP R1\nPOP R2\nCALL @#mul16\nPUSH R0\n";
 }
 | iexpr '+' iexpr {
      asmcomm("i -> i + i");
