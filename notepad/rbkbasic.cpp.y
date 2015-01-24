@@ -23,6 +23,7 @@ string code[100000], data[100000];
 %left '=' GT GE LT LE NE
 %left '+' '-'
 %left '*' '\\' MOD
+%right '^'
 %left NOT
 %%
 prog: linenumber operlist {throw 1;}
@@ -585,6 +586,10 @@ iexpr: NUMBER {
 | iexpr MOD iexpr {
      asmcomm("i -> i MOD i");
      code[progp++] = "POP R1\nPOP R2\nCALL @#div16\nPUSH R2\n";
+}
+| iexpr '^' iexpr {
+     asmcomm("i -> i^i");
+     code[progp++] = "POP R3\nPOP R4\nCALL @#power16\nPUSH R1\n";
 }
 | iexpr '+' iexpr {
      asmcomm("i -> i + i");

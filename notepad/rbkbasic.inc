@@ -698,7 +698,7 @@ hexconv: ADD #48,R4
 1$:      MOVB R4,(R2)+
          RETURN
 
-mul16:   CLR R5     ;R1*R2->R0
+mul16:   CLR R5     ;R1*R2->R0, does not change R3,R4
          TST R1
          BPL 1$
 
@@ -729,6 +729,17 @@ mul16:   CLR R5     ;R1*R2->R0
 
          NEG R0
 5$:      RETURN
+
+power16: MOV #1,R1  ;R4^R3->R1
+         TST R3
+         BEQ 1$
+
+2$:      MOV R4,R2
+         CALL @#mul16
+         MOV R0,R1
+         DEC R3
+         BNE 2$
+1$:      RETURN
 
 div16:   CLR R5     ;R2/R1->R4:R2
          CLR R4

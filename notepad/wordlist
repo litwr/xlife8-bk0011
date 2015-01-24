@@ -1,5 +1,5 @@
 Supported operators:
-* + - ( ) = < > <= >= =< => <> >< \
+^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
 ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DEF DIM ELSE END EOF FIND FOR GOSUB GOTO HEX$ IF INKEY$ INP INPUT LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT REM RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ USR VAL XOR
@@ -44,7 +44,7 @@ Special notes:
 * \-operator can correctly divide -32768 but it ignores any errors
 
 Planned:
-IMP EQV MONIT OCT$ READ DATA RESTORE DEF FN COLOR BEEP CINT KEY ^
+IMP EQV MONIT OCT$ READ DATA RESTORE DEF FN COLOR BEEP CINT KEY
 
 Graphics:
 CIRCLE DRAW PAINT POINT PRESET PSET
