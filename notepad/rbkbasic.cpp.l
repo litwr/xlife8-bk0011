@@ -50,6 +50,7 @@ space      [ \t]+
 (?i:LET)   return LET;
 (?i:LOCATE) return LOCATE;
 (?i:MID)\$ return MID;
+(?i:MOD)   return MOD;
 (?i:NEXT)  return NEXT;
 (?i:NOT)   return NOT;
 (?i:ON)    return ON;
@@ -74,6 +75,7 @@ space      [ \t]+
 (?i:USR) yylval.num = 0; return USR;
 (?i:USR)[0-9] yylval.num = yytext[3] - '0'; return USR;
 (?i:VAL)   return VAL;
+(?i:XOR)   return XOR;
 \(         if (lexdimst == 0) return '(';
 \)         if (lexdimst) lexdimst = 0; else return ')';
 {number}   {

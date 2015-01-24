@@ -16,13 +16,13 @@ string code[100000], data[100000];
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
-%token <num> USR SPC TAB AT INP OUT
+%token <num> USR SPC TAB AT INP OUT XOR
 %type <num> markop then
-%left OR
+%left OR XOR
 %left AND
 %left '=' GT GE LT LE NE
 %left '+' '-'
-%left '*'
+%left '*' '\\' MOD
 %left NOT
 %%
 prog: linenumber operlist {throw 1;}
@@ -278,19 +278,17 @@ input: INPUT '#' varlistf {
 }
 | INPUT varlist {
      asmcomm("input -> INPUT varlist");
+     code[progp++] = "MOV SP,R3\nCALL @#togglecrsr\n";
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
-     code[progp++] = "MOV SP,R3\nCALL @#togglecrsr\n";
-     code[progp++] = "MOV #10,R0\nCALL @#charout\n";
 }
 | INPUT sexpr ';' {
      asmcomm("input -> INPUT s; varlist");
-     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nCALL @#stringout\nMOV #\"? ,@#stringbuf\nMOV #stringbuf,R1\nMOV #2,R2\nCALL @#stringout\n";
+     code[progp++] = "POP R1\nCLR R2\nBISB (R1)+,R2\nCALL @#stringout\n";
 } varlist {
+     code[progp++] = "MOV SP,R3\nCALL @#togglecrsr\n";
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
-     code[progp++] = "MOV SP,R3\nCALL @#togglecrsr\n";
-     code[progp++] = "MOV #10,R0\nCALL @#charout\n";
 }
 ;
 varlistf: svarf 
@@ -580,6 +578,14 @@ iexpr: NUMBER {
      asmcomm("i -> i*i");
      code[progp++] = "POP R1\nPOP R2\nCALL @#mul16\nPUSH R0\n";
 }
+| iexpr '\\' iexpr {
+     asmcomm("i -> i\\i");
+     code[progp++] = "POP R1\nPOP R2\nCALL @#div16\nPUSH R4\n";
+}
+| iexpr MOD iexpr {
+     asmcomm("i -> i MOD i");
+     code[progp++] = "POP R1\nPOP R2\nCALL @#div16\nPUSH R2\n";
+}
 | iexpr '+' iexpr {
      asmcomm("i -> i + i");
      code[progp++] = "POP R3\nPOP R4\nADD R3,R4\nPUSH R4\n";
@@ -636,6 +642,10 @@ iexpr: NUMBER {
 | iexpr OR iexpr {
      asmcomm("i -> i OR i");
      code[progp++] = "POP R3\nPOP R4\nBIS R3,R4\nPUSH R4\n";
+}
+| iexpr XOR iexpr {
+     asmcomm("i -> i XOR i");
+     code[progp++] = "POP R3\nPOP R4\nXOR R3,R4\nPUSH R4\n";
 }
 | NOT iexpr {
      asmcomm("i -> NOT i");

@@ -72,19 +72,23 @@ dogetf:
      BR strfromfile0
 
 commonfromkbd:
+     MOV #'?,R0
+     CALL @#charout
+     MOV #32,R0
+     CALL @#charout
      MOV @#strdcurre,R2
      MOV R2,@R5
      INC R2
      CLR R3
 2$:  CMP R3,#255
-     BEQ exit16
+     BEQ 4$
 
 3$:  CALL @#getkey2
      TSTB R0
      BEQ 3$
 
      CMPB #10,R0
-     BEQ exit16
+     BEQ 4$
 
      MOVB R0,(R2)+
      CMPB #24,R0  ;zaboy/backspace
@@ -101,6 +105,9 @@ commonfromkbd:
 1$:  CALL @#charout
      INC R3
      BR 2$
+
+4$:  MOV #10,R0
+     JMP @#charout
 
 intfromkbd:
      CALL @#commonfromkbd
@@ -159,20 +166,21 @@ doinput:
 2$:  MOV -(R0),R5   ;param
      MOV -(R0),R4   ;subr for param
      CMP R0,SP
-     BEQ 1$
+     BEQ exit22
 
      PUSH R0
      CALL @R4
      POP R0
      BR 2$
 
-1$:  RETURN
+exit22:
+     RETURN
 
 inkeyS:
      CALL @#getkey2
      MOV #strestatic,R5
      TSTB R0
-     BEQ exit16
+     BEQ exit22
 
      MOV @#strdcurre,R2
      MOV R2,R5
@@ -702,22 +710,77 @@ mul16:   CLR R5     ;R1*R2->R0
          NEG R2
          COM R5
 2$:      CLR R0      ;clear CF
-         MOV #15,R3
          ROR R2
          BCC 3$
 
-         ADD R1,R0
+         MOV R1,R0
 3$:      ASL R1
+         BEQ 7$
+
          ASR R2
          BCC 4$
 
          ADD R1,R0
-4$:      SOB R3,3$
-         TST R5
+4$:      TST R2
+         BNE 3$
+ 
+7$:      TST R5
          BEQ 5$
 
          NEG R0
 5$:      RETURN
+
+div16:   CLR R5     ;R2/R1->R4:R2
+         CLR R4
+         TST R1
+         BEQ 8$     ;division by zero is ignored
+         BPL 1$
+
+         NEG R1
+         COM R5
+1$:      TST R2
+         BPL 2$
+
+         NEG R2
+         COM R5
+2$:      PUSH R1     ;handles -32768
+         MOV #1,R3
+         CMP R2,R1
+         BCS 3$
+
+4$:      MOV R2,R0
+         SUB R1,R0
+         CMP R0,R1
+         BLOS 5$
+
+         ASL R3
+         ASL R1
+         BR 4$
+
+5$:      ADD R3,R4
+         MOV R0,R2
+6$:      ASR R1
+         ASR R3
+         BEQ 3$
+
+         CMP R2,R1
+         BCS 6$
+
+         SUB R1,R2
+         ADD R3,R4
+         BR 6$
+
+3$:      CMP R2,(SP)+    ;handles -32768
+         BNE 7$
+
+         INC R4
+         CLR R2
+7$:      TST R5
+         BEQ 8$
+
+         NEG R4
+         NEG R2
+8$:      RETURN
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
