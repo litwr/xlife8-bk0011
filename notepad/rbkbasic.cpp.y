@@ -610,7 +610,7 @@ iexpr: NUMBER {
 | '(' iexpr ')'
 | iexpr GT iexpr {
      asmcomm("i -> i>i");
-     code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBGE " + tostr(locals)
+     code[progp++] = "POP R3\nPOP R4\nCLR R5\nCMP R4,R3\nBLE " + tostr(locals)
         + "$\nINC R5\n" + tostr(locals) + "$:PUSH R5\n";
      locals++;
 }

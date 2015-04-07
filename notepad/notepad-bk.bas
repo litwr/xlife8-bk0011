@@ -63,17 +63,17 @@
 2410 return
 
 2500 rem show line #i
-2510 locate 1,i-ty+1:print chr$(153)a$(i);:return
+2510 locate 0,i-ty:print chr$(153) a$(i);:return
 
-2600 locate cx+1,cy-ty+1:rem. cursor 1 
+2600 locate cx,cy-ty:rem. cursor 1 
 2604 c$=inkey$:if c$="" then 2604
-2608 i=asc(c$):print i:fo=0:rem. cursor 0
+2608 i=asc(c$):fo=0:? i:rem. cursor 0
 2610 if i=243 then 4000
 2620 if i=242 then 4100
 2630 if i=241 then 4200
 2640 if i=240 then 4300
 2650 if i=15 then 4400
-2660 if i>31 and i<127 then 4500
+2660 if i>31 and i<127 then ? i:goto 4500
 2680 if i=127 then 4700
 2690 if i=224 then 4800
 2700 if i=13 then 4900
@@ -203,6 +203,7 @@
 4420 goto 2310
 
 4500 rem small letter,digits,...
+4515 ? im;"ok"
 4510 if im then gosub 4820:goto 4000
 4520 if cx=len(a$(cy))-1 then gosub 5000 else mid$(a$(cy),cx+1,1)=c$
 4530 i=cy:gosub 2510

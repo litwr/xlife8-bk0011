@@ -35,6 +35,7 @@ void printcode() {
    ostr << "MOV #16384,R0\n";
    ostr << "XL1:MOVB 16383(R0),32767(R0)\n";
    ostr << "SOB R0,XL1\n";
+   ostr << "TOSCREEN\nEMT ^O14\n";
    ostr << "TOMAIN\n";
    ostr << "MOV #keyirq,@#^O60\nMOV #key2irq,@#^O274\n";
    ostr << "MOV #512,SP\n";
