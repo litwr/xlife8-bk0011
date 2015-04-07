@@ -34,6 +34,7 @@ operlist: oper {asmcomm("oper");}
 linenumber: LABEL {
     asmcomm("NUMBER");
     code[progp++] = tostr(locals) + "$:\n";
+cerr << "label " << $1 << ' ' << locals << endl;
     labels[$1] = locals++;
 } 
 ;
@@ -434,7 +435,7 @@ then: THEN {
      code[progp++] = "";
 }
 ;
-thenoper: oper
+thenoper: ioperlist
 | NUMBER {
      asmcomm("then NUMBER");
      code[progp++] = "JMP @#";
@@ -442,13 +443,16 @@ thenoper: oper
      code[progp++] = "";
 }
 ;
-elseoper: oper
+elseoper: ioperlist
 | NUMBER {
      asmcomm("else NUMBER");
      code[progp++] = "JMP @#";
      reallocl[progp] = $1;
      code[progp++] = "";
 }
+;
+ioperlist: oper
+| oper ':' ioperlist
 ;
 locate: LOCATE iexpr ',' iexpr ',' iexpr {
    asmcomm("LOCATE i,i,i");

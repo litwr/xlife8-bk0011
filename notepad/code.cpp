@@ -30,7 +30,11 @@ void printcode() {
    string wholecode;
    ostr << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
       << progstart << endl;
-   ostr << "MOV #240*256+240,@#^O120140\n";
+   ostr << "MOV #240*256+240,@#andos_wregim\n";
+   ostr << "MOV #^B001101000000000,@#pageport\n"; //pages 1,2
+   ostr << "MOV #16384,R0\n";
+   ostr << "XL1:MOVB 16383(R0),32767(R0)\n";
+   ostr << "SOB R0,XL1\n";
    ostr << "TOMAIN\n";
    ostr << "MOV #keyirq,@#^O60\nMOV #key2irq,@#^O274\n";
    ostr << "MOV #512,SP\n";

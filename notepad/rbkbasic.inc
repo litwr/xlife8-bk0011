@@ -3,7 +3,7 @@ key2irq:   mov @#kbddtport,@#kbdbuf
 
            bisb #128,@#kbdbuf
 0$:        rti
-        
+
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
@@ -777,9 +777,9 @@ div16:   CLR R5     ;R2/R1->R4:R2
          CMP R2,R1
          BCS 6$
 
-         SUB R1,R2
          ADD R3,R4
-         BR 6$
+         SUB R1,R2
+         BNE 6$
 
 3$:      CMP R2,(SP)+    ;handles -32768
          BNE 7$

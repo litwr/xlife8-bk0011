@@ -1,1 +1,3 @@
-* INPUT prompts
+* INPUT prompt for the secondary input
+* error with comma:
+     locate x,y: print a,b

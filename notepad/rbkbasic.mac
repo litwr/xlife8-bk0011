@@ -6,6 +6,7 @@ timerport2 = ^O177710            ;$ffc8
 timerport3 = ^O177712            ;$ffca
 pageport   = ^O177716            ;$ffce
 andos_iobuff = ^O120110          ;$a048
+andos_wregim = ^O120140          ;$a060
 andos_disk = ^O120154            ;$a06c
 andos_curdsk = ^O120155          ;$a06d
 andos_size = ^O120162            ;$a072
