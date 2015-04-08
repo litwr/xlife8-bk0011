@@ -15,31 +15,32 @@
 45 gosub 2600:goto 40
 
 100 cls
-110 locate 12,18:print "Press Ctrl + H to get help":locate 0,6
+110 locate 12,18:print "Press Ctrl + P to get help":locate 0,6
 112 PRINT "¯¯» ¯¯          ¯¯                             ¯¯   »»      »¯¯"
 114 PRINT "¯¯¯¯¯¯ »¯¬¬¯» ¬¬¯¯¬¬  »¯¬¬¯» ¯¯¬¬¯»  ¬¬¬¯» »¯¬¬¯¯ »»¯¯»» »»¬¬¯¯"
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
-150 locate 26,11:print "Electronika BK0011 Edition";
-154 locate 23,12:print "v1, by litwr, (c) 2015 gnu gpl"
-156 for i=0 to 700:cx=55*i:next i
+150 locate 28,11:print "Electronika BK0011 Edition";
+154 locate 24,12:print "v1, by litwr, (c) 2015 gnu gpl"
+156 for i=0 to 4000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
 
 1000 rem. call cs3:efs=peek(&c7d1):l2=peek(&c7d2):c$=space$(l2):if l2=0 then return
 1020 rem. call cs4,@c$:if l2=255 then 3160 else return
 
-2000 cls:print chr$(12)tab(12)"Notepad +4 BK0011 Edition commands list":print
-2005 print tab(30)chr$(24)"With the CONTROL key"chr$(24)
-2010 print "H - help"tab(20)"N - new"tab(40)"L/S - load/save"tab(60)"U/D - page up/down"
-2020 print "B/E - to begin/end"tab(20)"F - find forward"tab(40)"R - repeat find"tab(60)"C - cat & load"
-2030 print "V - change disk"tab(20)"O - cursor home"tab(40)"Q - quit":print
-2040 print tab(31)chr$(24)"With the TAB prefix"chr$(24)
-2050 print "  A/C - toggle insert/overwrite mode"tab(42)"D/I - delete/insert a line"
-2060 print "  J/K - to start/end of line"tab(42)"P/Q - erase begin/end of line"
-2070 print "  V/W - scroll up/down"tab(42)"Any other key - cancel TAB":print
-2090 print "del, clr, copy, return, cursors, ..."
-2100 print:print:print tab(28)"Hit any key to continue"
+2000 cls:print tab(16)"Notepad +4 BK0011 Edition commands list":print
+2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
+2010 print "P - help"tab(22)"N - new"tab(44)"L/S - load/save"
+2020 print "U/D - page up/down"tab(22)"B/E - to begin/end"tab(44)"F - find forward"
+2030 print "R - repeat find"tab(22)"C - cat & load"tab(44)"V - change disk"
+2035 print "O - cursor home"tab(22)"Q - quit":print
+2040 print tab(23)chr$(156)"With the TAB prefix"chr$(156)
+2050 print "A/C - toggle insert/overwrite mode"tab(35)"D/I - delete/insert a line"
+2060 print "J/K - to start/end of line"tab(35)"P/Q - erase begin/end of line";
+2070 print "V/W - scroll up/down"tab(35)"Any other key - cancel TAB":print
+2090 print "|<--, |-->, return, cursors, ..."
+2100 print:print:print tab(20)"Hit any key to continue"
 2120 c$=inkey$:if c$="" then 2120
 
 2200 rem show screen
@@ -65,33 +66,33 @@
 2500 rem show line #i
 2510 locate 0,i-ty:print chr$(153) a$(i);:return
 
-2600 locate cx,cy-ty:rem. cursor 1 
+2600 locate cx,cy-ty,1 
 2604 c$=inkey$:if c$="" then 2604
-2608 i=asc(c$):fo=0:? i:rem. cursor 0
-2610 if i=243 then 4000
-2620 if i=242 then 4100
-2630 if i=241 then 4200
-2640 if i=240 then 4300
+2608 i=asc(c$):fo=0:locate cx,cy-ty,0
+2610 if i=25 then 4000:rem right
+2620 if i=8 then 4100:rem left
+2630 if i=27 then 4200:rem down
+2640 if i=26 then 4300:rem up
 2650 if i=15 then 4400
-2660 if i>31 and i<127 then ? i:goto 4500
-2680 if i=127 then 4700
-2690 if i=224 then 4800
-2700 if i=13 then 4900
-2710 if i=9 then 8000
-2720 if i=8 then 2000
-2730 if i=17 then print chr$(12)"Welcome to Basic":end
+2660 if i>31 and i<127 then 4500
+2680 if i=24 then 4700
+2690 if i=23 then 4800
+2700 if i=10 then 4900
+2710 if i=9 then 8000:rem esc/tab
+2720 if i=16 then 2000:rem help
+2730 if i=17 then print chr$(12)"Welcome to OS":end
 2740 if i=2 then 9300
 2750 if i=5 then 9400
-2760 if i=21 then 9500
-2770 if i=4 then 9600
+2760 rem. pgup if i=21 then 9500
+2770 rem. pgdn if i=4 then 9600
 2780 if i=14 then 9700
-2790 if i=6 then 9800
-2800 if i=18 then 9900
-2810 if i=12 then 3000
-2820 if i=19 then 3200
-2830 if i=22 then 3400
-2840 if i=3 then 3500
-2850 if i=16 then 3800
+2790 rem. search if i=6 then 9800
+2800 rem. repeat search if i=18 then 9900
+2810 rem. load if i=12 then 3000
+2820 rem. save if i=19 then 3200
+2830 rem. change drv if i=22 then 3400
+2840 rem. cat & load if i=3 then 3500
+2850 if i=22 then 3800
 2890 goto 2600
 
 3000 rem load
@@ -185,9 +186,9 @@
 4200 rem cursor down
 4210 e=0
 4220 if cy<lc-1 then cy=cy+1
-4230 if cy-ty>23 then ty=ty+1:e=1
+4230 if cy-ty>nl-1 then ty=ty+1:e=1
 4240 gosub 4150
-4250 rem. if e then call cs1:locate#0,1,24:print chr$(18)a$(ty+23);
+4250 rem. if e then call cs1:locate 0,nl:print chr$(153)a$(ty+nl);
 4260 goto 2310
 
 4300 rem cursor up
@@ -195,7 +196,7 @@
 4310 if cy>0 then cy=cy-1
 4320 if cy-ty<0 then ty=ty-1:e=1
 4330 gosub 4150
-4340 rem. if e then call cs2:locate#0,1,1:print chr$(18)a$(ty);
+4340 rem. if e then call cs2:locate 0,0:print chr$(153)a$(ty);
 4350 goto 2310
 
 4400 rem cursor home
@@ -203,7 +204,6 @@
 4420 goto 2310
 
 4500 rem small letter,digits,...
-4515 ? im;"ok"
 4510 if im then gosub 4820:goto 4000
 4520 if cx=len(a$(cy))-1 then gosub 5000 else mid$(a$(cy),cx+1,1)=c$
 4530 i=cy:gosub 2510
@@ -289,7 +289,7 @@
 7300 if mid$(a$(cy),len(a$(cy)))=cf$ then 7600
 
 7400 gosub 7500
-7410 if cy+2>ml then 7450 else c$=a$(cy):a$(cy)=mid$(c$,cx+1)+cc$
+7410 if cy+2>ml then 7450 else c$=a$(cy):a$(cy)=mid$(c$,1,cx)+cc$
 7415 if cy+3>ml then 7450
 7420 a$(cy+1)=mid$(c$,cx+1):cx=0:c$=mid$(a$(cy+1),len(a$(cy+1)))
 7440 if c$<>cc$ and c$<>cf$ then gosub 4200:goto 5100
@@ -306,18 +306,18 @@
 
 8000 rem esc
 8010 c$=inkey$:if c$="" goto 8010
-8020 i=asc(c$)
-8030 if i=100 then 8200
-8040 if i=105 then 8300
-8050 if i=106 then 8400
-8060 if i=107 then 8500
-8070 if i=112 then 8600
-8080 if i=113 then 8700
-8090 if i=118 then 8800
-8100 if i=119 then 8900
-8110 if i=97 then 9000
-8120 if i=99 then 9100
-8130 if i=101 then 9200
+8020 i=asc(c$):if i<91 and i>64 then i=i+32
+8030 if i=100 then 8200:rem D
+8040 if i=105 then 8300:rem I
+8050 if i=106 then 8400:rem J
+8060 if i=107 then 8500:rem K
+8070 if i=112 then 8600:rem P
+8080 if i=113 then 8700:rem Q
+8090 if i=118 then 8800:rem V
+8100 if i=119 then 8900:rem W
+8110 if i=97 then 9000:rem A
+8120 if i=99 then 9100:rem C
+8130 if i=111 then 9200:rem O
 8140 return
 
 8200 rem esc+d
@@ -355,13 +355,13 @@
 8800 rem esc+v
 8810 if ty>=lc-1 then return
 8820 ty=ty+1:if cy<ty then cy=ty
-8830 rem. call cs1:locate#0,1,24:print chr$(18);:if ty+23<lc then print a$(ty+23);
+8830 rem. call cs1:locate 0,nl:print chr$(153);:if ty+nl-1<lc then print a$(ty+23);
 8840 goto 2310
 
 8900 rem esc+w
 8910 if ty=0 then return
-8920 ty=ty-1:if cy-ty>23 then cy=cy-1
-8930 rem. call cs2:locate#0,1,1:print chr$(18)a$(ty);:goto 2310
+8920 ty=ty-1:if cy-ty>nl-1 then cy=cy-1
+8930 rem. call cs2:locate 0,0:print chr$(153)a$(ty);:goto 2310
 
 9000 rem esc+a
 9010 im=1:mo$="ins"
@@ -405,7 +405,7 @@
 9830 l2=cx+2:gosub 10000
 9840 if fi=0 then 2205
 9850 cx=fi-1:cy=j
-9860 if cy-ty>23 then ty=cy-12
+9860 if cy-ty>nl-1 then ty=cy-12
 9870 goto 2205
 
 9900 rem repeat find
@@ -428,6 +428,12 @@
 10235 if c$=mid$(s$,len(s$)-i+1) and d$=mid$(g$,1,l3-i) then fi=mc-i+1:return
 10240 next
 10250 return
+
+10300 rem write to status bar C$ at pos Y
+10310 y1=csrlin:x1=pos
+10320 poke 112,peek(132)+15424+y:print c$
+10340 locate x1,y1
+10350 return
 
 11000 k$=inkey$:if k$="" goto 11000
 11010 return
