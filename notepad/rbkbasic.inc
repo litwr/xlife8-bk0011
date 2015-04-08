@@ -7,6 +7,23 @@ key2irq:   mov @#kbddtport,@#kbdbuf
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
+strfromdata:
+     MOV @#datapos,R3
+strfromdata0:
+     MOV R3,@R5
+     CLR R4
+     BISB @R3,R4
+     INC R4
+     ADD R4,@#datapos
+     RETURN
+
+intfromdata:
+     MOV @#datapos,R4
+     PUSH R5
+     CALL @#str2dec
+     POP R5
+     BR strfromdata0
+
 getkey2: movb @#kbdbuf,r0
          beq exit16
 
@@ -798,6 +815,7 @@ strdcurre: .word strsdyn
 filepos:   .word 0
 eolpos:    .word 0
 kbdbuf:    .word 0
+datapos:   .word datastart
 cursorst:  .word 65535
 strdmax:   .word 48*1024-256
 lib_end:

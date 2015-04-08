@@ -4,19 +4,19 @@
 map<int, Symbol*> realloca, reallocs;
 map<string, Symbol> names, strings;
 map<int, int> reallocl, labels;
-int argcount;
-string code[100000], data[100000];
+int argcount, datalines_count;
+string code[100000], data[100000], datalines[10000];
 %}
 %union {
   Symbol *sym;
   int num;
 }
-%token <sym> SVAR IVAR STRINGTYPE
+%token <sym> SVAR IVAR STRINGTYPE DATAOPER
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
-%token <num> USR SPC TAB AT INP OUT XOR
+%token <num> USR SPC TAB AT INP OUT XOR READ
 %type <num> markop then
 %left OR XOR
 %left AND
@@ -51,6 +51,27 @@ oper:
 | open
 | bload
 | bsave
+| DATAOPER {
+    char *p = (char*)$1, *q;
+    for (;*p != 0;) {
+       while (*p == ' ' || *p == '\t') p++;
+       if (*p == '"') {
+          q = strchr(++p, '"');
+          datalines[datalines_count++].assign(p, q - p);
+          p = q + 1;
+          while (*p == ' ' || *p == '\t' || *p == ',') p++;
+       }
+       else
+          if (q = strchr(p, ',')) {
+             datalines[datalines_count++].assign(p, q - p);
+             p = q + 1;
+          }
+          else {
+             datalines[datalines_count++] = p;
+             break;
+          }
+    }
+}
 | DEF USR '=' iexpr {
      asmcomm("oper -> DEF USR0 = i");
      code[progp++] = "POP @#512+" + tostr(2*$2) + "\n";
@@ -113,6 +134,7 @@ oper:
       code[progp++] = "CLR R5\nCALL @#gc\nPOP R1\nPOP R2\nSUB #256,R1\nMOV R1,@#strdmax\n";
 }
 | input {argcount = 0;}
+| read {argcount = 0;}
 | GET '#' svar {
       asmcomm("oper -> GET# s");
       code[progp++] = "POP R5\nCALL @#dogetf\n";
@@ -273,6 +295,12 @@ fprintstring: {
      locals += 2;
 }
 ;
+read: READ varlistd {
+     asmcomm("read -> READ varlist");
+     code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
+     code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
+}
+;
 input: INPUT '#' varlistf {
      asmcomm("input -> INPUT# varlist");
      code[progp++] = "PUSH #" + tostr(argcount*4 + 4) + "\nCALL @#doinput\n";
@@ -310,6 +338,15 @@ varlist: svark
 svark: svar {argcount++; code[progp++] = "PUSH #strfromkbd\n";}
 ;
 ivark: ivar {argcount++; code[progp++] = "PUSH #intfromkbd\n";}
+;
+varlistd: svard
+| svard ',' varlistd
+| ivard
+| ivard ',' varlistd
+;
+svard: svar {argcount++; code[progp++] = "PUSH #strfromdata\n";}
+;
+ivard: ivar {argcount++; code[progp++] = "PUSH #intfromdata\n";}
 ;
 bload: BLOAD sexpr ',' IVAR ',' iexpr {
      if (*$4->name != "R" && *$4->name != "r") throw "error in BLOAD";

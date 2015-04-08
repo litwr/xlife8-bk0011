@@ -6,6 +6,9 @@ number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 string     \"[^"]*\"
 space      [ \t]+
+datasym    [^,:\n]
+dataelem   {space}*({string}|{datasym}*)
+dataline   (?i:DATA)({dataelem},)*{dataelem}
 %%
 {space}    
 (?i:REM).*$ 
@@ -62,6 +65,7 @@ space      [ \t]+
 (?i:POKE)  return POKE;
 (?i:POS)(\(.*\))? return POS;
 (?i:PRINT) return PRINT;
+(?i:READ) return READ;
 (?i:RETURN) return RETURN;
 (?i:SGN)   return SGN;
 (?i:SPC)   return SPC;
@@ -115,6 +119,10 @@ space      [ \t]+
               }
               yylval.sym = &strings[istr];
               return yylval.sym->type = STRINGTYPE;
+           }
+{dataline} {
+              yylval.sym = (Symbol*)(yytext + 4);
+              return DATAOPER;
            }
 \n	   ++lineno; lexeol = 1;
 .          return yytext[0];

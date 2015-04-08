@@ -5,16 +5,15 @@
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
 11 rem. u=PEEK(PEEK(&BE7e)*256+PEEK(&BE7d))
-12 u=0:un$=chr$(u+65)+":":nl=23
+12 u=0:un$=chr$(u+65)+":":nl=24
 14 ml=500:dim a$(500)
-
 
 20 gosub 100
 30 gosub 9700
 40 if fo then gosub 2210
 45 gosub 2600:goto 40
 
-100 cls
+100 gosub 10280:cls
 110 locate 12,18:print "Press Ctrl + P to get help":locate 0,6
 112 PRINT "¯¯» ¯¯          ¯¯                             ¯¯   »»      »¯¯"
 114 PRINT "¯¯¯¯¯¯ »¯¬¬¯» ¬¬¯¯¬¬  »¯¬¬¯» ¯¯¬¬¯»  ¬¬¬¯» »¯¬¬¯¯ »»¯¯»» »»¬¬¯¯"
@@ -29,7 +28,7 @@
 1000 rem. call cs3:efs=peek(&c7d1):l2=peek(&c7d2):c$=space$(l2):if l2=0 then return
 1020 rem. call cs4,@c$:if l2=255 then 3160 else return
 
-2000 cls:print tab(16)"Notepad +4 BK0011 Edition commands list":print
+2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 BK0011 Edition commands list":print
 2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
 2010 print "P - help"tab(22)"N - new"tab(44)"L/S - load/save"
 2020 print "U/D - page up/down"tab(22)"B/E - to begin/end"tab(44)"F - find forward"
@@ -49,7 +48,7 @@
 2220 if i<lc and i-ty<nl then gosub 2400:i=i+1:goto 2220
 2230 gosub 2310
 
-2250 locate 0,nl:print f$;fre(0);:locate 16,nl:print mo$;:locate 22,nl:print un$;:return
+2250 c$=f$+str$(fre(0)):y=0:gosub 10300:c$=mo$:y=16:gosub 10300:c$=un$:y=22:goto 10300
 
 2270 i=cy
 2280 if i<lc and i-ty<nl then gosub 2510:if mid$(a$(i),len(a$(i)))<>cc$ then i=i+1:goto 2280
@@ -58,7 +57,7 @@
 2300 rem show coors
 2310 c$=str$(cx+1):d$=str$(cy+1):mid$(c$,1,1)="x":mid$(d$,1,1)="y"
 2330 c$=c$+" "+d$:d$=str$(lc):mid$(d$,1,1)="/":c$=c$+d$:l=mc-len(c$)
-2350 locate l-4,nl:print "   "c$;:return
+2350 c$="   "+c$:y=l-3:goto 10300
 
 2400 print a$(i);:if pos<>0 then print
 2410 return
@@ -429,9 +428,10 @@
 10240 next
 10250 return
 
+10280 c$=chr$(153):y=0
 10300 rem write to status bar C$ at pos Y
-10310 y1=csrlin:x1=pos
-10320 poke 112,peek(132)+15424+y:print c$
+10310 y1=csrlin:x1=pos:locate 0,0
+10320 poke 112,peek(132)+15424+y:print c$;
 10340 locate x1,y1
 10350 return
 
