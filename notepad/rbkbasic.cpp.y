@@ -3,8 +3,8 @@
 #include "rbkbasic.h"
 map<int, Symbol*> realloca, reallocs;
 map<string, Symbol> names, strings;
-map<int, int> reallocl, labels;
-int argcount, datalines_count;
+map<int, int> reallocl, labels, datalabels;
+int argcount, datalines_count, dataline, dataoffset;
 string code[100000], data[100000], datalines[10000];
 %}
 %union {
@@ -34,8 +34,8 @@ operlist: oper {asmcomm("oper");}
 linenumber: LABEL {
     asmcomm("NUMBER");
     code[progp++] = tostr(locals) + "$:\n";
-cerr << "label " << $1 << ' ' << locals << endl;
-    labels[$1] = locals++;
+cerr << $1 << " ";
+    labels[dataline = $1] = locals++;
 } 
 ;
 operend: linenumber {asmcomm("linenumber");}
@@ -53,20 +53,24 @@ oper:
 | bsave
 | DATAOPER {
     char *p = (char*)$1, *q;
+    if (datalabels.find(dataline) == datalabels.end()) datalabels[dataline] = dataoffset;
     for (;*p != 0;) {
        while (*p == ' ' || *p == '\t') p++;
        if (*p == '"') {
           q = strchr(++p, '"');
+          dataoffset += q - p + 1;
           datalines[datalines_count++].assign(p, q - p);
           p = q + 1;
           while (*p == ' ' || *p == '\t' || *p == ',') p++;
        }
        else
           if (q = strchr(p, ',')) {
+             dataoffset += q - p + 1;
              datalines[datalines_count++].assign(p, q - p);
              p = q + 1;
           }
           else {
+             dataoffset += strlen(p) + 1;
              datalines[datalines_count++] = p;
              break;
           }
@@ -75,6 +79,10 @@ oper:
 | RESTORE {
      asmcomm("oper -> RESTORE");
      code[progp++] = "MOV #datastart,@#datapos\n";
+}
+| RESTORE NUMBER {
+     asmcomm("oper -> RESTORE NUMBER");
+     code[progp++] = "MOV #datastart+"+tostr(datalabels[$2])+",@#datapos\n";
 }
 | DEF USR '=' iexpr {
      asmcomm("oper -> DEF USR0 = i");
