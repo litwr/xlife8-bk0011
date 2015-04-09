@@ -67,6 +67,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:PRINT) return PRINT;
 (?i:READ) return READ;
 (?i:RETURN) return RETURN;
+(?i:RESTORE) return RESTORE;
 (?i:SGN)   return SGN;
 (?i:SPC)   return SPC;
 (?i:STEP)  return STEP;

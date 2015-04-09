@@ -16,7 +16,7 @@ string code[100000], data[100000], datalines[10000];
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
-%token <num> USR SPC TAB AT INP OUT XOR READ
+%token <num> USR SPC TAB AT INP OUT XOR READ RESTORE
 %type <num> markop then
 %left OR XOR
 %left AND
@@ -71,6 +71,10 @@ oper:
              break;
           }
     }
+}
+| RESTORE {
+     asmcomm("oper -> RESTORE");
+     code[progp++] = "MOV #datastart,@#datapos\n";
 }
 | DEF USR '=' iexpr {
      asmcomm("oper -> DEF USR0 = i");

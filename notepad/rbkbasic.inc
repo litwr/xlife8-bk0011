@@ -7,10 +7,8 @@ key2irq:   mov @#kbddtport,@#kbdbuf
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
-strfromdata:
+commonfromdata:
      MOV @#datapos,R3
-strfromdata0:
-     MOV R3,@R5
      CLR R4
      BISB @R3,R4
      INC R4
@@ -18,11 +16,21 @@ strfromdata0:
      RETURN
 
 intfromdata:
-     MOV @#datapos,R4
-     PUSH R5
+     CALL @#commonfromdata
+     MOV @#strdcurre,R2
+     MOV R2,R4
+     CLR R0
+     BISB (R3)+,R0
+     MOVB R0,(R2)+
+     BEQ 0$
+
+1$:  MOVB (R3)+,(R2)+
+     SOB R0,1$
+
+0$:  PUSH R5
      CALL @#str2dec
-     POP R5
-     BR strfromdata0
+     MOV R3,@(SP)+
+     RETURN
 
 getkey2: movb @#kbdbuf,r0
          beq exit16
@@ -204,6 +212,10 @@ inkeyS:
      MOVB #1,(R2)+
      MOVB R0,(R2)+
      BR stringS_i_i0
+
+strfromdata:
+     CALL @#commonfromdata
+     MOV R5,R4
 
 s_ASSIGN_s:
      MOV @#strdcurre,R2
