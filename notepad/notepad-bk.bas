@@ -3,10 +3,10 @@
  4 rem *** converted from Commodore plus/4 and Amstrad CPC6128
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
-10 mc=64:cf$=chr$(191):cc$=chr$(127):mo$="ins":im=1
+10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
 12 u=0:un$=chr$(u+65)+":":nl=23
 14 ml=500:dim a$(500)
-
+15 for i=0 to 24:read cx:poke 516+i*2,cx:next:def usr = 516:def usr1 = 538
 20 gosub 100
 30 gosub 9700
 40 if fo then gosub 2210
@@ -23,6 +23,9 @@
 156 for i=0 to 4000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
+
+300 data 5599,7168,-50,5568,17408,5569,7040,7184,640,32323,266
+310 data 5599,7168,-50,5568,31488,5569,7040,6192,640,32323,5599,11008,-50,135
 
 2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 BK0011 Edition commands list":print
 2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
@@ -78,8 +81,8 @@
 2730 if i=17 then print chr$(12)"Welcome to OS":end
 2740 if i=2 then 9300
 2750 if i=5 then 9400
-2760 rem. pgup if i=21 then 9500
-2770 rem. pgdn if i=4 then 9600
+2760 if i=21 then 9500:rem pgup 
+2770 if i=4 then 9600:rem pgdn 
 2780 if i=14 then 9700
 2790 rem. search if i=6 then 9800
 2800 rem. repeat search if i=18 then 9900
@@ -103,7 +106,7 @@
 3090 close
 3100 gosub 2205:goto 2310
 
-3120 cls:gosub 2900:print f$" bad"
+3120 cls:print f$" bad"
 3130 gosub 11000:gosub 9700:goto 3090
 
 3160 if len(c$)>mc then gosub 7200:goto 3160
@@ -185,7 +188,7 @@
 4220 if cy<lc-1 then cy=cy+1
 4230 if cy-ty>nl-1 then ty=ty+1:e=1
 4240 gosub 4150
-4250 rem. if e then call cs1:locate 0,nl:print chr$(153)a$(ty+nl);
+4250 if e then e=usr(0):locate 0,nl-1:print chr$(153)a$(ty+nl-1);
 4260 goto 2310
 
 4300 rem cursor up
@@ -193,7 +196,7 @@
 4310 if cy>0 then cy=cy-1
 4320 if cy-ty<0 then ty=ty-1:e=1
 4330 gosub 4150
-4340 rem. if e then call cs2:locate 0,0:print chr$(153)a$(ty);
+4340 if e then e=usr1(0):locate 0,0:print chr$(153)a$(ty);
 4350 goto 2310
 
 4400 rem cursor home
@@ -355,13 +358,13 @@
 8800 rem esc+v
 8810 if ty>=lc-1 then return
 8820 ty=ty+1:if cy<ty then cy=ty
-8830 rem. call cs1:locate 0,nl:print chr$(153);:if ty+nl-1<lc then print a$(ty+23);
+8830 e=usr(0):locate 0,nl-1:print chr$(153);:if ty+nl-1<lc then print a$(ty+nl-1);
 8840 goto 2310
 
 8900 rem esc+w
 8910 if ty=0 then return
 8920 ty=ty-1:if cy-ty>nl-1 then cy=cy-1
-8930 rem. call cs2:locate 0,0:print chr$(153)a$(ty);:goto 2310
+8930 e=usr1(0):locate 0,0:print chr$(153)a$(ty);:goto 2310
 
 9000 rem esc+a
 9010 im=1:mo$="ins"
@@ -379,17 +382,17 @@
 9320 goto 2310
 
 9400 rem to the end
-9410 cx=0:cy=lc-1:l=lc-24:if l<0 then l=0
+9410 cx=0:cy=lc-1:l=lc-nl:if l<0 then l=0
 9420 if ty<>l then ty=l:goto 2205
 9430 goto 2310
 
 9500 rem page up
-9510 cx=0:l=ty-24:if l<0 then l=0
-9520 cy=cy-24:if cy<0 then cy=0
+9510 cx=0:l=ty-nl:if l<0 then l=0
+9520 cy=cy-nl:if cy<0 then cy=0
 9530 goto 9420
 
 9600 rem page down
-9610 cx=0:l=ty+24:if l>=lc then l=lc-24
+9610 cx=0:l=ty+nl:if l>=lc then l=lc-nl
 9620 if l<0 then l=0
 9630 cy=cy+l-ty:if cy>=lc then cy=lc-1
 9640 goto 9420
