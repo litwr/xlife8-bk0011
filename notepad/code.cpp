@@ -64,6 +64,8 @@ void printcode() {
 }
 
 void relocate() {
+   for (map<int,int>::iterator i = dataprogp.begin(); i != dataprogp.end(); i++)
+      code[i->first] = "MOV #datastart+" + tostr(datalabels[i->second]) + ",@#datapos\n";
    for (map<int,int>::iterator i = reallocl.begin(); i != reallocl.end(); i++)
       code[i->first] = tostr(labels[i->second]) + "$\n";
    for (map<int,Symbol*>::iterator i = realloca.begin(); i != realloca.end(); i++)

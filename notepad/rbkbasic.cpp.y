@@ -3,7 +3,7 @@
 #include "rbkbasic.h"
 map<int, Symbol*> realloca, reallocs;
 map<string, Symbol> names, strings;
-map<int, int> reallocl, labels, datalabels;
+map<int, int> reallocl, labels, datalabels, dataprogp;
 int argcount, datalines_count, dataline, dataoffset;
 string code[100000], data[100000], datalines[10000];
 %}
@@ -82,7 +82,8 @@ oper:
 }
 | RESTORE NUMBER {
      asmcomm("oper -> RESTORE NUMBER");
-     code[progp++] = "MOV #datastart+"+tostr(datalabels[$2])+",@#datapos\n";
+     dataprogp[progp] = $2;
+     code[progp++] = "";
 }
 | DEF USR '=' iexpr {
      asmcomm("oper -> DEF USR0 = i");
