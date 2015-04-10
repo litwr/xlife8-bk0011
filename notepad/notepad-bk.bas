@@ -3,9 +3,8 @@
  4 rem *** converted from Commodore plus/4 and Amstrad CPC6128
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
-10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
-11 rem. u=PEEK(PEEK(&BE7e)*256+PEEK(&BE7d))
-12 u=0:un$=chr$(u+65)+":":nl=24
+10 mc=64:cf$=chr$(191):cc$=chr$(127):mo$="ins":im=1
+12 u=0:un$=chr$(u+65)+":":nl=23
 14 ml=500:dim a$(500)
 
 20 gosub 100
@@ -24,9 +23,6 @@
 156 for i=0 to 4000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
-
-1000 rem. call cs3:efs=peek(&c7d1):l2=peek(&c7d2):c$=space$(l2):if l2=0 then return
-1020 rem. call cs4,@c$:if l2=255 then 3160 else return
 
 2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 BK0011 Edition commands list":print
 2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
@@ -87,7 +83,7 @@
 2780 if i=14 then 9700
 2790 rem. search if i=6 then 9800
 2800 rem. repeat search if i=18 then 9900
-2810 rem. load if i=12 then 3000
+2810 if i=12 then 3000
 2820 rem. save if i=19 then 3200
 2830 rem. change drv if i=22 then 3400
 2840 rem. cat & load if i=3 then 3500
@@ -95,18 +91,20 @@
 2890 goto 2600
 
 3000 rem load
-3010 cls:cls:s$="":print"disk "un$:print"enter file name to load":input s$:if s$="" goto 3100
+3010 cls:gosub 10280:s$="":print"disk "un$:print"enter file name to load":input s$:if s$="" goto 3100
 3014 f$=s$:gosub 5900
-3020 rem. on error goto 3700:openin f$:cls:locate#0,1,16:print "The flashing lines below is just a load indicator":poke &c7d1,1
-3030 gosub 1000:if efs=0 then gosub 7160:goto 3080
-3040 gosub 7000:print chr$(13)lc;:if efs goto 3030
+3020 cls:open f$ for input:if peek(208) and -256 then 3120
+3030 get# c$
+3050 i=asc(c$):ol=lc
+3060 if i=10 then gosub 7000 else if i>31 then gosub 7200
+3065 if ol<lc then print chr$(18) lc;
+3070 if not eof goto 3030
 3080 a$(lc)=a$(lc)+cf$:gosub 7100
 3090 close
-3095 rem. on error goto 0
 3100 gosub 2205:goto 2310
 
-3140 rem. call cs3:efs=peek(&c7d1):l2=peek(&c7d2):c$=space$(l2):if l2>0 then call cs4,@c$
-3150 return
+3120 cls:gosub 2900:print f$" bad"
+3130 gosub 11000:gosub 9700:goto 3090
 
 3160 if len(c$)>mc then gosub 7200:goto 3160
 3165 d$=c$:l=len(d$):if efs then gosub 3140 else return
@@ -275,15 +273,18 @@
 6110 if ty>cy then ty=cy
 6120 return
 
-7000 rem input and optionally split line 
-7010 if len(c$)<mc then a$(lc)=c$+cc$ else gosub 7200:goto 7010
+7000 rem input line after eol
+7010 if len(a$(lc))<mc then a$(lc)=a$(lc)+cc$ else gosub 7100:a$(lc)=cc$
 
-7100 if lc<ml then lc=lc+1 else print chr$(24)"file too big, a line skipped"chr$(24);:a$(lc-1)=cf$
+7100 if lc<ml then lc=lc+1 else print chr$(156)"file too big, a line skipped"chr$(156);:a$(lc-1)=cf$
 7110 a$(lc)="":return
 
 7160 if len(c$)<mc then a$(lc)=c$:return else gosub 7200:goto 7160
 
-7200 a$(lc)=mid$(c$,1,mc):c$=mid$(c$,mc+1):goto 7100
+7200 rem add input char
+7210 if len(a$(lc))=mc then gosub 7100
+7220 a$(lc)=a$(lc)+c$
+7230 return
 
 7300 if mid$(a$(cy),len(a$(cy)))=cf$ then 7600
 

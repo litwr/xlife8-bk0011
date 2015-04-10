@@ -42,12 +42,7 @@ void printcode() {
    for (int i = 0; i < progp; i++)
       ostr << code[i];
    ostr << "finalfinish:WAIT\nHALT\n";
-   ostr << "datastart:\n";
-   for (k = 0; k < datalines_count; k++) {
-      ostr << ".byte " << datalines[k].length() << endl;
-      ostr << ".ascii \"" << datalines[k] << "\"\n";
-   }
-   ostr << ".EVEN\n.include notepad/rbkbasic.inc\n";
+   ostr << ".include notepad/rbkbasic.inc\n";
    if (k = ivarp/2)
       ostr << ".REPT " << k << "\n.word 0\n.ENDR\n";
    ostr << "strsstatic:\n";
@@ -57,6 +52,11 @@ void printcode() {
    ostr << ".byte 0\n";
    for (int i = 0; i < stringp; i++)
       ostr << data[i];
+   ostr << "datastart:\n";
+   for (k = 0; k < datalines_count; k++) {
+      ostr << ".byte " << datalines[k].length() << endl;
+      ostr << ".ascii \"" << datalines[k] << "\"\n";
+   }
    ostr << "strsdyn:\n";
    wholecode = ostr.str();
    optimizer(wholecode);

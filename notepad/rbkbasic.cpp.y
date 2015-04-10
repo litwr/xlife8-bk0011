@@ -581,7 +581,7 @@ iexpr: NUMBER {
 }
 | PEEK '(' iexpr ')' {
      asmcomm("i -> PEEK(i)");
-     code[progp++] = "POP R4\nMOV @R4,R3\nPUSH R3\n";
+     code[progp++] = "POP R4\nPUSH @R4\n";
 }
 | INP '(' iexpr ',' iexpr ')' {
      asmcomm("i -> INP(i,i)");
