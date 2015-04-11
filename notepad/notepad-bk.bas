@@ -4,9 +4,9 @@
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
-12 u=0:un$=chr$(u+65)+":":nl=23
+12 u=0:un$=chr$(u+65)+":":nl=24
 14 ml=500:dim a$(500):clear 0,49108
-15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
+15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128:poke 116,2048
 20 gosub 100
 30 gosub 9700
 40 if fo then gosub 2210
@@ -24,8 +24,8 @@
 180 c$=inkey$:if c$<>"" then 180
 190 return
 
-300 data 15cd,1b00,15c1,1b80,15c0,4400,1c10,280,7e43,109
-310 data 15cd,1b00,15c1,1b80,15c0,7b00,1830,280,7e43,15cd,2b00,87
+300 data 15cd,1b00,15c1,1cc0,15c0,4400,1c10,280,7e43,109
+310 data 15cd,1b00,15c1,1cc0,15c0,7d80,1830,280,7e43,15cd,2b00,87
 
 2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 BK0011 Edition commands list":print
 2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
