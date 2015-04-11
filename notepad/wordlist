@@ -2,10 +2,10 @@ Supported operators:
 ^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
-ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF FIND FOR GET# GOSUB GOTO HEX$ IF INKEY$ INP INPUT LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ USR VAL XOR
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ USR VAL XOR
 
 Special notes:
-* Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings or machine code.  The executable starts from address 512.
+* Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings and machine code.  The executable starts from address 512.
 
 * Keyboard interrupts are used to provide the key autorepeat.
 
@@ -35,6 +35,8 @@ Special notes:
 
 * FRE shows total about of free memory. The garbage collector is only invoked if the argument type is string. So in the case of the integer or absent argument the shown amount of memory maybe less than the actual.
 
++ INSTR maybe used with 2 arguments, e.g., instr("abcdef", "cd") = instr(1, "abcdef", "cd").
+
 - Only some syntax errors are detected.
 
 * New function UINT$ provides the conversion to unsigned integer.  For example, UINT$(-1) gives "65535".
@@ -50,7 +52,7 @@ Special notes:
 * \-operator can correctly divide -32768 but it ignores any errors
 
 Planned:
-IMP EQV MONIT OCT$ DEF FN COLOR BEEP CINT KEY
+MONIT OCT$ DEFFN COLOR BEEP CINT KEY
 
 Graphics:
 CIRCLE DRAW PAINT POINT PRESET PSET
@@ -61,6 +63,6 @@ ATN CDBL COS EXP INT FIX LOG PI RND SIN SQR TAN CSNG /
 The program manipulation:
 AUTO CALL CLOAD CONT CSAVE DELETE LIST LLIST LOAD LPOS MERGE NEW RENUM RUN SAVE STOP TROFF TRON
 
-0011:
-FILES INSTR SYSTEM VARPTR
+BK0011 Basic:
+FILES SCREEN SYSTEM VARPTR
 

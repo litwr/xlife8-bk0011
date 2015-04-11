@@ -16,8 +16,9 @@ string code[100000], data[100000], datalines[10000];
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
-%token <num> USR SPC TAB AT INP OUT XOR READ RESTORE DEC
+%token <num> USR SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV
 %type <num> markop then
+%left IMP EQV
 %left OR XOR
 %left AND
 %left '=' GT GE LT LE NE
@@ -625,6 +626,14 @@ iexpr: NUMBER {
      asmcomm("i -> DEC(s)");
      code[progp++] = "POP R4\nCALL @#hex2dec\nPUSH R1\n";
 }
+| INSTR '(' sexpr ',' sexpr ')' {
+    asmcomm("i -> INSTR(s,s)");
+    code[progp++] = "POP R3\nPOP R4\nMOV #1,R2\nCALL @#instr\nPUSH R0\n";
+}
+| INSTR '(' iexpr ',' sexpr ',' sexpr ')' {
+    asmcomm("i -> INSTR(i,s,s)");
+    code[progp++] = "POP R3\nPOP R4\nPOP R2\nCALL @#instr\nPUSH R0\n";
+}
 | BEOF {
      asmcomm("i -> EOF");
      code[progp++] = "CLR R0\n";
@@ -709,6 +718,14 @@ iexpr: NUMBER {
 | iexpr XOR iexpr {
      asmcomm("i -> i XOR i");
      code[progp++] = "POP R3\nPOP R4\nXOR R3,R4\nPUSH R4\n";
+}
+| iexpr IMP iexpr {
+     asmcomm("i -> i IMP i");
+     code[progp++] = "POP R3\nPOP R4\nCOM R4\nBIS R3,R4\nPUSH R4\n";
+}
+| iexpr EQV iexpr {
+     asmcomm("i -> i IMP i");
+     code[progp++] = "POP R3\nPOP R4\nXOR R3,R4\nCOM R4\nPUSH R4\n";
 }
 | NOT iexpr {
      asmcomm("i -> NOT i");

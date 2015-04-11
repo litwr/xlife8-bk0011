@@ -7,6 +7,50 @@ key2irq:   mov @#kbddtport,@#kbdbuf
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
+instr:    DEC R2
+          CLR R0
+          CLR R5
+          BISB (R4)+,R5
+          SUB R2,R5
+          BLOS 0$
+
+          MOV R4,R1
+          ADD R2,R4
+          CLR R2
+          BISB (R3)+,R2
+          SUB R2,R5
+2$:       TST R5
+          BMI 0$
+
+          CMPB @R3,(R4)+
+          BEQ 1$
+
+4$:       DEC R5
+          BR 2$
+
+1$:       PUSH R2
+          PUSH R3
+          PUSH R4
+          DEC R2
+          BEQ 6$
+
+5$:       INC R3
+          CMPB @R3,(R4)+
+          BNE 3$
+
+          DEC R2
+          BNE 5$
+
+6$:       MOV @SP,R0
+          SUB R1,R0
+          ADD #6,SP
+0$:       RETURN
+
+3$:       POP R4
+          POP R3
+          POP R2
+          BR 4$
+
 commonfromdata:
      MOV @#datapos,R3
      CLR R4

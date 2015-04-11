@@ -90,7 +90,7 @@
 2820 rem. save if i=19 then 3200
 2830 rem. change drv if i=22 then 3400
 2840 rem. cat & load if i=3 then 3500
-2850 if i=22 then 3800
+2850 if i=22 then 3800 'delete
 2890 goto 2600
 
 3000 rem load
@@ -107,7 +107,7 @@
 3100 gosub 2205:goto 2310
 
 3120 cls:print f$" bad"
-3130 gosub 11000:gosub 9700:goto 3090
+3130 gosub 11000:gosub 9700:goto 3100
 
 3160 if len(c$)>mc then gosub 7200:goto 3160
 3165 d$=c$:l=len(d$):if efs then gosub 3140 else return
@@ -117,13 +117,12 @@
 3190 a$(lc)=d$+mid$(c$,1,mc-l):c$=mid$(c$,mc-l+1):goto 7100
 
 3200 rem save
-3210 cls:cls:s$="":print "disk "un$,f$
+3210 cls:gosub 10280:s$="":print "disk "un$,f$
 3212 print"Enter filename to save":print"  empty string - use the current one":print"  * - exit"
 3214 input s$:c$=s$:if s$="*" then 3100
 3216 if s$="" then c$=f$ else f$=c$
-3218 rem. if instr(c$,"*") or instr(c$,"?") then 3350
-3220 rem. on error goto 3710
-3230 open c$ for output
+3218 rem. if instr(c$,"*") or instr(c$,"?") then 3370
+3230 open c$ for output:if peek(208) and -256 then 3370
 3240 if a$(0)=cf$ goto 3330
 3250 for i=1 to lc
 3260 s$=a$(i-1):l=len(s$)
@@ -132,12 +131,11 @@
 3290 print chr$(13)i;:if s$=cc$ then print#:goto 3310
 3300 print# s$;
 3310 next
-3320 rem. on error goto 0 
 3330 close
 3340 goto 3100
 
-3350 cls:print "cannot open "c$:print ds$
-3360 c$=inkey$:if c$="" then 3360 else goto 3100
+3370 cls:gosub 2900:print "cannot write to "f$
+3380 gosub 11000:goto 3090
 
 3400 rem change drive letter
 3410 cls:cls
@@ -155,10 +153,6 @@
 3700 if err=14 then print " No memory - next lines are ignored" else print" Error";err
 3702 print "Hit a key"
 3705 c$=inkey$:if c$="" then 3705:rem. else resume 3080
-
-3710 if err=7 or err=14 then print " No memory - remove several lines" else print" Error";err
-3712 print "Hit a key"
-3715 c$=inkey$:if c$="" then 3715:rem. else resume 3320
 
 3800 rem delete char
 3810 if mid$(a$(cy),cx+1,1)=cf$ then return

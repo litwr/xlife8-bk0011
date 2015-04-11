@@ -11,7 +11,8 @@ dataelem   {space}*({string}|{datasym}*)
 dataline   (?i:DATA)({dataelem},)*{dataelem}
 %%
 {space}    
-(?i:REM).*$ 
+(?i:REM).*$
+\'.*$ 
 >=	   return GE;
 =>	   return GE;
 \<= 	   return LE;
@@ -38,6 +39,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:DIM)   lexdimst = 1;
 (?i:ELSE)  return ELSE;
 (?i:END)   return END;
+(?i:EQV)   return EQV;
 (?i:EOF)   return BEOF;
 (?i:FIND)  return FIND;
 (?i:FOR)   return FOR;
@@ -48,8 +50,10 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:HEX)\$ return HEX;
 (?i:IF)    return IF;
 (?i:INKEY)\$ return INKEY;
+(?i:IMP)   return IMP;
 (?i:INP)   return INP;
 (?i:INPUT) return INPUT;
+(?i:INSTR) return INSTR;
 (?i:LEN)   return LEN;
 (?i:LET)   return LET;
 (?i:LOCATE) return LOCATE;
