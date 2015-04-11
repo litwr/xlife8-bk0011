@@ -82,6 +82,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:THEN)  yylval.num = progp; return THEN;
 (?i:TO)    return TO;
 (?i:UINT)\$ return UINT;
+(?i:UPPER)\$ return UPPER;
 (?i:USR) yylval.num = 0; return USR;
 (?i:USR)[0-9] yylval.num = yytext[3] - '0'; return USR;
 (?i:VAL)   return VAL;

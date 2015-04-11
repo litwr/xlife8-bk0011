@@ -4,9 +4,9 @@
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
-12 u=0:un$=chr$(u+65)+":":nl=24
+12 u=0:un$=chr$(u+65)+":":nl=24:poke 116,2048
 14 ml=500:dim a$(500):clear 0,49108
-15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128:poke 116,2048
+15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
 20 gosub 100
 30 gosub 9700
 40 if fo then gosub 2210
@@ -71,23 +71,23 @@
 2620 if i=8 then 4100:rem left
 2630 if i=27 then 4200:rem down
 2640 if i=26 then 4300:rem up
-2650 if i=15 then 4400
+2650 if i=15 then 4400 'home
 2660 if i>31 and i<127 then 4500
-2680 if i=24 then 4700
-2690 if i=23 then 4800
+2680 if i=24 then 4700 'backspace
+2690 if i=23 then 4800 'insert space
 2700 if i=10 then 4900
 2710 if i=9 then 8000:rem esc/tab
 2720 if i=16 then 2000:rem help
-2730 if i=17 then print chr$(12)"Welcome to OS":end
-2740 if i=2 then 9300
-2750 if i=5 then 9400
-2760 if i=21 then 9500:rem pgup 
-2770 if i=4 then 9600:rem pgdn 
-2780 if i=14 then 9700
-2790 rem. search if i=6 then 9800
-2800 rem. repeat search if i=18 then 9900
-2810 if i=12 then 3000
-2820 rem. save if i=19 then 3200
+2730 if i=17 then print chr$(12)"Hit any key and get OS":end
+2740 if i=2 then 9300 'to start
+2750 if i=5 then 9400 'to end
+2760 if i=21 then 9500:rem pgup
+2770 if i=4 then 9600:rem pgdn
+2780 if i=14 then 9700 'new
+2790 if i=6 then 9800:rem search
+2800 if i=18 then 9900:rem repeat search 
+2810 if i=12 then 3000 'load
+2820 if i=19 then 3200:rem save 
 2830 rem. change drv if i=22 then 3400
 2840 rem. cat & load if i=3 then 3500
 2850 if i=22 then 3800 'delete
@@ -121,14 +121,14 @@
 3212 print"Enter filename to save":print"  empty string - use the current one":print"  * - exit"
 3214 input s$:c$=s$:if s$="*" then 3100
 3216 if s$="" then c$=f$ else f$=c$
-3218 rem. if instr(c$,"*") or instr(c$,"?") then 3370
+3218 if instr(c$,"*") or instr(c$,"?") then 3370
 3230 open c$ for output:if peek(208) and -256 then 3370
 3240 if a$(0)=cf$ goto 3330
 3250 for i=1 to lc
 3260 s$=a$(i-1):l=len(s$)
 3270 if l>1 then print# mid$(s$,1,l-1);:s$=mid$(s$,len(s$))
 3280 if s$=cf$ goto 3310
-3290 print chr$(13)i;:if s$=cc$ then print#:goto 3310
+3290 print chr$(18)i;:if s$=cc$ then print#:goto 3310
 3300 print# s$;
 3310 next
 3330 close
@@ -149,10 +149,6 @@
 3630 print "You may use the second cursor to copy filename from the list"
 3640 s$="":input "Filename (empty string = exit)";s$:if s$="" then 3100
 3650 goto 3014
-
-3700 if err=14 then print " No memory - next lines are ignored" else print" Error";err
-3702 print "Hit a key"
-3705 c$=inkey$:if c$="" then 3705:rem. else resume 3080
 
 3800 rem delete char
 3810 if mid$(a$(cy),cx+1,1)=cf$ then return
@@ -398,7 +394,7 @@
 
 9800 rem search
 9810 cls:fs$="":input "Find";fs$:l=len(fs$):if l=0 then 2205
-9820 rem. s$=upper$(fs$):fs$=s$
+9820 s$=upper$(fs$):fs$=s$
 9830 l2=cx+2:gosub 10000
 9840 if fi=0 then 2205
 9850 cx=fi-1:cy=j
@@ -407,17 +403,17 @@
 
 9900 rem repeat find
 9910 if fs$="" then return
-9920 cls:print chr$(12)"seek "fs$:l=len(fs$):goto 9830:rem cls#1
+9920 cls:print chr$(12)"seek "fs$:l=len(fs$):goto 9830:gosub 10280
 
 10000 for j=cy to lc-1
-10010 rem. s$=upper$(a$(j)):print chr$(13) j+1;
-10020 rem. fi=instr(l2,s$,fs$):if fi=0 and len(s$)=mc then gosub 10200
+10010 s$=upper$(a$(j)):print chr$(18) j+1;
+10020 fi=instr(l2,s$,fs$):if fi=0 and len(s$)=mc then gosub 10200
 10030 if fi then return
 10040 l2=1
 10050 next
 10060 goto 180
 
-10200 l3=len(fs$):rem. g$=upper$(a$(j+1)):l4=len(g$)
+10200 l3=len(fs$):g$=upper$(a$(j+1)):l4=len(g$)
 10210 for i=l3-1 to 1 step -1
 10220 if l4<l3-i then return
 10225 if l2>mc-i+1 then 10240
@@ -435,3 +431,4 @@
 
 11000 k$=inkey$:if k$="" goto 11000
 11010 return
+

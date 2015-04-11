@@ -15,8 +15,8 @@ string code[100000], data[100000], datalines[10000];
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
-%token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
-%token <num> USR SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV
+%token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
+%token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
 %type <num> markop then
 %left IMP EQV
 %left OR XOR
@@ -813,6 +813,14 @@ sexpr: STRINGTYPE {
      code[progp++] = "MOV R3,R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
      code[progp++] = "BIC #240,R3\nMOV R3,R4\nCALL @#hexconv\n";
      code[progp++] = "MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+}
+| UPPER '(' sexpr ')' {
+     asmcomm("s -> upper$(s)");
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nCLR R4\nBISB (R3)+,R4\nMOVB R4,(R2)+\n";
+     code[progp++] = tostr(locals + 1) + "$:MOVB (R3)+,R1\nCMPB R1,#'a\nBCS " + tostr(locals) + "$\nCMPB R1,#'z+1\n";
+     code[progp++] = "BCC " + tostr(locals) + "$\nSUB #32,R1\n" + tostr(locals) + "$:MOVB R1,(R2)+\n";
+     code[progp++] = "SOB R4," + tostr(locals + 1) + "$\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     locals += 2;
 }
 | BIN '(' iexpr ')' {
      asmcomm("s -> bin$(i)");
