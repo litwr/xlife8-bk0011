@@ -16,7 +16,7 @@ string code[100000], data[100000], datalines[10000];
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF
-%token <num> USR SPC TAB AT INP OUT XOR READ RESTORE
+%token <num> USR SPC TAB AT INP OUT XOR READ RESTORE DEC
 %type <num> markop then
 %left OR XOR
 %left AND
@@ -620,6 +620,10 @@ iexpr: NUMBER {
 | VAL '(' sexpr ')' {
      asmcomm("i -> VAL(s)");
      code[progp++] = "POP R4\nCALL @#str2dec\nPUSH R3\n";
+}
+| DEC '(' sexpr ')' {
+     asmcomm("i -> DEC(s)");
+     code[progp++] = "POP R4\nCALL @#hex2dec\nPUSH R1\n";
 }
 | BEOF {
      asmcomm("i -> EOF");

@@ -33,6 +33,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:CLOSE) return CLOSE;
 (?i:CLS)   return CLS;
 (?i:CSRLIN)(\(.*\))? return CSRLIN;
+(?i:DEC)   return DEC;
 (?i:DEF)   return DEF;
 (?i:DIM)   lexdimst = 1;
 (?i:ELSE)  return ELSE;

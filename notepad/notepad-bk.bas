@@ -5,8 +5,8 @@
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
 12 u=0:un$=chr$(u+65)+":":nl=23
-14 ml=500:dim a$(500)
-15 for i=0 to 24:read cx:poke 516+i*2,cx:next:def usr = 516:def usr1 = 538
+14 ml=500:dim a$(500):clear 0,49108
+15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
 20 gosub 100
 30 gosub 9700
 40 if fo then gosub 2210
@@ -24,8 +24,8 @@
 180 c$=inkey$:if c$<>"" then 180
 190 return
 
-300 data 5599,7168,-50,5568,17408,5569,7040,7184,640,32323,266
-310 data 5599,7168,-50,5568,31488,5569,7040,6192,640,32323,5599,11008,-50,135
+300 data 15cd,1b00,15c1,1b80,15c0,4400,1c10,280,7e43,109
+310 data 15cd,1b00,15c1,1b80,15c0,7b00,1830,280,7e43,15cd,2b00,87
 
 2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 BK0011 Edition commands list":print
 2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
@@ -47,7 +47,7 @@
 2220 if i<lc and i-ty<nl then gosub 2400:i=i+1:goto 2220
 2230 gosub 2310
 
-2250 c$=f$+str$(fre(0)):y=0:gosub 10300:c$=mo$:y=16:gosub 10300:c$=un$:y=22:goto 10300
+2250 c$=f$+" "+uint$(fre(0))+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
 
 2270 i=cy
 2280 if i<lc and i-ty<nl then gosub 2510:if mid$(a$(i),len(a$(i)))<>cc$ then i=i+1:goto 2280
@@ -188,7 +188,7 @@
 4220 if cy<lc-1 then cy=cy+1
 4230 if cy-ty>nl-1 then ty=ty+1:e=1
 4240 gosub 4150
-4250 if e then e=usr(0):locate 0,nl-1:print chr$(153)a$(ty+nl-1);
+4250 if e then e=usr(-50):locate 0,nl-1:print chr$(153)a$(ty+nl-1);
 4260 goto 2310
 
 4300 rem cursor up
@@ -196,7 +196,7 @@
 4310 if cy>0 then cy=cy-1
 4320 if cy-ty<0 then ty=ty-1:e=1
 4330 gosub 4150
-4340 if e then e=usr1(0):locate 0,0:print chr$(153)a$(ty);
+4340 if e then e=usr1(-50):locate 0,0:print chr$(153)a$(ty);
 4350 goto 2310
 
 4400 rem cursor home
@@ -358,13 +358,13 @@
 8800 rem esc+v
 8810 if ty>=lc-1 then return
 8820 ty=ty+1:if cy<ty then cy=ty
-8830 e=usr(0):locate 0,nl-1:print chr$(153);:if ty+nl-1<lc then print a$(ty+nl-1);
+8830 e=usr(-50):locate 0,nl-1:print chr$(153);:if ty+nl-1<lc then print a$(ty+nl-1);
 8840 goto 2310
 
 8900 rem esc+w
 8910 if ty=0 then return
 8920 ty=ty-1:if cy-ty>nl-1 then cy=cy-1
-8930 e=usr1(0):locate 0,0:print chr$(153)a$(ty);:goto 2310
+8930 e=usr1(-50):locate 0,0:print chr$(153)a$(ty);:goto 2310
 
 9000 rem esc+a
 9010 im=1:mo$="ins"

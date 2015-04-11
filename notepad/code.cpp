@@ -38,10 +38,6 @@ void printcode() {
    ostr << "TOSCREEN\nEMT ^O14\n";
    ostr << "TOMAIN\n";
    ostr << "MOV #keyirq,@#^O60\nMOV #key2irq,@#^O274\n";
-//ostr << "scrollup:TOSCREEN\nmov #17408,r0\nmov #220*32,r1\n";
-//ostr << "loopsu:mov 640(r0),(r0)+\nsob r1,loopsu\nbr endscroll\n";
-//ostr << "scrolldn:TOSCREEN\nmov #32128-640,r0\nmov #220*32,r1\n";
-//ostr << "loopsd:mov -(r0),640(r0)\nsob r1,loopsd\nendscroll:TOMAIN\nRETURN\n";
    ostr << "MOV #512,SP\n";
    for (int i = 0; i < progp; i++)
       ostr << code[i];

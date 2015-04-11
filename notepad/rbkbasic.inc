@@ -727,6 +727,36 @@ hexconv: ADD #48,R4
 1$:      MOVB R4,(R2)+
          RETURN
 
+hex2dec: CLR R3
+         BISB @R4,R3
+         ADD R3,R4
+         MOV #1,R0
+         CLR R1
+3$:      MOVB @R4,R2
+         DEC R4
+         SUB #'0,R2
+         CMP R2,#10
+         BCS 0$
+
+         SUB #7,R2
+         CMP R2,#16
+         BCS 0$
+
+         SUB #32,R2
+0$:      BIS R2,R2
+         BEQ 1$
+
+2$:      ADD R0,R1
+         SOB R2,2$
+
+1$:      ASL R0
+         ASL R0
+         ASL R0
+         ASL R0
+         DEC R3
+         BNE 3$
+         RETURN
+
 mul16:   CLR R5     ;R1*R2->R0, does not change R3,R4
          TST R1
          BPL 1$

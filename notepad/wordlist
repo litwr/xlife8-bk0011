@@ -2,7 +2,7 @@ Supported operators:
 ^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
-ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEF DIM ELSE END EOF FIND FOR GET# GOSUB GOTO HEX$ IF INKEY$ INP INPUT LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ USR VAL XOR
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF FIND FOR GET# GOSUB GOTO HEX$ IF INKEY$ INP INPUT LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ USR VAL XOR
 
 Special notes:
 * Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings or machine code.  The executable starts from address 512.
@@ -12,6 +12,8 @@ Special notes:
 + Variable names may have any length.
 
 + It is possible to use the several statements at one BASIC's line using ':' separator between statements.
+
+* It is necessary to use space(s) between tokens, e.g. 'if a<3 goto 10' requires space between 'if' and 'a' so as between 'goto' and '10'.
 
 * The pages 2, 3, and 6 are used to keep the program and data. Page 0 is used as io-buffer. Page 4 contains AnDOS.  Other pages of memory are free for any usage.
 
@@ -23,7 +25,9 @@ Special notes:
 
 + New statement GET# allows to use char-by-char data transmission, e.g., GET#a$ inputs one character or the empty string to a$ from a file opened to read.  It is the file equvalent of INKEY$.
 
-* CLEAR requires exactly two arguments but the first argument is ignored because all free memory is available for the strings. CLEAR calls the garbage collector at first.  The secont argument sets the upper border of memory for BASIC.  The default value for this border is 49152.  It may be set to 16384 for compatibility with BK0010.
+* CLEAR requires exactly two arguments but the first argument is ignored because all free memory is available for the strings. CLEAR calls the garbage collector at first.  The second argument sets the upper border of memory for BASIC.  The default value for this border is 49152.  It may be set to 16384 for compatibility with BK0010.
+
++ New function DEC converts hexadecimal string to the integer, e.g., dec("a0A")=2570.
 
 * INPUT may have a bit different interface.
 
@@ -56,4 +60,7 @@ ATN CDBL COS EXP INT FIX LOG PI RND SIN SQR TAN CSNG /
 
 The program manipulation:
 AUTO CALL CLOAD CONT CSAVE DELETE LIST LLIST LOAD LPOS MERGE NEW RENUM RUN SAVE STOP TROFF TRON
+
+0011:
+FILES INSTR SYSTEM VARPTR
 
