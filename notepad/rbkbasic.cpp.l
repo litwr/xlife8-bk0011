@@ -10,7 +10,7 @@ datasym    [^,:\n]
 dataelem   {space}*({string}|{datasym}*)
 dataline   (?i:DATA)({dataelem},)*{dataelem}
 %%
-{space}    
+{space}
 (?i:REM).*$
 \'.*$ 
 >=	   return GE;
@@ -41,6 +41,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:END)   return END;
 (?i:EQV)   return EQV;
 (?i:EOF)   return BEOF;
+(?i:FILES)  return FIND;
 (?i:FIND)  return FIND;
 (?i:FOR)   return FOR;
 (?i:FRE)   return FRE;

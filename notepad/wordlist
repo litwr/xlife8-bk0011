@@ -2,7 +2,7 @@ Supported operators:
 ^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
-ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ UPPER$ USR VAL XOR
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ UPPER$ USR VAL XOR
 
 Special notes:
 * Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings and machine code.  The executable starts from address 512.
@@ -43,7 +43,9 @@ Special notes:
 
 * New function UPPER$ converts lowercase letter in the string to the uppercase.
 
-+ FIND may use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensitive.
++ FIND has to use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensitive.
+
++ FILES command is identical to FIND.
 
 * BLOAD always requires three arguments, e.g. BLOAD "MC",,32768 or BLOAD "MC.BIN",R,47*1024.
 
@@ -66,5 +68,5 @@ The program manipulation:
 AUTO CALL CLOAD CONT CSAVE DELETE LIST LLIST LOAD LPOS MERGE NEW RENUM RUN SAVE STOP TROFF TRON
 
 BK0011 Basic:
-FILES SCREEN SYSTEM VARPTR
+SCREEN SYSTEM VARPTR
 

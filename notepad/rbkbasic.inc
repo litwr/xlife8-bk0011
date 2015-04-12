@@ -556,7 +556,8 @@ stringout:
 
 togglecrsr:
      MOV #154,R0
-     TST @#cursorst
+cursorst = . + 2
+     TST #65535
      BNE 1$
 
      TST R3
@@ -905,6 +906,5 @@ div16:   CLR R5     ;R2/R1->R4:R2
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
-cursorst:  .word 65535
 strdmax:   .word 48*1024-256
 

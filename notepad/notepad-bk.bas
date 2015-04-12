@@ -13,14 +13,14 @@
 45 gosub 2600:goto 40
 
 100 gosub 10280:cls
-110 locate 12,18:print "Press Ctrl + P to get help":locate 0,6
+110 locate 16,18:print "Press Ctrl + P to get help":locate 0,6
 112 PRINT "¯¯» ¯¯          ¯¯                             ¯¯   »»      »¯¯"
 114 PRINT "¯¯¯¯¯¯ »¯¬¬¯» ¬¬¯¯¬¬  »¯¬¬¯» ¯¯¬¬¯»  ¬¬¬¯» »¯¬¬¯¯ »»¯¯»» »»¬¬¯¯"
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
-150 locate 28,11:print "Electronika BK0011 Edition";
-154 locate 24,12:print "v1, by litwr, (c) 2015 gnu gpl"
-156 for i=0 to 4000:cx=55*i:next i
+150 locate 38,11:print "Electronika BK0011 Edition";
+154 locate 34,12,0:print "v1, by litwr, (c) 2015 gnu gpl"
+156 for i=0 to 5000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
 
@@ -91,7 +91,7 @@
 2810 if i=12 then 3000 'load
 2820 if i=19 then 3200:rem save 
 2830 rem. change drv if i=22 then 3400
-2840 rem. cat & load if i=3 then 3500
+2840 if i=3 then 3500:rem cat & load 
 2850 if i=22 then 3800 'delete
 2890 goto 2600
 
@@ -146,9 +146,8 @@
 3430 goto 2205
 
 3500 rem directory & load
-3510 cls:cls:dm$="":print"disk "un$:print"enter directory mask (*.* by default)":input dm$:if dm$="" then dm$="*.*"
-3520 rem. |dir,dm$
-3630 print "You may use the second cursor to copy filename from the list"
+3510 cls:gosub 10280:dm$="":print"disk "un$:print"enter directory mask (*.* by default)":input dm$:if dm$="" then dm$="*.*"
+3520 files dm$:?
 3640 s$="":input "Filename (empty string = exit)";s$:if s$="" then 3100
 3650 goto 3014
 
