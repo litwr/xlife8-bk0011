@@ -39,10 +39,11 @@ void printcode() {
    ostr << "TOMAIN\n";
    ostr << "MOV #keyirq,@#^O60\nMOV #key2irq,@#^O274\n";
    ostr << "MOV #512,SP\n";
+   ostr << "JMP @#progstart\n";
+   ostr << ".include notepad/rbkbasic.inc\nprogstart:\n";
    for (int i = 0; i < progp; i++)
       ostr << code[i];
-   ostr << "finalfinish:WAIT\nHALT\n";
-   ostr << ".include notepad/rbkbasic.inc\n";
+   ostr << "finalfinish:WAIT\nHALT\nlib_end:\n";
    if (k = ivarp/2)
       ostr << ".REPT " << k << "\n.word 0\n.ENDR\n";
    ostr << "strsstatic:\n";

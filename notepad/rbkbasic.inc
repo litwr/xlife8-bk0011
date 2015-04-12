@@ -1,6 +1,5 @@
+kbdbuf     = key2irq + 4
 key2irq:   mov @#kbddtport,#0
-           . = . - 2
-kbdbuf:    .word 0
            beq 0$
 
            bisb #128,@#kbdbuf
@@ -53,8 +52,9 @@ instr:    DEC R2
           POP R2
           BR 4$
 
+datapos = . + 2
 commonfromdata:
-     MOV @#datapos,R3
+     MOV #datastart,R3
      CLR R4
      BISB @R3,R4
      INC R4
@@ -498,8 +498,9 @@ midS_s_i_i_s:
 
 1$:  RETURN
 
+eolpos = openwrite + 4
 openwrite:
-     MOV #16384,@#eolpos
+     MOV #16384,#0
 openwrite0:
      MOV #2,R1
      BR openread0
@@ -587,8 +588,10 @@ fnstringout:
      BEQ charout0
 
      PUSH #1$
+
+filepos = . + 2
 fcharout:
-     MOV @#filepos,R2
+     MOV #0,R2
      CMPB #10,R0
      BNE 1$
 
@@ -902,10 +905,6 @@ div16:   CLR R5     ;R2/R1->R4:R2
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
-filepos:   .word 0
-eolpos:    .word 0
-datapos:   .word datastart
 cursorst:  .word 65535
 strdmax:   .word 48*1024-256
-lib_end:
 

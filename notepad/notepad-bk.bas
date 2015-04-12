@@ -80,7 +80,7 @@
 2700 if i=10 then 4900
 2710 if i=9 then 8000:rem esc/tab
 2720 if i=16 then 2000:rem help
-2730 if i=17 then print chr$(12)"Hit any key and get OS":end
+2730 if i=17 then print chr$(12)"Hit a key and get OS":end
 2740 if i=2 then 9300 'to start
 2750 if i=5 then 9400 'to end
 2760 if i=21 then 9500:rem pgup
@@ -126,7 +126,7 @@
 3218 if instr(c$,"*") or instr(c$,"?") then 3370
 3230 open c$ for output:if peek(208) and -256 then 3370
 3240 if a$(0)=cf$ goto 3330
-3250 for i=1 to lc
+3250 cls:for i=1 to lc
 3260 s$=a$(i-1):l=len(s$)
 3270 if l>1 then print# mid$(s$,1,l-1);:s$=mid$(s$,len(s$))
 3280 if s$=cf$ goto 3310
@@ -350,8 +350,7 @@
 8800 rem esc+v
 8810 if ty>=lc-1 then return
 8820 ty=ty+1:if cy<ty then cy=ty
-8830 e=usr(-50):locate 0,nl-1:print chr$(153);:poke 116,2048:if ty+nl-1<lc then print a$(ty+nl-1);
-8835 poke 116,1536
+8830 e=usr(-50):locate 0,nl-1:print chr$(153);:if ty+nl-1<lc then poke 116,2048:print a$(ty+nl-1);:poke 116,1536
 8840 goto 2310
 
 8900 rem esc+w
