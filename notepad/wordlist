@@ -2,7 +2,7 @@ Supported operators:
 ^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
-ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ TAB THEN TO UINT$ UPPER$ USR VAL XOR
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MINIT NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL XOR
 
 Special notes:
 * Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings and machine code.  The executable starts from address 512.
@@ -41,7 +41,7 @@ Special notes:
 
 * New function UINT$ provides the conversion to unsigned integer.  For example, UINT$(-1) gives "65535".
 
-* New function UPPER$ converts lowercase letter in the string to the uppercase.
++ New function UPPER$ converts lowercase letter in the string to the uppercase.
 
 + FIND has to use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensitive.
 
@@ -53,10 +53,12 @@ Special notes:
 
 * USRn(X) call puts X at R5 and then use CALL.  So the return from this ML subroutine may be achieved by RETURN instruction.  The result should be placed at R5.
 
+* SYSTEM and MONIT commands do the same as END.
+
 * \-operator can correctly divide -32768 but it ignores any errors
 
 Planned:
-MONIT OCT$ DEFFN COLOR BEEP CINT KEY
+OCT$ DEFFN COLOR BEEP CINT KEY
 
 Graphics:
 CIRCLE DRAW PAINT POINT PRESET PSET
@@ -68,5 +70,5 @@ The program manipulation:
 AUTO CALL CLOAD CONT CSAVE DELETE LIST LLIST LOAD LPOS MERGE NEW RENUM RUN SAVE STOP TROFF TRON
 
 BK0011 Basic:
-SCREEN SYSTEM VARPTR
+SCREEN VARPTR
 

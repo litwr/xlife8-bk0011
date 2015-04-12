@@ -60,6 +60,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:LOCATE) return LOCATE;
 (?i:MID)\$ return MID;
 (?i:MOD)   return MOD;
+(?i:MONIT) return END;
 (?i:NEXT)  return NEXT;
 (?i:NOT)   return NOT;
 (?i:ON)    return ON;
@@ -79,6 +80,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:STEP)  return STEP;
 (?i:STR)\$ return STR;
 (?i:STRING)\$ return STRING;
+(?i:SYSTEM)\$ return END;
 (?i:TAB)   return TAB;
 (?i:THEN)  yylval.num = progp; return THEN;
 (?i:TO)    return TO;

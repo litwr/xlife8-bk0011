@@ -4,7 +4,7 @@
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
-12 u=0:un$=chr$(u+65)+":":nl=24
+12 u=1:un$=chr$(u+64)+":":nl=24
 14 ml=500:dim a$(500):clear 0,49108
 15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
 20 gosub 100
@@ -90,7 +90,7 @@
 2800 if i=18 then 9900:rem repeat search 
 2810 if i=12 then 3000 'load
 2820 if i=19 then 3200:rem save 
-2830 rem. change drv if i=22 then 3400
+2830 if i=22 then 3400:rem change drv 
 2840 if i=3 then 3500:rem cat & load 
 2850 if i=22 then 3800 'delete
 2890 goto 2600
@@ -140,14 +140,15 @@
 3380 gosub 11000:goto 3090
 
 3400 rem change drive letter
-3410 cls:cls
-3415 u=u+1:if u>1 then u=0
-3420 un$=chr$(u+65)+":":rem. if u=0 then |a else |b
+3410 cls:gosub 10280
+3415 u=u+1:if u>4 then u=1
+3420 un$=chr$(u+64)+":":poke 234,257*u:poke -50,7168:poke -24468,peek(234):poke -50,11008
 3430 goto 2205
 
 3500 rem directory & load
 3510 cls:gosub 10280:dm$="":print"disk "un$:print"enter directory mask (*.* by default)":input dm$:if dm$="" then dm$="*.*"
 3520 files dm$:?
+3530 print "Enter filename"
 3640 s$="":input "Filename (empty string = exit)";s$:if s$="" then 3100
 3650 goto 3014
 
@@ -394,7 +395,7 @@
 9720 goto 2205
 
 9800 rem search
-9810 cls:fs$="":input "Find";fs$:l=len(fs$):if l=0 then 2205
+9810 cls:fs$="":?:input "Find";fs$:l=len(fs$):if l=0 then 2205
 9820 s$=upper$(fs$):fs$=s$
 9830 l2=cx+2:gosub 10000
 9840 if fi=0 then 2205
@@ -404,7 +405,7 @@
 
 9900 rem repeat find
 9910 if fs$="" then return
-9920 cls:print chr$(12)"seek "fs$:l=len(fs$):goto 9830:gosub 10280
+9920 cls:?:print "seek "fs$:l=len(fs$):goto 9830:gosub 10280
 
 10000 for j=cy to lc-1
 10010 s$=upper$(a$(j)):print chr$(18) j+1;
