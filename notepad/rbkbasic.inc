@@ -185,8 +185,9 @@ intfromkbd0:
      MOVB R3,@R4
      PUSH R5
      CALL @#str2dec
-     POP R5
-     MOV R3,@R5
+     MOV R3,@(SP)+
+     ;POP R5
+     ;MOV R3,@R5
      RETURN
 
 strfromkbd:
@@ -263,6 +264,7 @@ strfromdata:
 
 s_ASSIGN_s:
      MOV @#strdcurre,R2
+     CLR R5
      MOV R2,@R4
      CLR R0
      BISB (R3)+,R0

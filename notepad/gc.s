@@ -35,7 +35,7 @@ gc0:      mov @#strdstart,r3
 
 8$:       tst r0
           beq 2$
-          
+
           mov r3,r4
           mov @r0,r5
           mov r4,@r0
@@ -48,7 +48,7 @@ gc0:      mov @#strdstart,r3
           sob r2,6$
           mov r4,r3
           br 7$
-          
+
 2$:       mov r3,@#strdcurre
           mov @#strestatic-2,r5
 exitgc:   return

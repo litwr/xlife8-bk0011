@@ -145,7 +145,7 @@ oper:
 | CLS {asmcomm("oper -> CLS"); code[progp++] = "MOV #12,R0\nCALL @#charout\n";}
 | CLEAR iexpr ',' iexpr {
       asmcomm("oper -> CLEAR i,i");
-      code[progp++] = "CLR R5\nCALL @#gc\nPOP R1\nPOP R2\nSUB #256,R1\nMOV R1,@#strdmax\n";
+      code[progp++] = "CLR R5\nCALL @#gc0\nPOP R1\nPOP R2\nSUB #256,R1\nMOV R1,@#strdmax\n";
 }
 | input {argcount = 0;}
 | read {argcount = 0;}
@@ -335,7 +335,7 @@ input: INPUT '#' varlistf {
      code[progp++] = "ADD #" + tostr(argcount*4 + 2) + ",SP\n";
 }
 ;
-varlistf: svarf 
+varlistf: svarf
 | svarf ',' varlistf
 | ivarf
 | ivarf ',' varlistf
@@ -394,34 +394,49 @@ bsave: BSAVE sexpr ',' iexpr ',' iexpr {
 ;
 for: markop FOR IVAR '=' iexpr {
      asmcomm("oper -> FOR IVAR = i TO iexpr ...");
-     code[progp++] = "POP R3\nMOV R3,@#";
+     code[progp++] = "POP @#";
      realloca[progp] = $3;
-     code[progp++] = tostr($3->addr);
+     code[progp++] = "";
      code[progp++] = "\n";
-} TO iexpr step operend {
+} TO iexpr step {
      asmcomm("TO of FOR");
+     code[progp++] = "POP @#";
+     reallocl[progp] = -$1 - 1;
+     code[progp++] = "";
+     code[progp++] = "POP @#";
+     reallocl[progp] = -$1 - 2;
+     code[progp++] = "";
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
-} operlist next {
+} operend operlist next {
      asmcomm("NEXT of FOR");
-     code[progp++] = "MOVB #6,R3\n";   //BGT = 6
-     code[progp++] = "TST @SP\n";
-     code[progp++] = "BPL " + tostr(locals) + "$\n";
-     code[progp++] = "DEC R3\n";   //BLT = 5
-     code[progp++] = tostr(locals++) + "$:MOVB R3,@#";
-     code[progp++] = tostr(locals) + "$+1\n";
-     code[progp++] = "ADD @SP,@#";
+     code[progp++] = ".WORD 26079\n"; //ADD #step,@#IVAR
+     code[progp++] = tostr(locals) + "$:\n";
+     labels[-$1 - 1] = locals;
+     code[progp++] = ".WORD 0,";
      realloca[progp] = $3;
-     code[progp++] = tostr($3->addr);
-     code[progp++] = "\nCMP @#";
-     realloca[progp] = $3;
-     code[progp++] = tostr($3->addr);
-     code[progp++] = ",2(SP)\n";
-     code[progp++] = tostr(locals++) + "$:BGE ";
-     code[progp++] = tostr(locals) + "$\nJMP @#";
-     reallocl[progp] = -$1;
      code[progp++] = "";
-     code[progp++] = tostr(locals++) + "$:ADD #4,SP\n";
+     code[progp++] = "\n";
+     
+     code[progp++] = "MOV @#"; //
+     realloca[progp] = $3;
+     code[progp++] = "";
+     code[progp++] = ",R3\n";
+     
+     code[progp++] = ".WORD 58819\n"; //SUB #limit,R3
+     code[progp++] = tostr(locals + 1) + "$:\n";
+     labels[-$1 - 2] = locals + 1;
+     code[progp++] = ".WORD 0\n";
+     code[progp++] = "BEQ " + tostr(locals + 2) + "$\n";
+
+     code[progp++] = "MOV @#";
+     code[progp++] = tostr(locals) + "$,R4\n";
+     code[progp++] = "XOR R3,R4\n";
+     code[progp++] = "BPL " + tostr(locals + 3) + "$\n";
+     code[progp++] = tostr(locals + 2) + "$:\n";
+     code[progp++] = "JMP @#" + tostr(labels[-$1]) + "$\n";
+     code[progp++] = tostr(locals + 3) + "$:\n";
+     locals += 4;
 }
 ;
 next: NEXT IVAR
