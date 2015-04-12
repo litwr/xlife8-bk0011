@@ -4,7 +4,7 @@
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
-12 u=0:un$=chr$(u+65)+":":nl=24:poke 116,2048
+12 u=0:un$=chr$(u+65)+":":nl=24
 14 ml=500:dim a$(500):clear 0,49108
 15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
 20 gosub 100
@@ -44,7 +44,9 @@
 2200 rem show screen
 2205 fo=1:return
 2210 i=ty:cls
+2215 poke 116,2048
 2220 if i<lc and i-ty<nl then gosub 2400:i=i+1:goto 2220
+2225 poke 116,1536
 2230 gosub 2310
 
 2250 c$=f$+" "+uint$(fre(0))+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
@@ -62,7 +64,7 @@
 2410 return
 
 2500 rem show line #i
-2510 locate 0,i-ty:print chr$(153) a$(i);:return
+2510 locate 0,i-ty:poke 116,2048:print chr$(153) a$(i);:poke 116,1536:return
 
 2600 locate cx,cy-ty,1 
 2604 c$=inkey$:if c$="" then 2604
@@ -178,7 +180,7 @@
 4220 if cy<lc-1 then cy=cy+1
 4230 if cy-ty>nl-1 then ty=ty+1:e=1
 4240 gosub 4150
-4250 if e then e=usr(-50):locate 0,nl-1:print chr$(153)a$(ty+nl-1);
+4250 if e then e=usr(-50):locate 0,nl-1:poke 116,2048:print chr$(153)a$(ty+nl-1);:poke 116,1536
 4260 goto 2310
 
 4300 rem cursor up
@@ -348,7 +350,8 @@
 8800 rem esc+v
 8810 if ty>=lc-1 then return
 8820 ty=ty+1:if cy<ty then cy=ty
-8830 e=usr(-50):locate 0,nl-1:print chr$(153);:if ty+nl-1<lc then print a$(ty+nl-1);
+8830 e=usr(-50):locate 0,nl-1:print chr$(153);:poke 116,2048:if ty+nl-1<lc then print a$(ty+nl-1);
+8835 poke 116,1536
 8840 goto 2310
 
 8900 rem esc+w

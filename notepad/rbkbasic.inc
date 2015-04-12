@@ -1,4 +1,6 @@
-key2irq:   mov @#kbddtport,@#kbdbuf
+key2irq:   mov @#kbddtport,#0
+           . = . - 2
+kbdbuf:    .word 0
            beq 0$
 
            bisb #128,@#kbdbuf
@@ -902,7 +904,6 @@ strdstart: .word strsdyn
 strdcurre: .word strsdyn
 filepos:   .word 0
 eolpos:    .word 0
-kbdbuf:    .word 0
 datapos:   .word datastart
 cursorst:  .word 65535
 strdmax:   .word 48*1024-256
