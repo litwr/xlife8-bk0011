@@ -28,7 +28,7 @@ void printcode() {
    int k, l = ivarp + svarp + 2;
    ostringstream ostr;
    string wholecode;
-   ostr << ".radix 10\n.dsabl gbl\n.include notepad/rbkbasic.mac\n.asect\n.="
+   ostr << ".radix 10\n.dsabl gbl\n.include bkbasic/rbkbasic.mac\n.asect\n.="
       << progstart << endl;
    ostr << "MOV #240*256+240,@#andos_wregim\n";
    ostr << "MOV #^B001101000000000,@#pageport\n"; //pages 1,2
@@ -43,7 +43,7 @@ void printcode() {
    ostr << "finalfinish:WAIT\nJMP @#49152\n";
    for (map<string,int>::iterator i = used_code.begin(); i != used_code.end(); i++)
       ostr << "opt_" << i->first << " = 1\n";
-   ostr << ".include notepad/rbkbasic.inc\nprogstart:\n";
+   ostr << ".include bkbasic/rbkbasic.inc\nprogstart:\n";
    for (int i = 0; i < progp; i++)
       ostr << code[i];
    ostr << "JMP @#finalfinish\nlib_end:\n";
