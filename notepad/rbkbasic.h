@@ -18,4 +18,5 @@ extern int lexdimst, comm_on;
 extern map<int,Symbol*> realloca, reallocs;
 extern map<string,Symbol> names;
 extern map<int,int> reallocl, labels, datalabels, dataprogp;
+extern map<string,int> used_code;
 

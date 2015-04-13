@@ -41,6 +41,8 @@ void printcode() {
    ostr << "MOV #512,SP\n";
    ostr << "JMP @#progstart\n";
    ostr << "finalfinish:WAIT\nJMP @#49152\n";
+   for (map<string,int>::iterator i = used_code.begin(); i != used_code.end(); i++)
+      ostr << "opt_" << i->first << " = 1\n";
    ostr << ".include notepad/rbkbasic.inc\nprogstart:\n";
    for (int i = 0; i < progp; i++)
       ostr << code[i];

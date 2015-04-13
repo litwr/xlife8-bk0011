@@ -2,10 +2,12 @@ Supported operators:
 ^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
-ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MINIT NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL XOR
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MONIT NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL XOR
 
 Special notes:
 * Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings and machine code.  The executable starts from address 512.
+
+* Memory area at 532-569 are free for a user (ML, data). The memory above 16384 is switchable so it has limitations for the direct usage for ML or data.
 
 * Keyboard interrupts are used to provide the key autorepeat.
 
@@ -29,7 +31,7 @@ Special notes:
 
 + New function DEC converts hexadecimal string to the integer, e.g., dec("a0A")=2570.
 
-* INPUT may have a bit different interface.
+* INPUT may have a bit different interface. For example, INPUT A,B requires to enter the value for A then press Enter-key and then the value for B terminated by Enter-key.
 
 * CSRLIN and POS completely ignore their arguments.
 

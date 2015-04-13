@@ -20,7 +20,7 @@
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
 150 locate 38,11:print "Electronika BK0011 Edition";
 154 locate 34,12,0:print "v1, by litwr, (c) 2015 gnu gpl"
-156 for i=0 to 5000:cx=55*i:next i
+156 for i=0 to 7000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
 
@@ -146,9 +146,8 @@
 3430 goto 2205
 
 3500 rem directory & load
-3510 cls:gosub 10280:dm$="":print"disk "un$:print"enter directory mask (*.* by default)":input dm$:if dm$="" then dm$="*.*"
+3510 cls:gosub 10280:dm$="":print"disk "un$:input"enter directory mask (*.* by default)";dm$:if dm$="" then dm$="*.*"
 3520 files dm$:?
-3530 print "Enter filename"
 3640 s$="":input "Filename (empty string = exit)";s$:if s$="" then 3100
 3650 goto 3014
 

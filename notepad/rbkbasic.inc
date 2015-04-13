@@ -8,6 +8,7 @@ key2irq:   mov @#kbddtport,#0
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
+.if df opt_instr
 instr:    DEC R2
           CLR R0
           CLR R5
@@ -51,7 +52,9 @@ instr:    DEC R2
           POP R3
           POP R2
           BR 4$
+.endc
 
+.if df opt_intfromdata ! opt_strfromdata
 datapos = . + 2
 commonfromdata:
      MOV #datastart,R3
@@ -60,7 +63,9 @@ commonfromdata:
      INC R4
      ADD R4,@#datapos
      RETURN
+.endc
 
+.if df opt_intfromdata
 intfromdata:
      CALL @#commonfromdata
      MOV @#strdcurre,R2
@@ -77,7 +82,9 @@ intfromdata:
      CALL @#str2dec
      MOV R3,@(SP)+
      RETURN
+.endc
 
+.if df opt_intfromkbd ! opt_strfromkbd ! opt_inkeyS
 getkey2: movb @#kbdbuf,r0
          beq exit16
 
@@ -92,14 +99,20 @@ kbddelay:mov #20000,r1
 2$:      clr @#kbdbuf
          mov #20000,@#kbddelay+2
 3$:      return
+.endc
 
 tobin:     .word 10000,1000,100,10,1
+
+.if df opt_nstringout ! opt_fnstringout ! opt_strS_i
 todec:    mov #stringbuf,r5  ;IN: r3 to decimal
           tst r3
           bpl todec0
 
           movb #'-,(r5)+
           neg r3
+.endc
+
+.if df opt_nstringout ! opt_fnstringout ! opt_todec0 ! opt_strS_i
 todec0:   mov r5,r1
           movb #'0,r2
           mov #tobin,r4
@@ -124,8 +137,10 @@ todec0:   mov r5,r1
           bne 7$
 
           mov #stringbuf,r1
+.endc
 exit16:   return
 
+.if df opt_dogetf
 dogetf:
      MOV @#strdcurre,R2
      MOV R2,@R5
@@ -141,7 +156,9 @@ dogetf:
      MOVB R1,(R2)+
      INC R3
      BR strfromfile0
+.endc
 
+.if df opt_intfromkbd ! opt_strfromkbd
 commonfromkbd:
      MOV #'?,R0
      CALL @#charout
@@ -179,23 +196,30 @@ commonfromkbd:
 
 4$:  MOV #10,R0
      JMP @#charout
+.endc
 
+.if df opt_intfromkbd
 intfromkbd:
      CALL @#commonfromkbd
+.endc
+
+.if df opt_intfromkbd ! opt_intfromfile
 intfromkbd0:
      MOV @#strdcurre,R4
      MOVB R3,@R4
      PUSH R5
      CALL @#str2dec
      MOV R3,@(SP)+
-     ;POP R5
-     ;MOV R3,@R5
      RETURN
+.endc
 
+.if df opt_strfromkbd
 strfromkbd:
      CALL @#commonfromkbd
      BR strfromfile1
+.endc
 
+.if df opt_intfromfile ! opt_strfromfile
 commonfromfile:
      MOV @#strdcurre,R2
      MOV R2,@R5
@@ -217,21 +241,33 @@ commonfromfile:
      MOVB R1,(R2)+
      INC R3
      BR 2$
+.endc
 
+.if df opt_intfromfile
 intfromfile:
      CALL @#commonfromfile
      MOV R4,@#filepos
      BR intfromkbd0
+.endc
 
+.if df opt_strfromfile
 strfromfile:
      CALL @#commonfromfile
+.endc
+
+.if df opt_strfromfile ! opt_dogetf
 strfromfile0:
      MOV R4,@#filepos
+.endc
+
+.if df opt_strfromfile ! opt_strfromkbd ! opt_dogetf
 strfromfile1:
      MOVB R3,@0(R5)
      MOV @R5,R5
      BR stringS_i_i0
+.endc
 
+.if df opt_strfromfile ! opt_strfromkbd ! opt_strfromdata ! opt_intfromfile ! opt_intfromkbd ! opt_intfromdata
 doinput:
      MOV 2(SP),R0
      ADD SP,R0
@@ -244,10 +280,12 @@ doinput:
      CALL @R4
      POP R0
      BR 2$
+.endc
 
 exit22:
      RETURN
 
+.if df opt_inkeyS
 inkeyS:
      CALL @#getkey2
      MOV #strestatic,R5
@@ -259,11 +297,19 @@ inkeyS:
      MOVB #1,(R2)+
      MOVB R0,(R2)+
      BR stringS_i_i0
+.endc
 
+.if df opt_strfromdata
 strfromdata:
      CALL @#commonfromdata
      MOV R5,R4
+.endc
 
+.if df opt_strfromkbd
+     NOP
+.endc
+
+.if df opt_strfromdata ! opt_string ! opt_strfromfile ! opt_strfromkbd ! opt_dogetf ! opt_inkeyS
 s_ASSIGN_s:
      MOV @#strdcurre,R2
      CLR R5
@@ -313,7 +359,9 @@ stringS_i_i1:
 stringS_i_i0:
      MOV R2,@#strdcurre
      BR gc
+.endc
 
+.if df opt_strS_i
 strS_i:
      CALL @#todec
      MOV @#strdcurre,R3
@@ -334,9 +382,13 @@ strS_i:
      DEC R3
      MOVB R3,@R5
      ;JMP @#gc    ;gc is the next!
+.endc
 
+.if df opt_gc
 .include notepad/gc.s
+.endc
 
+.if df opt_midS_s_i ! opt_midS_s_i_!
 midS_s_i:
      MOV @#strdcurre,R1
      MOV R1,R5
@@ -385,7 +437,9 @@ midS_s_i_i:
      DEC R0
      BPL 3$
      BR midS_s_i1
+.endc
 
+.if df opt_s_LE_s
 s_LE_s:
      CLR R5
      MOVB (R3)+,R2
@@ -400,7 +454,9 @@ s_LE_s:
      BEQ 1$
      BCC s_GE_s0
      RETURN
+.endc
 
+.if df opt_s_LT_s
 s_LT_s:
      CLR R5
      MOVB (R3)+,R2
@@ -415,7 +471,9 @@ s_LT_s:
      BEQ 1$
      BCC s_GE_s0
      RETURN
+.endc
 
+.if df opt_s_GE_s ! opt_s_LE_s ! opt_s_GT_s ! opt_s_LT_s ! opt_s_EQ_s ! opt_s_NE_s
 s_GE_s:
      CLR R5
      MOVB (R3)+,R2
@@ -434,7 +492,9 @@ s_GE_s0:
      COM R5
 s_GE_s1:
      RETURN
+.endc
 
+.if df opt_s_GT_s
 s_GT_s:
      CLR R5
      MOVB (R3)+,R2
@@ -449,11 +509,15 @@ s_GT_s:
      BEQ 1$
      BCC s_GE_s0
      RETURN
+.endc
 
+.if df opt_s_NE_s
 s_NE_s:
      MOV #65535,R5
      BR s_EQ_s0
+.endc
 
+.if df opt_s_EQ_s ! opt_s_NE_s
 s_EQ_s:
      CLR R5
 s_EQ_s0:
@@ -468,7 +532,9 @@ s_EQ_s0:
      BNE s_GE_s1
      SOB R2,1$
      BR s_GE_s0
+.endc
 
+.if df opt_midS_s_i_i_s ! opt_midS_s_i_i_s
 midS_s_i_s:
      MOV #256,R2
 
@@ -497,20 +563,24 @@ midS_s_i_i_s:
      SOB R3,2$
 
 1$:  RETURN
+.endc
 
 eolpos = openwrite + 4
 openwrite:
      MOV #16384,#0
+.if df opt_openwrite
 openwrite0:
      MOV #2,R1
      BR openread0
+.endc
 
+.if df opt_openread ! opt_openwrite
 openread:
      MOV #3,R1
 openread0:
      MOV #16384,R5
      TST @#filepos
-     BNE exit20
+     BNE 3$
 
      MOV R5,@#filepos
      MOV #io_op,R4
@@ -529,13 +599,15 @@ openread0:
 2$:  CLRB (R4)+
      SOB R1,2$
 
-exit20:
-     RETURN
+3$:  RETURN
+.endc
 
+.if df opt_emt36
 emt36: TOIO
      MOV #io_OP,R1
      EMT ^O36
      BR charout0
+.endc
 
 charout: TOSCREEN
      EMT ^O16
@@ -544,16 +616,29 @@ charout0:
 charout1:
      RETURN
 
+xstringout:    ;IN: R1
+     CLR R3
+     BISB (R1)+,R3
+     BEQ 0$
+
+1$:  MOVB (R1)+,R0
+     CALL @#charout
+     SOB R3,1$
+0$:  RETURN
+
+.if df opt_nstringout
 nstringout:
+     CALL @#todec
      CMPB #'-,@R1
-     BEQ stringout
+     BEQ 1$
 
      MOVB #32,-(R1)
-stringout:
-     TOSCREEN
+1$:  TOSCREEN
      EMT ^O20
      BR charout0
+.endc
 
+.if df opt_togglecrsr
 togglecrsr:
      MOV #154,R0
 cursorst = . + 2
@@ -569,18 +654,25 @@ cursorst = . + 2
 
 2$:  COM @#cursorst
      BR charout
+.endc
 
+.if df opt_setcrsr
 setcrsr:
      TOSCREEN
      EMT ^O24
      BR charout0
+.endc
 
+.if df opt_getcrsr
 getcrsr:
      TOSCREEN
      EMT ^O26
      BR charout0
+.endc
 
+.if df opt_fnstringout
 fnstringout:
+     CALL @#todec
      CMPB #'-,@R1
      BEQ 1$
 
@@ -589,10 +681,13 @@ fnstringout:
      BEQ charout0
 
      PUSH #1$
+.endc
 
 filepos = . + 2
 fcharout:
      MOV #0,R2
+
+.if df opt_fcharout ! opt_fnstringout
      CMPB #10,R0
      BNE 1$
 
@@ -603,9 +698,12 @@ fcharout:
      TOIO
      MOVB R0,(R2)+
 0$:  MOV R2,@#filepos
+.endc
+
 fcharout0:
      BR charout0
 
+.if df opt_cat
 cat:     mov #11,r0
          mov #stringbuf,r5
 30$:     movb #32,(r5)+
@@ -672,11 +770,11 @@ cat:     mov #11,r0
          sob r3,44$
 
 showdir: TOSCREEN
-         mov @#andos_init,r1    ;linker!
+         mov @#andos_init,r1    ;linker! absence of @addr support eats 2 bytes!
          call @r1
          clr r0
 1$:      mov #stringbuf,r3
-         mov @#andos_diren2,r1  ;linker!
+         mov @#andos_diren2,r1  ;linker! absence of @addr support eats 2 bytes!
          call @r1
          beq fcharout0
 
@@ -710,7 +808,9 @@ showdir: TOSCREEN
          mov #16,r2
          emt ^O20
          br 1$
+.endc
 
+.if df opt_str2dec ! opt_intfromfile ! opt_intfromkbd ! opt_intfromdata
 str2dec: clr r1           ;IN: R4; OUT: R3
          bisb (r4)+,r1
 11$:     dec r1
@@ -770,7 +870,9 @@ str2dec: clr r1           ;IN: R4; OUT: R3
 
          neg r3
 10$:     return
+.endc
 
+.if df opt_hexconv
 hexconv: ADD #48,R4
          CMPB #'9,R4
          BCC 1$
@@ -778,7 +880,9 @@ hexconv: ADD #48,R4
          ADD #7,R4
 1$:      MOVB R4,(R2)+
          RETURN
+.endc
 
+.if df opt_hex2dec
 hex2dec: CLR R3
          BISB @R4,R3
          ADD R3,R4
@@ -808,7 +912,9 @@ hex2dec: CLR R3
          DEC R3
          BNE 3$
          RETURN
+.endc
 
+.if df opt_mul16 ! opt_power16
 mul16:   CLR R5     ;R1*R2->R0, does not change R3,R4
          TST R1
          BPL 1$
@@ -840,7 +946,9 @@ mul16:   CLR R5     ;R1*R2->R0, does not change R3,R4
 
          NEG R0
 5$:      RETURN
+.endc
 
+.if df opt_power16
 power16: MOV #1,R1  ;R4^R3->R1
          TST R3
          BEQ 1$
@@ -851,7 +959,9 @@ power16: MOV #1,R1  ;R4^R3->R1
          DEC R3
          BNE 2$
 1$:      RETURN
+.endc
 
+.if df opt_div16
 div16:   CLR R5     ;R2/R1->R4:R2
          CLR R4
          TST R1
@@ -903,6 +1013,7 @@ div16:   CLR R5     ;R2/R1->R4:R2
          NEG R4
          NEG R2
 8$:      RETURN
+.endc
 
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
