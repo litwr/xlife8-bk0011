@@ -59,6 +59,8 @@ Special notes:
 
 * \-operator can correctly divide -32768 but it ignores any errors
 
+* use PEEK(208) and -256 to check the error status after file open. It should be equal to 0 if operation was successful.
+
 Planned:
 OCT$ DEFFN COLOR BEEP CINT KEY
 

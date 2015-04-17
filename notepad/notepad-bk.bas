@@ -1,5 +1,5 @@
- 1 rem *** koi8-r encoding - it is only for litwr's cross-development environment
- 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.1
+ 1 rem *** koi8-r encoding
+ 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.2
  4 rem *** converted from Commodore plus/4 and Amstrad CPC6128
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
@@ -18,8 +18,8 @@
 114 PRINT "¯¯¯¯¯¯ »¯¬¬¯» ¬¬¯¯¬¬  »¯¬¬¯» ¯¯¬¬¯»  ¬¬¬¯» »¯¬¬¯¯ »»¯¯»» »»¬¬¯¯"
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
-150 locate 38,11:print "Electronika BK0011 Edition";
-154 locate 34,12,0:print "v1, by litwr, (c) 2015 gnu gpl"
+150 locate 38,11:print "üÌeËÔpoÎÉËa âK0011 Edition";
+154 locate 32,12,0:print "v1r2, by litwr, (c) 2015 gnu gpl"
 156 for i=0 to 7000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
@@ -27,11 +27,11 @@
 300 data 15cd,1b00,15c1,1cc0,15c0,4400,1c10,280,7e43,109
 310 data 15cd,1b00,15c1,1cc0,15c0,7d80,1830,280,7e43,15cd,2b00,87
 
-2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 BK0011 Edition commands list":print
+2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 âK0011 Edition commands list":print
 2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
 2010 print "P - help"tab(22)"N - new"tab(44)"L/S - load/save"
 2020 print "U/D - page up/down"tab(22)"B/E - to begin/end"tab(44)"F - find forward"
-2030 print "R - repeat find"tab(22)"C - cat & load"tab(44)"V - change disk"
+2030 print "R - repeat find"tab(22)"C - cat & load"tab(44)"G - change disk"
 2035 print "O - cursor home"tab(22)"Q - quit":print
 2040 print tab(23)chr$(156)"With the TAB prefix"chr$(156)
 2050 print "A/C - toggle insert/overwrite mode"tab(35)"D/I - delete/insert a line"
@@ -49,7 +49,7 @@
 2225 poke 116,1536
 2230 gosub 2310
 
-2250 c$=f$+" "+uint$(fre(0))+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
+2250 c$=f$+" "+uint$(fre)+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
 
 2270 i=cy
 2280 if i<lc and i-ty<nl then gosub 2510:if mid$(a$(i),len(a$(i)))<>cc$ then i=i+1:goto 2280
@@ -66,7 +66,7 @@
 2500 rem show line #i
 2510 locate 0,i-ty:poke 116,2048:print chr$(153) a$(i);:poke 116,1536:return
 
-2600 locate cx,cy-ty,1 
+2600 locate cx,cy-ty,1
 2604 c$=inkey$:if c$="" then 2604
 2608 i=asc(c$):fo=0:locate cx,cy-ty,0
 2610 if i=25 then 4000:rem right
@@ -74,7 +74,7 @@
 2630 if i=27 then 4200:rem down
 2640 if i=26 then 4300:rem up
 2650 if i=15 then 4400 'home
-2660 if i>31 and i<127 then 4500
+2660 if i>31 and i<127 or i>159 then 4500
 2680 if i=24 then 4700 'backspace
 2690 if i=23 then 4800 'insert space
 2700 if i=10 then 4900
@@ -89,14 +89,14 @@
 2790 if i=6 then 9800:rem search
 2800 if i=18 then 9900:rem repeat search 
 2810 if i=12 then 3000 'load
-2820 if i=19 then 3200:rem save 
-2830 if i=22 then 3400:rem change drv 
+2820 if i=19 then 3200:rem save
+2830 if i=7 then 3400:rem change drv 
 2840 if i=3 then 3500:rem cat & load 
 2850 if i=22 then 3800 'delete
 2890 goto 2600
 
 3000 rem load
-3010 cls:gosub 10280:s$="":print"disk "un$:print"enter file name to load":input s$:if s$="" goto 3100
+3010 cls:s$="":print"enter file name to load":input s$:if s$="" goto 3100
 3014 f$=s$:gosub 5900
 3020 cls:open f$ for input:if peek(208) and -256 then 3120
 3030 get# c$
@@ -109,7 +109,7 @@
 3100 gosub 2205:goto 2310
 
 3120 cls:print f$" bad"
-3130 gosub 11000:gosub 9700:goto 3100
+3130 gosub 11000:gosub 9700:goto 3090
 
 3160 if len(c$)>mc then gosub 7200:goto 3160
 3165 d$=c$:l=len(d$):if efs then gosub 3140 else return
@@ -119,10 +119,11 @@
 3190 a$(lc)=d$+mid$(c$,1,mc-l):c$=mid$(c$,mc-l+1):goto 7100
 
 3200 rem save
-3210 cls:gosub 10280:s$="":print "disk "un$,f$
-3212 print"Enter filename to save":print"  empty string - use the current one":print"  * - exit"
+3210 cls:s$=""
+3212 print"Enter filename to save":print"  an empty string - use the current one, * - exit"
 3214 input s$:c$=s$:if s$="*" then 3100
 3216 if s$="" then c$=f$ else f$=c$
+3217 if f$="" goto 3210
 3218 if instr(c$,"*") or instr(c$,"?") then 3370
 3230 open c$ for output:if peek(208) and -256 then 3370
 3240 if a$(0)=cf$ goto 3330
@@ -146,7 +147,7 @@
 3430 goto 2205
 
 3500 rem directory & load
-3510 cls:gosub 10280:dm$="":print"disk "un$:input"enter directory mask (*.* by default)";dm$:if dm$="" then dm$="*.*"
+3510 cls:dm$="":input"enter directory mask (*.* by default)";dm$:if dm$="" then dm$="*.*"
 3520 files dm$:?
 3640 s$="":input "Filename (empty string = exit)";s$:if s$="" then 3100
 3650 goto 3014
@@ -432,4 +433,3 @@
 
 11000 k$=inkey$:if k$="" goto 11000
 11010 return
-
