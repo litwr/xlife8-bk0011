@@ -2250,9 +2250,9 @@ chgcolors:
          call @#iocf
 7$:      jsr r3,@#printstr
          .byte 154,0
-         
+
          return
-          
+
 16$:     movb -(r2),r2
          br 24$
 

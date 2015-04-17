@@ -4,7 +4,7 @@
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
-12 u=1:un$=chr$(u+64)+":":nl=24
+12 u=1:un$=chr$(u+64)+":":nl=24:poke -78,16896
 14 ml=500:dim a$(500):clear 0,49108
 15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
 20 gosub 100

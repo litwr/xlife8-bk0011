@@ -16,7 +16,7 @@ gc0:      mov @#strdstart,r3
           bisb @r4,r2
           add r2,r3
           inc r3
-4$:       add #2,r1
+4$:       tst (r1)+   ;add #2,r1
           br 3$
 
 1$:       bcs 4$
@@ -42,11 +42,11 @@ gc0:      mov @#strdstart,r3
           clr r2
           bisb (r5)+,r2
           movb r2,(r4)+
-          beq 4$
+          beq 9$
 
 6$:       movb (r5)+,(r4)+
           sob r2,6$
-          mov r4,r3
+9$:       mov r4,r3
           br 7$
 
 2$:       mov r3,@#strdcurre
