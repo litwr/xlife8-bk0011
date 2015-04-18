@@ -2,7 +2,7 @@ gc:       cmp @#strdmax,@#strdcurre
           bcc exitgc
 
 gc0:      mov @#strdstart,r3
-          mov r5,@#strestatic-2
+          mov r5,@#strestatic-2   ;r5 is free now
 7$:       mov #strsstatic,r1
           clr r0
 3$:       cmp #strestatic,r1
@@ -36,17 +36,15 @@ gc0:      mov @#strdstart,r3
 8$:       tst r0
           beq 2$
 
-          mov r3,r4
-          mov @r0,r5
-          mov r4,@r0
+          mov @r0,r4
+          mov r3,@r0
           clr r2
-          bisb (r5)+,r2
-          movb r2,(r4)+
-          beq 9$
+          bisb (r4)+,r2
+          movb r2,(r3)+
+          beq 7$
 
-6$:       movb (r5)+,(r4)+
+6$:       movb (r4)+,(r3)+
           sob r2,6$
-9$:       mov r4,r3
           br 7$
 
 2$:       mov r3,@#strdcurre

@@ -13,7 +13,7 @@
 45 gosub 2600:goto 40
 
 100 gosub 10280:cls
-110 locate 16,18:print "Press Ctrl + P to get help":locate 0,6
+110 locate 15,18:print "Press Cõ + P to get help":locate 0,6
 112 PRINT "¯¯» ¯¯          ¯¯                             ¯¯   »»      »¯¯"
 114 PRINT "¯¯¯¯¯¯ »¯¬¬¯» ¬¬¯¯¬¬  »¯¬¬¯» ¯¯¬¬¯»  ¬¬¬¯» »¯¬¬¯¯ »»¯¯»» »»¬¬¯¯"
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
@@ -28,12 +28,12 @@
 310 data 15cd,1b00,15c1,1cc0,15c0,7d80,1830,280,7e43,15cd,2b00,87
 
 2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 âK0011 Edition commands list":print
-2005 print tab(22)chr$(156)"With the CONTROL key"chr$(156)
+2005 print tab(23)chr$(156)"With the Cõ key"chr$(156)
 2010 print "P - help"tab(22)"N - new"tab(44)"L/S - load/save"
 2020 print "U/D - page up/down"tab(22)"B/E - to begin/end"tab(44)"F - find forward"
 2030 print "R - repeat find"tab(22)"C - cat & load"tab(44)"G - change disk"
 2035 print "O - cursor home"tab(22)"Q - quit":print
-2040 print tab(23)chr$(156)"With the TAB prefix"chr$(156)
+2040 print tab(21)chr$(156)"With the TAâ prefix"chr$(156)
 2050 print "A/C - toggle insert/overwrite mode"tab(35)"D/I - delete/insert a line"
 2060 print "J/K - to start/end of line"tab(35)"P/Q - erase begin/end of line";
 2070 print "V/W - scroll up/down"tab(35)"Any other key - cancel TAB":print
