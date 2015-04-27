@@ -1,5 +1,5 @@
  1 rem *** koi8-r encoding
- 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.2
+ 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.3
  4 rem *** converted from Commodore plus/4 and Amstrad CPC6128
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
@@ -19,7 +19,7 @@
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
 150 locate 38,11:print "üÌeËÔpoÎÉËa âK0011 Edition";
-154 locate 32,12,0:print "v1r2, by litwr, (c) 2015 gnu gpl"
+154 locate 32,12,0:print "v1r3, by litwr, (c) 2015 gnu gpl"
 156 for i=0 to 7000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
@@ -101,7 +101,7 @@
 3020 cls:open f$ for input:if peek(208) and -256 then 3120
 3030 get# c$
 3050 i=asc(c$):ol=lc
-3060 if i=10 then gosub 7000 else if i>31 then gosub 7200
+3060 if i=10 then gosub 7000 else if i>31 and i<127 or i>159 then gosub 7200
 3065 if ol<lc then print chr$(18) lc;
 3070 if not eof goto 3030
 3080 a$(lc)=a$(lc)+cf$:gosub 7100
