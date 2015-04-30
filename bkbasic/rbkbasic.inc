@@ -1015,6 +1015,7 @@ div16:   CLR R5     ;R2/R1->R4:R2
 8$:      RETURN
 .endc
 
+baseptr:   .word 0       ;base pointer for FN
 strdstart: .word strsdyn
 strdcurre: .word strsdyn
 strdmax:   .word 48*1024-256

@@ -1,5 +1,26 @@
 %{
-int lexeol = 1;
+void str2upper(string &sbuf) {
+   for (int i = 0; i < sbuf.length(); i++)
+      sbuf[i] = toupper(sbuf[i]);
+}
+void lexaddsym(string& sbuf, int len = 2) {
+   if (names.find(sbuf) == names.end()) {
+      names[sbuf].len = len;
+      if (sbuf[sbuf.length() - 1] == '$') {
+         names[sbuf].type = SVAR;
+         names[sbuf].addr = svarp;
+         svarp += len;
+      }
+      else {
+         names[sbuf].type = IVAR;
+         names[sbuf].addr = ivarp;
+         ivarp += len;
+      }
+      names[sbuf].name = &(string&)names.find(sbuf)->first;
+   }
+}
+int lexeol = 1, lexdimst;
+string curdeffn;
 %}
 %option    noyywrap
 number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+
@@ -43,6 +64,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:EOF)   return BEOF;
 (?i:FILES)  return FIND;
 (?i:FIND)  return FIND;
+(?i:FN)    return FN;
 (?i:FOR)   return FOR;
 (?i:FRE)   return FRE;
 (?i:GET)   return GET;
@@ -108,12 +130,43 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
            }
 {symbol}   {
               string sbuf(yytext);
+              str2upper(sbuf);
               if (lexdimst == 1) {
                  lexdimname = sbuf;
                  lexdimst++;
               }
               else {
-                 lexaddsym(sbuf);
+                 if (deffn == 0) {
+                    curdeffn = sbuf;
+                    sbuf = ":" + sbuf;
+                    deffn++;
+                    lexaddsym(sbuf, 0);
+                    if (names[sbuf].type == SVAR)
+                       names[sbuf].type = SFN;
+                    else
+                       names[sbuf].type = IFN;
+                 }
+                 else if (deffn > 0) {
+                    sbuf = curdeffn + ":" + sbuf;
+                    lexaddsym(sbuf, 0);
+                    names[sbuf].addr = deffn++;
+                    if (names[sbuf].type == SVAR)
+                       names[sbuf].type = FSVAR;
+                    else
+                       names[sbuf].type = FIVAR;
+                 }
+                 else if (deffn == -2) {
+                    if (names.find(curdeffn + ":" + sbuf) != names.end())
+                       sbuf = curdeffn + ":" + sbuf;
+                 }
+                 if (deffn < 0)
+                    if (callfn == 0)
+                       if (names.find(":" + sbuf) != names.end())
+                          callfn++, sbuf = ":" + sbuf;
+                       else
+                          throw (string) "call to undefined function";
+                    else
+                       lexaddsym(sbuf);
                  yylval.sym = &names[sbuf];
                  return yylval.sym->type;
               }

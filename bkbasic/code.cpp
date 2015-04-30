@@ -5,7 +5,6 @@
 #define progstart 512
 
 int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 0;
-int lexdimst;
 string lexdimname;
 
 void initcode() {
@@ -38,7 +37,7 @@ void printcode() {
    ostr << "TOSCREEN\nEMT ^O14\n";
    ostr << "TOMAIN\n";
    ostr << "MOV #keyirq,@#^O60\nMOV #key2irq,@#^O274\n";
-   ostr << "MOV #512,SP\n";
+//   ostr << "MOV #512,SP\n";
    ostr << "JMP @#progstart\n";
    ostr << "finalfinish:WAIT\nJMP @#49152\n";
    for (map<string,int>::iterator i = used_code.begin(); i != used_code.end(); i++)
@@ -80,25 +79,6 @@ void relocate() {
          code[i->first] = tostr(i->second->addr + ivarp) + "+lib_end";
    for (map<int,Symbol*>::iterator i = reallocs.begin(); i != reallocs.end(); i++)
       code[i->first] = tostr(i->second->addr + ivarp + svarp + 3)  + "+lib_end";
-}
-
-void lexaddsym(string& sbuf, int len) {
-   for (int i = 0; i < sbuf.length(); i++)
-      sbuf[i] = toupper(sbuf[i]);
-   if (names.find(sbuf) == names.end()) {
-      names[sbuf].len = len;
-      if (sbuf[sbuf.length() - 1] == '$') {
-         names[sbuf].type = SVAR;
-         names[sbuf].addr = svarp;
-         svarp += len;
-      }
-      else {
-         names[sbuf].type = IVAR;
-         names[sbuf].addr = ivarp;
-         ivarp += len;
-      }
-      names[sbuf].name = &(string&)names.find(sbuf)->first;
-   }
 }
 
 void asmcomm(const string &s) {

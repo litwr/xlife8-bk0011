@@ -5,17 +5,18 @@ map<int, Symbol*> realloca, reallocs;
 map<string, Symbol> names, strings;
 map<int, int> reallocl, labels, datalabels, dataprogp;
 map<string,int> used_code;
-int argcount, datalines_count, dataline, dataoffset;
+int argcount, datalines_count, dataline, dataoffset, fnep, deffn = -1, callfn = -1;
 string code[100000], data[100000], datalines[10000];
+Symbol *ptempsymb;
 %}
 %union {
   Symbol *sym;
   int num;
 }
-%token <sym> SVAR IVAR STRINGTYPE DATAOPER
+%token <sym> SVAR IVAR FSVAR FIVAR SFN IFN STRINGTYPE DATAOPER
 %token <num> NUMBER ASC CLS ELSE FRE GOSUB GOTO LEN PRINT NEXT TO STRING
 %token <num> FOR IF INPUT LOCATE PEEK POKE RETURN STEP VAL THEN POS END
-%token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN
+%token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN FN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
 %token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
 %type <num> markop then
@@ -28,7 +29,10 @@ string code[100000], data[100000], datalines[10000];
 %right '^'
 %left NOT
 %%
-prog: linenumber operlist {throw 1;}
+prog: linenumber operlist {
+   cerr << endl;  //finishes translated line numbers
+   throw 1;
+}
 ;
 operlist: oper {asmcomm("oper");}
 | oper operend operlist {asmcomm("oper operend operlist");}
@@ -36,7 +40,7 @@ operlist: oper {asmcomm("oper");}
 linenumber: LABEL {
     asmcomm("NUMBER");
     code[progp++] = tostr(locals) + "$:\n";
-cerr << $1 << " ";
+cerr << $1 << " "; //shows translated line numbers
     labels[dataline = $1] = locals++;
 } 
 ;
@@ -53,6 +57,7 @@ oper:
 | open
 | bload
 | bsave
+| deffni
 | DATAOPER {
     char *p = (char*)$1, *q;
     if (datalabels.find(dataline) == datalabels.end()) datalabels[dataline] = dataoffset;
@@ -202,6 +207,25 @@ assign: ivar '=' iexpr {
      used_code["midS_s_i_s"] = 1;
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
 }
+;
+deffni: DEF FN {deffn = 0;} IFN fnparams '=' {
+    deffn = -2;
+    code[progp++] = "BR " + tostr(fnep = locals++) + "$\n";
+    code[progp++] = tostr(locals) + "$:\n";
+    $4->addr = locals++;
+} iexpr {
+    code[progp++] = "POP R5\nRETURN\n";
+    deffn = -1;
+    code[progp++] = tostr(fnep) + "$:\n";
+}
+;
+fnparams:
+| '(' fnparlist ')'
+;
+fnparlist: fnvar
+| fnvar ',' fnparlist
+;
+fnvar: FSVAR | FIVAR
 ;
 print: PRINT printnl
 | PRINT prdelim prlist {asmcomm("PRINT prdelim prlist");}
@@ -619,6 +643,10 @@ ivar: IVAR {
      code[progp++] = tostr($1->addr);
      code[progp++] = ",R3\nPUSH R3\n";
 }
+| FIVAR {
+     asmcomm("FIVAR");
+     code[progp++] = "MOV @#baseptr,R4\nSUB #" + tostr($1->addr*2) + ",R4\nPUSH R4\n";
+}
 ;
 svar: SVAR {
      asmcomm("SVAR");
@@ -835,22 +863,45 @@ iexpr: NUMBER {
      asmcomm("i -> s<s");
      used_code["s_LT_s"] = 1;
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_LT_s\nPUSH R5\n";
-  }
+}
 | sexpr LE sexpr {
      asmcomm("i -> s<=s");
      used_code["s_LE_s"] = 1;
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_LE_s\nPUSH R5\n";
-  }
+}
 | sexpr '=' sexpr {
      asmcomm("i -> s=s");
      used_code["s_EQ_s"] = 1;
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_EQ_s\nPUSH R5\n";
-  }
+}
 | sexpr NE sexpr {
      asmcomm("i -> s<>s");
      used_code["s_NE_s"] = 1;
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_NE_s\nPUSH R5\n";
-  }
+}
+| FN {callfn = 0;} IFN fncparams {
+     asmcomm("i -> fn IFN()");
+     if (deffn == -2)
+        code[progp++] = "PUSH @#baseptr\nMOV SP,R4\nADD #" + tostr(callfn*2) + ",R4\n";
+     else
+        code[progp++] = "MOV SP,R4\nADD #" + tostr(callfn*2 - 2) + ",R4\n";
+     code[progp++] = "MOV R4,@#baseptr\n";
+     code[progp++] = "CALL @#" + tostr($3->addr) + "$\n";
+     if (deffn == -2)
+        code[progp++] = "POP @#baseptr\n";
+     if (callfn > 1)
+        code[progp++] = "ADD #" + tostr(callfn*2 - 2) + ",SP\n";
+     code[progp++] = "PUSH R5\n";
+     callfn = -1;
+}
+;
+fncparams:
+| '(' fncparlist ')'
+;
+fncparlist: fncpar {callfn++;}
+| fncpar ',' fncparlist {callfn++;}
+;
+fncpar: iexpr | sexpr
 ;
 sexpr: STRINGTYPE {
      asmcomm("s");
