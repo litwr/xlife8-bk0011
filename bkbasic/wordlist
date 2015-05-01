@@ -2,7 +2,7 @@ Supported operators:
 ^ \ * + - ( ) = < > <= >= =< => <> ><
 
 Supported keywords:
-ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FN FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MONIT NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL XOR
+ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FN FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MONIT NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL VARPTR XOR
 
 Special notes:
 * Executable file size is up to 32256 bytes. 16384 additional bytes maybe used for strings and machine code.  The executable starts from address 512.
@@ -10,6 +10,8 @@ Special notes:
 * Memory area at 532-569 are free for a user (ML, data). The memory above 16384 is switchable so it has limitations for the direct usage for ML or data.
 
 * Keyboard interrupts are used to provide the key autorepeat.
+
+@ Be carefull with PEEK and POKE -- they ignore the lowest (the oddness) bit.
 
 + Variable names may have any length.
 
@@ -21,9 +23,9 @@ Special notes:
 
 - Supported only integer (at the range -32768..32767) and string (up to 255 char length) types.
 
-- &H, &B, &O number prefixes are not supported.
+- &B number prefix is not supported. &H and &O are supported.
 
-- DIM should be used for any array (even with less than 10 elements) and its number argument has to be a constant.  Only one dimensional arrays are supported.
+- DIM should be used for any array (even with less than 10 elements) and its number argument has to be a constant.  Only one dimensional arrays are supported.  Only one variable name after DIM is allowed.  The virtual arrays are not supported (so as for VARPTR).
 
 + New statement GET# allows to use char-by-char data transmission, e.g., GET#a$ inputs one character or the empty string to a$ from a file opened to read.  It is the file equvalent of INKEY$.
 
@@ -59,7 +61,7 @@ Special notes:
 
 * \-operator can correctly divide -32768 but it ignores any errors
 
-* use PEEK(208) and -256 to check the error status after file open. It should be equal to 0 if operation was successful.
+@ use PEEK(208) and -256 to check the error status after file open. It should be equal to 0 if operation was successful.
 
 Planned:
 OCT$ COLOR BEEP CINT KEY
@@ -74,5 +76,5 @@ The program manipulation:
 . AUTO CALL CLOAD CONT CSAVE DELETE LIST LLIST LOAD LPOS MERGE NEW RENUM RUN SAVE STOP TROFF TRON
 
 BK0011 Basic:
-SCREEN VARPTR
+SCREEN
 

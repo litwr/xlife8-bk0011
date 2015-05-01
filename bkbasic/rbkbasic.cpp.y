@@ -19,6 +19,7 @@ Symbol *ptempsymb;
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN FN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
 %token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
+%token <num> VARPTR
 %type <num> markop then
 %left IMP EQV
 %left OR XOR
@@ -642,13 +643,7 @@ open: OPEN sexpr {
 ;
 markop: {$$ = progp;}
 ;
-ivar: IVAR {
-     asmcomm("IVAR");
-     code[progp++] = "PUSH #";
-     realloca[progp] = $1;
-     code[progp++] = tostr($1->addr);
-     code[progp++] = "\n";
-}
+ivar: ivar1
 | IVAR '(' iexpr ')' {
      asmcomm("IVAR(i)");
      code[progp++] = "POP R3\nASL R3\nADD #";
@@ -656,18 +651,23 @@ ivar: IVAR {
      code[progp++] = tostr($1->addr);
      code[progp++] = ",R3\nPUSH R3\n";
 }
-| FIVAR {
-     asmcomm("FIVAR");
-     code[progp++] = "MOV @#baseptr,R4\nSUB #" + tostr($1->addr*2) + ",R4\nPUSH R4\n";
-}
 ;
-svar: SVAR {
-     asmcomm("SVAR");
+ivar1: IVAR var1body
+| FIVAR fvar1body
+;
+var1body: {
+     asmcomm("var1body");
      code[progp++] = "PUSH #";
-     realloca[progp] = $1;
-     code[progp++] = tostr($1->addr);
+     realloca[progp] = $<sym>0;
+     code[progp++] = tostr($<sym>0->addr);
      code[progp++] = "\n";
 }
+;
+fvar1body: {
+     code[progp++] = "MOV @#baseptr,R4\nSUB #" + tostr($<sym>0->addr*2) + ",R4\nPUSH R4\n";
+}
+;
+svar: svar1
 | SVAR '(' iexpr ')' {
      asmcomm("SVAR(i)");
      code[progp++] = "POP R3\nASL R3\nADD #";
@@ -675,10 +675,9 @@ svar: SVAR {
      code[progp++] = tostr($1->addr);
      code[progp++] = ",R3\nPUSH R3\n";
 }
-| FSVAR {
-     asmcomm("FSVAR");
-     code[progp++] = "MOV @#baseptr,R4\nSUB #" + tostr($1->addr*2) + ",R4\nPUSH R4\n";
-}
+;
+svar1: SVAR var1body
+| FSVAR fvar1body
 ;
 iexpr: NUMBER {
      asmcomm("i -> NUMBER");
@@ -896,6 +895,8 @@ iexpr: NUMBER {
      used_code["s_NE_s"] = 1;
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_NE_s\nPUSH R5\n";
 }
+| VARPTR '(' ivar1 ')'
+| VARPTR '(' svar1 ')'
 | fn IFN fncmain
 ;
 fn: FN {callfn = 0;}

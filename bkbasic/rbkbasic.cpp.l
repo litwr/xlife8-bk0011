@@ -23,7 +23,7 @@ int lexeol = 1, lexdimst;
 string curdeffn;
 %}
 %option    noyywrap
-number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+
+number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+|&[hH][0-9abcdefABCDEF]+|&[oO][0-7]+
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 string     \"[^"]*\"
 space      [ \t]+
@@ -111,6 +111,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:USR) yylval.num = 0; return USR;
 (?i:USR)[0-9] yylval.num = yytext[3] - '0'; return USR;
 (?i:VAL)   return VAL;
+(?i:VARPTR)   return VARPTR;
 (?i:XOR)   return XOR;
 \(         if (lexdimst == 0) return '(';
 \)         if (lexdimst) lexdimst = 0; else return ')';
@@ -119,8 +120,19 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
               unsigned long p;
               while ((p = sbuf.find(" ")) != string::npos)
                  sbuf.erase(p, 1);
-              istringstream iss(sbuf);
-              iss >> yylval.num;
+              if (sbuf[0] != '&') {
+                 istringstream iss(sbuf);
+                 iss >> yylval.num;
+              }
+              else {
+                 char c = toupper(sbuf[1]);
+                 sbuf.erase(0, 2);
+                 istringstream iss(sbuf);
+                 if (c == 'H')
+                    iss >> hex >> yylval.num;
+                 else
+                    iss >> oct >> yylval.num;
+              }
               if (lexdimst == 2)
                  lexaddsym(lexdimname, yylval.num*2);
               else if (lexeol)
