@@ -980,14 +980,14 @@ sexpr: STRINGTYPE {
 | CHR '(' iexpr ')' {
      asmcomm("s -> chr$(i)");
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #1,(R2)+\n";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOVB #1,(R2)+\n"; //r2!!
      code[progp++] = "MOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
 }
 | HEX '(' iexpr ')' {
      asmcomm("s -> hex$(i)");
      used_code["hexconv"] = 1;
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOVB #4,(R2)+\n";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOVB #4,(R2)+\n";//r2!!
      code[progp++] = "MOV R3,R4\nCLC\nSWAB R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
      code[progp++] = "MOV R3,R4\nSWAB R4\nBIC #240,R4\nCALL @#hexconv\n";
      code[progp++] = "MOV R3,R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
@@ -997,7 +997,7 @@ sexpr: STRINGTYPE {
 | UPPER '(' sexpr ')' {
      asmcomm("s -> upper$(s)");
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nCLR R4\nBISB (R3)+,R4\nMOVB R4,(R2)+\n";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nCLR R4\nBISB (R3)+,R4\nMOVB R4,(R2)+\n";//r2!!
      code[progp++] = tostr(locals + 1) + "$:MOVB (R3)+,R1\nCMPB R1,#'a\nBCS " + tostr(locals) + "$\nCMPB R1,#'z+1\n";
      code[progp++] = "BCC " + tostr(locals) + "$\nSUB #32,R1\n" + tostr(locals) + "$:MOVB R1,(R2)+\n";
      code[progp++] = "SOB R4," + tostr(locals + 1) + "$\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
@@ -1006,7 +1006,7 @@ sexpr: STRINGTYPE {
 | BIN '(' iexpr ')' {
      asmcomm("s -> bin$(i)");
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV R2,R5\nMOV #16,R4\nMOVB R4,(R2)+\n";
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOV #16,r4\nMOVB R4,(R2)+\n"; //r2,r4!!
      code[progp++] = tostr(locals) + "$:MOV #'0,R0\nASL R3\nBCC " + tostr(locals + 1);
      code[progp++] = "$\nINC R0\n" + tostr(locals + 1) + "$:MOVB R0,(R2)+\nSOB R4," + tostr(locals);
      code[progp++] = "$\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";

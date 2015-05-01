@@ -23,7 +23,7 @@ int lexeol = 1, lexdimst;
 string curdeffn;
 %}
 %option    noyywrap
-number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+|&[hH][0-9abcdefABCDEF]+|&[oO][0-7]+
+number	   ([0-9]+[ ]*[0-9]+)+|[0-9]+|&[hH][0-9abcdefABCDEF]+|&[oO][0-7]+|&[bB][01]+
 symbol     [a-zA-Z][a-zA-Z0-9]*(\$|\%)?
 string     \"[^"]*\"
 space      [ \t]+
@@ -127,11 +127,12 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
               else {
                  char c = toupper(sbuf[1]);
                  sbuf.erase(0, 2);
-                 istringstream iss(sbuf);
                  if (c == 'H')
-                    iss >> hex >> yylval.num;
+                    yylval.num = strtol(sbuf.c_str(), 0, 16);
+                 else if (c == 'O')
+                    yylval.num = strtol(sbuf.c_str(), 0, 8);
                  else
-                    iss >> oct >> yylval.num;
+                    yylval.num = strtol(sbuf.c_str(), 0, 2);
               }
               if (lexdimst == 2)
                  lexaddsym(lexdimname, yylval.num*2);

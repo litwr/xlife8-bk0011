@@ -883,7 +883,7 @@ hexconv: ADD #48,R4
 .endc
 
 .if df opt_hex2dec
-hex2dec: CLR R3
+hex2dec: CLR R3           ;in: R4
          BISB @R4,R3
          ADD R3,R4
          MOV #1,R0

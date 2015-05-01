@@ -23,8 +23,6 @@ Special notes:
 
 - Supported only integer (at the range -32768..32767) and string (up to 255 char length) types.
 
-- &B number prefix is not supported. &H and &O are supported.
-
 - DIM should be used for any array (even with less than 10 elements) and its number argument has to be a constant.  Only one dimensional arrays are supported.  Only one variable name after DIM is allowed.  The virtual arrays are not supported (so as for VARPTR).
 
 + New statement GET# allows to use char-by-char data transmission, e.g., GET#a$ inputs one character or the empty string to a$ from a file opened to read.  It is the file equvalent of INKEY$.

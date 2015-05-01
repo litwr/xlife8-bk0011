@@ -93,13 +93,13 @@ void breakpoint() {
 
 using namespace pcrecpp;
 void optimizer(string &code) {
-    RE_Options opts(PCRE_MULTILINE | PCRE_DOLLAR_ENDONLY | PCRE_CASELESS | PCRE_DOTALL);
+    RE_Options opts(PCRE_MULTILINE | PCRE_DOLLAR_ENDONLY | PCRE_DOTALL);
     RE("PUSH([^\n]+)\nPUSH([^\n]+)\nPUSH([^\n]+)\nPOP ([^\n]+)\nPOP ([^\n]+)\nPOP ([^\n]+)\n", opts)
          .GlobalReplace("MOV\\1,\\6\nMOV\\2,\\5\nMOV\\3,\\4\n", &code);
     RE("PUSH([^\n]+)\nPUSH([^\n]+)\nPOP ([^\n]+)\nPOP ([^\n]+)\n", opts).GlobalReplace("MOV\\1,\\4\nMOV\\2,\\3\n", &code);
     RE("PUSH([^\n]+)\nPOP ([^\n]+)\n", opts).GlobalReplace("MOV\\1,\\2\n", &code);
-    RE("MOV #([^,]+),R4\nMOV @R4,R4\n", opts).GlobalReplace("MOV @#\\1,R4\n", &code);
-    RE("MOV R([0-9]),R\\1\n", opts).GlobalReplace("", &code);
-    //RE("MOV ([^,]+),R4\nMOV R4,(R[0-5])\n", opts).GlobalReplace("MOV \\1,\\2\n", &code);
+    RE("MOV ([^,]+),(R[0-5])\nMOV @\\2,(R[0-5])\n", opts).GlobalReplace("MOV @\\1,\\3\n", &code); //danger!
+    RE("MOV R([0-5]),R\\1\n", opts).GlobalReplace("", &code); //danger?
+    RE("MOV ([^,]+),(R[0-5])\nMOV \\2,([^\n]+)\n", opts).GlobalReplace("MOV \\1,\\3\n", &code); //danger!
 }
 
