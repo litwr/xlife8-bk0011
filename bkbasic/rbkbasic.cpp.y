@@ -91,8 +91,7 @@ oper:
 }
 | RESTORE NUMBER {
      asmcomm("oper -> RESTORE NUMBER");
-     dataprogp[progp] = $2;
-     code[progp++] = "";
+     dataprogp[progp++] = $2;
 }
 | DEF USR '=' iexpr {
      asmcomm("oper -> DEF USR0 = i");
@@ -110,15 +109,13 @@ oper:
 | GOSUB NUMBER {
      asmcomm("oper -> GOSUB NUMBER");
      code[progp++] = "CALL @#";
-     reallocl[progp] = $2;
-     code[progp++] = "";
+     reallocl[progp++] = $2;
 }
 | RETURN {asmcomm("oper -> RETURN"); code[progp++] = "RETURN\n";}
 | GOTO NUMBER {
       asmcomm("oper -> GOTO NUMBER");
       code[progp++] = "JMP @#";
-      reallocl[progp] = $2;
-      code[progp++] = "";
+      reallocl[progp++] = $2;
 }
 | ON iexpr GOTO {
       asmcomm("oper -> ON i GOTO");
@@ -183,7 +180,7 @@ oper:
 labellist: lablistel
 | lablistel ',' labellist
 ;
-lablistel: NUMBER {code[progp++] = ".WORD "; reallocl[progp] = $1; code[progp++] = "";}
+lablistel: NUMBER {code[progp++] = ".WORD "; reallocl[progp++] = $1;}
 ;
 assign: ivar '=' iexpr {
      asmcomm("ivar ASSIGN i");
@@ -485,17 +482,14 @@ bsave: BSAVE sexpr ',' iexpr ',' iexpr {
 for: FOR IVAR '=' iexpr {
      asmcomm("oper -> FOR IVAR = i TO iexpr ...");
      code[progp++] = "POP @#";
-     realloca[progp] = $2;
-     code[progp++] = "";
+     realloca[progp++] = $2;
      code[progp++] = "\n";
 } TO iexpr step {
      asmcomm("TO of FOR");
      code[progp++] = "POP @#";
-     reallocl[progp] = -$1 - 1;
-     code[progp++] = "";
+     reallocl[progp++] = -$1 - 1;
      code[progp++] = "POP @#";
-     reallocl[progp] = -$1 - 2;
-     code[progp++] = "";
+     reallocl[progp++] = -$1 - 2;
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
 } operend operlist next {
@@ -504,13 +498,11 @@ for: FOR IVAR '=' iexpr {
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1 - 1] = locals;
      code[progp++] = ".WORD 0,";
-     realloca[progp] = $2;
-     code[progp++] = "";
+     realloca[progp++] = $2;
      code[progp++] = "\n";
      
      code[progp++] = "MOV @#"; //
-     realloca[progp] = $2;
-     code[progp++] = "";
+     realloca[progp++] = $2;
      code[progp++] = ",R3\n";
      
      code[progp++] = ".WORD 58819\n"; //SUB #limit,R3
@@ -543,8 +535,7 @@ if: IF iexpr then thenoper {
 | IF iexpr then thenoper ELSE {
      asmcomm("IF THEN thenoper ELSE");
      code[progp++] = "BR ";
-     reallocl[progp] = -$1;
-     code[progp++] = "";
+     reallocl[progp++] = -$1;
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$3] = locals++;
 } elseoper {
@@ -555,11 +546,9 @@ if: IF iexpr then thenoper {
      asmcomm("IF GOTO NUMBER");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
-     reallocl[progp] = -$1;
-     code[progp++] = "";
+     reallocl[progp++] = -$1;
      code[progp++] = "JMP @#";
-     reallocl[progp] = $4;
-     code[progp++] = "";
+     reallocl[progp++] = $4;
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
 }
@@ -567,14 +556,11 @@ if: IF iexpr then thenoper {
      asmcomm("IF GOTO NUMBER ELSE");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
-     reallocl[progp] = -$1;
-     code[progp++] = "";
+     reallocl[progp++] = -$1;
      code[progp++] = "JMP @#";
-     reallocl[progp] = $4;
-     code[progp++] = "";
+     reallocl[progp++] = $4;
      code[progp++] = "BR ";
-     reallocl[progp] = -$1 - 10000;
-     code[progp++] = "";
+     reallocl[progp++] = -$1 - 10000;
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
 } elseoper {
@@ -586,24 +572,21 @@ then: THEN {
      asmcomm("then");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
-     reallocl[progp] = -$1;
-     code[progp++] = "";
+     reallocl[progp++] = -$1;
 }
 ;
 thenoper: ioperlist
 | NUMBER {
      asmcomm("then NUMBER");
      code[progp++] = "JMP @#";
-     reallocl[progp] = $1;
-     code[progp++] = "";
+     reallocl[progp++] = $1;
 }
 ;
 elseoper: ioperlist
 | NUMBER {
      asmcomm("else NUMBER");
      code[progp++] = "JMP @#";
-     reallocl[progp] = $1;
-     code[progp++] = "";
+     reallocl[progp++] = $1;
 }
 ;
 ioperlist: oper
