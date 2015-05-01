@@ -65,13 +65,13 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:FILES)  return FIND;
 (?i:FIND)  return FIND;
 (?i:FN)    return FN;
-(?i:FOR)   return FOR;
+(?i:FOR)   yylval.num = progp; return FOR;
 (?i:FRE)   return FRE;
 (?i:GET)   return GET;
 (?i:GOTO)  return GOTO;
 (?i:GOSUB) return GOSUB;
 (?i:HEX)\$ return HEX;
-(?i:IF)    return IF;
+(?i:IF)    yylval.num = progp; return IF;
 (?i:INKEY)\$ return INKEY;
 (?i:IMP)   return IMP;
 (?i:INP)   return INP;

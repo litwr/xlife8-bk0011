@@ -20,7 +20,7 @@ Symbol *ptempsymb;
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
 %token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
 %token <num> VARPTR
-%type <num> markop then
+%type <num> then
 %left IMP EQV
 %left OR XOR
 %left AND
@@ -482,10 +482,10 @@ bsave: BSAVE sexpr ',' iexpr ',' iexpr {
      locals++;
 }
 ;
-for: markop FOR IVAR '=' iexpr {
+for: FOR IVAR '=' iexpr {
      asmcomm("oper -> FOR IVAR = i TO iexpr ...");
      code[progp++] = "POP @#";
-     realloca[progp] = $3;
+     realloca[progp] = $2;
      code[progp++] = "";
      code[progp++] = "\n";
 } TO iexpr step {
@@ -504,12 +504,12 @@ for: markop FOR IVAR '=' iexpr {
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1 - 1] = locals;
      code[progp++] = ".WORD 0,";
-     realloca[progp] = $3;
+     realloca[progp] = $2;
      code[progp++] = "";
      code[progp++] = "\n";
      
      code[progp++] = "MOV @#"; //
-     realloca[progp] = $3;
+     realloca[progp] = $2;
      code[progp++] = "";
      code[progp++] = ",R3\n";
      
@@ -535,43 +535,42 @@ next: NEXT IVAR
 step: {code[progp++] = "PUSH #1\n";}
 | STEP iexpr
 ;
-if: markop IF iexpr then thenoper {
+if: IF iexpr then thenoper {
      asmcomm("IF THEN thenoper");
-     asmcomm("IF");
      code[progp++] = tostr(locals) + "$:\n";
-     labels[-$4] = locals++;
+     labels[-$3] = locals++;
 }
-| markop IF iexpr then thenoper ELSE {
+| IF iexpr then thenoper ELSE {
      asmcomm("IF THEN thenoper ELSE");
      code[progp++] = "BR ";
      reallocl[progp] = -$1;
      code[progp++] = "";
      code[progp++] = tostr(locals) + "$:\n";
-     labels[-$4] = locals++;
+     labels[-$3] = locals++;
 } elseoper {
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
 }
-| markop IF iexpr GOTO NUMBER {
+| IF iexpr GOTO NUMBER {
      asmcomm("IF GOTO NUMBER");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
-     reallocl[progp] = -$1;
+     reallocl[progp++] = -$1;
      code[progp++] = "";
      code[progp++] = "JMP @#";
-     reallocl[progp] = $5;
+     reallocl[progp] = $4;
      code[progp++] = "";
      code[progp++] = tostr(locals) + "$:\n";
      labels[-$1] = locals++;
 }
-| markop IF iexpr GOTO NUMBER ELSE {
+| IF iexpr GOTO NUMBER ELSE {
      asmcomm("IF GOTO NUMBER ELSE");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
      reallocl[progp] = -$1;
      code[progp++] = "";
      code[progp++] = "JMP @#";
-     reallocl[progp] = $5;
+     reallocl[progp] = $4;
      code[progp++] = "";
      code[progp++] = "BR ";
      reallocl[progp] = -$1 - 10000;
@@ -640,8 +639,6 @@ open: OPEN sexpr {
      used_code["openwrite"] = 1;
      code[progp++] = "POP R3\nCALL @#openwrite\n";
 }
-;
-markop: {$$ = progp;}
 ;
 ivar: ivar1
 | IVAR '(' iexpr ')' {

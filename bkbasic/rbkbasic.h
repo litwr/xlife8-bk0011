@@ -6,7 +6,7 @@
 using namespace std;
 struct Symbol {
   string *name;
-  short type; //IVAR, SVAR, STRING
+  short type; //IVAR, SVAR, STRING, FIVAR, FSVAR, SFN, IFN
   int addr, len, used;
 };
 int yylex(), yyparse(), yyerror(const string &), toint(string);
