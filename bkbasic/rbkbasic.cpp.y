@@ -57,7 +57,8 @@ oper:
 | open
 | bload
 | bsave
-| deffni
+| def fnihead fnibody
+| def fnshead fnsbody
 | DATAOPER {
     char *p = (char*)$1, *q;
     if (datalabels.find(dataline) == datalabels.end()) datalabels[dataline] = dataoffset;
@@ -208,12 +209,24 @@ assign: ivar '=' iexpr {
      code[progp++] = "POP R1\nPOP R3\nPOP R4\nCALL @#midS_s_i_s\n";
 }
 ;
-deffni: DEF FN {deffn = 0;} IFN fnparams '=' {
+def: DEF FN {deffn = 0;}
+;
+fnihead: IFN fnheadmain
+;
+fnshead: SFN fnheadmain
+;
+fnheadmain: fnparams '=' {
     deffn = -2;
     code[progp++] = "BR " + tostr(fnep = locals++) + "$\n";
     code[progp++] = tostr(locals) + "$:\n";
-    $4->addr = locals++;
-} iexpr {
+    $<sym>0->addr = locals++;
+}
+;
+fnibody: iexpr fnbodymain
+;
+fnsbody: sexpr fnbodymain
+;
+fnbodymain: {
     code[progp++] = "POP R5\nRETURN\n";
     deffn = -1;
     code[progp++] = tostr(fnep) + "$:\n";
@@ -662,6 +675,10 @@ svar: SVAR {
      code[progp++] = tostr($1->addr);
      code[progp++] = ",R3\nPUSH R3\n";
 }
+| FSVAR {
+     asmcomm("FSVAR");
+     code[progp++] = "MOV @#baseptr,R4\nSUB #" + tostr($1->addr*2) + ",R4\nPUSH R4\n";
+}
 ;
 iexpr: NUMBER {
      asmcomm("i -> NUMBER");
@@ -879,14 +896,18 @@ iexpr: NUMBER {
      used_code["s_NE_s"] = 1;
      code[progp++] = "POP R3\nPOP R4\nCALL @#s_NE_s\nPUSH R5\n";
 }
-| FN {callfn = 0;} IFN fncparams {
+| fn IFN fncmain
+;
+fn: FN {callfn = 0;}
+;
+fncmain: fncparams {
      asmcomm("i -> fn IFN()");
      if (deffn == -2)
         code[progp++] = "PUSH @#baseptr\nMOV SP,R4\nADD #" + tostr(callfn*2) + ",R4\n";
      else
         code[progp++] = "MOV SP,R4\nADD #" + tostr(callfn*2 - 2) + ",R4\n";
      code[progp++] = "MOV R4,@#baseptr\n";
-     code[progp++] = "CALL @#" + tostr($3->addr) + "$\n";
+     code[progp++] = "CALL @#" + tostr($<sym>0->addr) + "$\n";
      if (deffn == -2)
         code[progp++] = "POP @#baseptr\n";
      if (callfn > 1)
@@ -1007,6 +1028,7 @@ sexpr: STRINGTYPE {
      asmcomm("s -> USR(s)");
      code[progp++] = "POP R5\nMOV @#512+" + tostr($1*2) + ",R1\nCALL @R1\nPUSH R5\n";  //linker!
 }
+| fn SFN fncmain
 ;
 %%
 int lineno = 1;
@@ -1020,7 +1042,7 @@ int yyerror(const string &s) {
 }
 
 main () {
-//   yydebug = 1;
+   //yydebug = 1;
    try {
       initcode();
       yyparse();
