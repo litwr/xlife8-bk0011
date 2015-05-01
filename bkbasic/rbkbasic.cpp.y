@@ -555,7 +555,7 @@ if: IF iexpr then thenoper {
      asmcomm("IF GOTO NUMBER");
      code[progp++] = "POP R3\nTST R3\n";
      code[progp++] = "BEQ ";
-     reallocl[progp++] = -$1;
+     reallocl[progp] = -$1;
      code[progp++] = "";
      code[progp++] = "JMP @#";
      reallocl[progp] = $4;
