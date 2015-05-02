@@ -385,7 +385,7 @@ strS_i:
 .endc
 
 .if df opt_gc
-.include bkbasic/gc.s
+.include gc.s
 .endc
 
 .if df opt_midS_s_i ! opt_midS_s_i_!
