@@ -53,7 +53,6 @@
 
 2270 i=cy
 2280 if i<lc and i-ty<nl then gosub 2510:if mid$(a$(i),len(a$(i)))<>cc$ then i=i+1:goto 2280
-2290 goto 2310
 
 2300 rem show coors
 2310 c$=str$(cx+1):d$=str$(cy+1):mid$(c$,1,1)="x":mid$(d$,1,1)="y"
@@ -108,7 +107,7 @@
 3090 close
 3100 gosub 2205:goto 2310
 
-3120 cls:print f$" bad"
+3120 cls:print f$" bad":gosub 10280
 3130 gosub 11000:gosub 9700:goto 3090
 
 3160 if len(c$)>mc then gosub 7200:goto 3160
