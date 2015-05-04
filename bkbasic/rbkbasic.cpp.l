@@ -187,6 +187,8 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 {string}   {
               string istr(yytext + 1);
               istr.erase(istr.length() - 1);
+              if (istr.length() == 0)
+                 strings[istr].len = 0;
               if (strings.find(istr) == strings.end()) {
                  strings[istr].addr = strconstp;
                  strconstp += (strings[istr].len = istr.length()) + 1;

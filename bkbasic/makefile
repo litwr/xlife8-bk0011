@@ -14,4 +14,4 @@ y.tab.c: rbkbasic.cpp.y rbkbasic.h makefile
 	bison -y -d -t -v rbkbasic.cpp.y
 
 clean:
-	rm -f y.tab.[ch] lex.yy.c rbkbasic *.o y.output
+	rm -f y.tab.[ch] lex.yy.c rbkbasic *.o y.output *~

@@ -500,11 +500,11 @@ for: FOR IVAR '=' iexpr {
      code[progp++] = ".WORD 0,";
      realloca[progp++] = $2;
      code[progp++] = "\n";
-     
+
      code[progp++] = "MOV @#"; //
      realloca[progp++] = $2;
      code[progp++] = ",R3\n";
-     
+
      code[progp++] = ".WORD 58819\n"; //SUB #limit,R3
      code[progp++] = tostr(locals + 1) + "$:\n";
      labels[-$1 - 2] = locals + 1;
@@ -907,15 +907,19 @@ fncpar: iexpr | sexpr
 ;
 sexpr: STRINGTYPE {
      asmcomm("s");
-     if ($1->used == 0) {
-        $1->used++;
-        data[stringp++] = ".byte " + tostr($1->name->length());
-        data[stringp++] = "\n.ascii \"" + *$1->name + "\"\n";
+     if ($1->len > 0) {
+        if ($1->used == 0) {
+           $1->used++;
+           data[stringp++] = ".byte " + tostr($1->len);
+           data[stringp++] = "\n.ascii \"" + *$1->name + "\"\n";
+        }
+        code[progp++] = "PUSH #";
+        reallocs[progp] = $1;
+        code[progp++] = tostr($1->addr);
+        code[progp++] = "\n";
      }
-     code[progp++] = "PUSH #";
-     reallocs[progp] = $1;
-     code[progp++] = tostr($1->addr);
-     code[progp++] = "\n";
+     else
+        code[progp++] = "PUSH #strestatic\n";
 }
 | svar {
      asmcomm("s -> sv");
