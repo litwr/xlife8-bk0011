@@ -23,7 +23,7 @@ text:       mov #keyirq,@#^O60
             bis #16384,r2
             mov r2,@#kbddtport
             br 5$
-             
+
 4$:         mov #inittxt,r1
             mov #palette-initxt2,r2
             emt ^O20
@@ -77,4 +77,3 @@ mantext:
             .include manpage.s
 manend:
             .end
-

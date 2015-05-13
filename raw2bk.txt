@@ -3,7 +3,7 @@
 USAGE
     raw2bk rawfile
 
-This utility are scripts using bash, awk, dd.
+This utility and `cpc2bk' are scripts using bash, awk, dd.
 
 The comments maybe just copy-pasted from XLife-file to BK-file.
 

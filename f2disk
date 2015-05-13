@@ -1,24 +1,25 @@
+D=XLIFE3.IMG               #name of the disk image file
+M=/mnt/loop                #mount point
+T=01010016.00              #start address as the timestamp
 #-t 01010016.00 = 01000 = $200
 #-t 01010024.00 = 01400 = $300
-rungcc genvistab.c >vistab.s && \
-gcc -DBK0011 geninitiles.c && a.out >initiles.s && \
-gcc -DBK0011 gengentab.c && a.out >gentab.s && \
-gcc -DBK0011 gentab12.c && a.out >tab12.s && \
+gcc genvistab.c && ./a.out >vistab.s && \
+gcc -DBK0011 geninitiles.c && ./a.out >initiles.s && \
+gcc -DBK0011 gengentab.c && ./a.out >gentab.s && \
+gcc -DBK0011 gentab12.c && ./a.out >tab12.s && \
 compile xlife.asm && \
 compile xlife0.asm && \
-rungcc cut3.c && \
-bk-bin2com xlife0.bin && \
-sudo ~/bin/mountimg XLIFE.IMG && \
-rm -f /mnt/loop/xlife?.com /mnt/loop/cr.txt /mnt/loop/manpage.com && \
-cp xlife[012].com /mnt/loop && \
-touch -t 01010016.00 /mnt/loop/xlife0.com && \
-cp cr.txt /mnt/loop
+gcc cut3.c && ./a.out && \
+dd if=xlife0.bin of=xlife0.com bs=1 skip=4 && \
+sudo mount -t msdos -o loop,fmask=111,dmask=000,rw $D $M && \
+#rm -f $M/xlife?.com $M/cr.txt $M/manpage.com && \
 awk -bf xlife.man.awk xlife.man.txt >manpage.s && \
 compile manpage.asm && \
-bk-bin2com manpage.bin && \
-cp manpage.com /mnt/loop && \
-touch -t 01010016.00 /mnt/loop/manpage.com
-ls -l /mnt/loop/xlife* /mnt/loop/manpage.com
+dd if=manpage.bin of=manpage.com bs=1 skip=4 && \
+cp xlife[012].com cr.txt manpage.com $M && \
+touch -t $T $M/xlife0.com && \
+touch -t $T $M/manpage.com
+ls -l $M/xlife*.com $M/manpage.com
 sudo sync
-sudo umount /mnt/loop
-rm initiles.s gentab.s tab12.s vistab.s manpage.s *.obj *.bin
+sudo umount $M
+rm initiles.s gentab.s tab12.s vistab.s manpage.s *.obj *.bin a.out

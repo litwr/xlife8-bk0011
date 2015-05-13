@@ -287,7 +287,7 @@ dispat0: cmpb #'g,r0
 
          call @#totext
          call @#inborn
-         cmpb #9,r5
+         cmpb #3,r5         ;kt/esc
          beq 200$
 
          mov #born,r5
@@ -295,7 +295,6 @@ dispat0: cmpb #'g,r0
          call @#instay
          mov #live,r5
          call @#setrconst
-
          call @#fillrt
 200$:    call @#tograph
 ;*         jsr calccells    ;for load sequence

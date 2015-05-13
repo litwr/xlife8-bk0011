@@ -57,6 +57,7 @@ fillrt2: bcc 1$
 13$:     return
 
 fillrt:  clr r1          ;XR
+         mov #todata,@#pageport
 1$:      mov #1,r0       ;AC
          clrb gentab(r1)
          mov r1,r2
