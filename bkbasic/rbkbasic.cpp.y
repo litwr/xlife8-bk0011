@@ -43,12 +43,12 @@ linenumber: LABEL {
     code[progp++] = tostr(locals) + "$:\n";
 cerr << $1 << " "; //shows translated line numbers
     labels[dataline = $1] = locals++;
-} 
+}
 ;
 operend: linenumber {asmcomm("linenumber");}
 | ':'
 ;
-oper: 
+oper:
 | LET assign
 | assign
 | print

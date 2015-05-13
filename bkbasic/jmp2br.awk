@@ -3,11 +3,12 @@
 #usage: awk -bf jmp2br.awk FILE.lst >FILE.asm
 #this program is for gawk variant of awk
 BEGIN {
-   w[".ASECT"] =w[".DSABL"] = w[".RADIX"] = 1
+   w[".ASECT"] =w[".DSABL"] = w[".RADIX"] = 1   #included
+   z[".IF"] = 1                                 #excluded
 }
 {
    r = ""
-   if (index($0, $2) == 10 && substr($0, 41) != "" || toupper($2) in w) {
+   if (index($0, $2) == 10 && substr($0, 41) != "" && !(toupper($3) in z) || toupper($2) in w) {
       r = substr($0, 41)
       if ($3 == "000137") {
          distance = strtonum("0" $4) - strtonum("0" $2)

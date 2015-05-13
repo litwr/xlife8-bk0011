@@ -1,4 +1,4 @@
-`raw2bk' converts a raw file produced by lifeconv to Amstrad CPC 8L format.
+`raw2bk' converts a raw file produced by lifeconv to BK0011 8Ln format.
 
 USAGE
     raw2bk rawfile

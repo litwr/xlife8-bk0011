@@ -72,7 +72,7 @@ Special notes:
 
 * CSRLIN and POS completely ignore their arguments.
 
-* FRE shows total about of free memory. The garbage collector is only invoked if the argument type is string. So in the case of the integer or absent argument the shown amount of memory maybe less than the actual.
+* FRE shows total amount of free memory. The garbage collector is only invoked if the argument type is string. So in the case of the integer or absent argument the shown amount of memory maybe less than the actual.
 
 * FIND has to use any MS-DOS wildcard pattern.  So FIND "*.TXT" will show all files with TXT-extension, FIND "?." will show files which names consist of one sign and have no extension.  The patterns are case sensitive.
 

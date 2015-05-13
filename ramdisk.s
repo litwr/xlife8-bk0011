@@ -40,11 +40,9 @@ ramdisk: jsr r3,@#printstr
 
 1$:      call @#getkey
          cmpb #3,r0    ;kt/esc
-         bne 2$
+         beq exitram
 
-         return
-
-2$:      cmpb r0,#'0
+         cmpb r0,#'0
          bcs 1$
 
          cmpb #'9,r0

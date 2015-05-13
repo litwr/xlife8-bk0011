@@ -232,7 +232,7 @@ emptyirq:  rti
 key2irq:   mov @#kbddtport,@#kbdbuf
            incb @#kbdbuf+1
            rti
-        
+
 keyirq:    mov @#kbddtport,@#kbdbuf
            rti
 
@@ -658,7 +658,7 @@ stage2:  mov @#startp,r0
 ;*genloop2 ldy #sum
          ;*lda #0
          ;*sta (currp),y
-1$:      
+1$:
          clrb sum(r0)
          genmac count0,0
          genmac count1,1

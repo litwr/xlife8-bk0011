@@ -6,7 +6,7 @@ cpc2bk cpcfile.8l
 
 will produce `cpcfile.8L0' (and possible `cpcfile.8L1', ...) from `cpcfile.8l'.
 
-The comments have a plain text format.  CPC uses CRLF as end of line marker but BK uses LF only.  So CPC comments maybe translated, for examble, by
+The comments have the plain text format.  CPC uses CRLF as end of line marker but BK uses LF only.  So CPC comments maybe translated, for examble, by
 
 tr -d '\r' <cpc.txt >bk.txt
 
