@@ -1008,6 +1008,7 @@ menu2:   call @#setdirmsk
 
 100$:    mov #154,r0
          emt ^O16
+         call @#galign
          jmp @#loadmenu
 
 17$:     cmpb #10,r0

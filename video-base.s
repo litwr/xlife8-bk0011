@@ -30,19 +30,21 @@ totext:    call @#clrscn
            mov #toandos,@#pageport
            mov #12,r0
            emt ^O16
-           return
+exit88:    return
 
-tograph:   mov #toandos,@#pageport
-           jsr r3,@#printstr
-           .byte 145,0
-           mov #10,r0
+galign:    mov #10,r0
 1$:        cmp #^O1330,@#yshift
-           beq 2$
+           beq exit88
 
            emt ^O16
            br 1$
 
-2$:        ;jsr r3,@#printstr
+tograph:   mov #toandos,@#pageport
+           jsr r3,@#printstr
+           .byte 145,0
+           call @#galign
+
+           ;jsr r3,@#printstr
            ;.byte 12,0
 tograph0:  call @#clrscn
            call @#initxt
