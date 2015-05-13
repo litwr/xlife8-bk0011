@@ -1,8 +1,8 @@
-D=XLIFE3.IMG               #name of the disk image file
+D=XLIFE1.IMG               #name of the disk image file
 M=/mnt/loop                #mount point
 T=01010016.00              #start address as the timestamp
-#-t 01010016.00 = 01000 = $200
-#-t 01010024.00 = 01400 = $300
+#01010016.00 = 01000 = $200
+#01010024.00 = 01400 = $300
 gcc genvistab.c && ./a.out >vistab.s && \
 gcc -DBK0011 geninitiles.c && ./a.out >initiles.s && \
 gcc -DBK0011 gengentab.c && ./a.out >gentab.s && \
@@ -17,9 +17,8 @@ awk -bf xlife.man.awk xlife.man.txt >manpage.s && \
 compile manpage.asm && \
 dd if=manpage.bin of=manpage.com bs=1 skip=4 && \
 cp xlife[012].com cr.txt manpage.com $M && \
-touch -t $T $M/xlife0.com && \
-touch -t $T $M/manpage.com
-ls -l $M/xlife*.com $M/manpage.com
+touch -t $T $M/xlife0.com $M/manpage.com
 sudo sync
+ls -l $M/xlife*.com $M/manpage.com
 sudo umount $M
 rm initiles.s gentab.s tab12.s vistab.s manpage.s *.obj *.bin a.out

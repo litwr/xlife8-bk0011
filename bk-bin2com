@@ -1,1 +1,0 @@
-dd if=$1 of=${1%%bin}com bs=1 skip=4
