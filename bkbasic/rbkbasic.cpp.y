@@ -302,7 +302,8 @@ printint: {
 ;
 print2tab: {
      used_code["getcrsr"] = 1;
-     code[progp++] = "CALL @#getcrsr\nMOV #16,R2\nSUB R1,R2\nBIC #65520,R2\nMOVB #32,R0\n";
+     code[progp++] = "CALL @#getcrsr\nMOV #16,R2\nSUB R1,R2\nBIC #65520,R2\nBNE " + tostr(locals) + "$\n";
+     code[progp++] = "MOV #16,R2\n" + tostr(locals++) + "$:MOVB #32,R0\n";
      code[progp++] = tostr(locals) + "$:CALL @#charout\nSOB R2," + tostr(locals) + "$\n";
      locals++;
 }
