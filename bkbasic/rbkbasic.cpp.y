@@ -19,7 +19,7 @@ Symbol *ptempsymb;
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN FN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
 %token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
-%token <num> VARPTR
+%token <num> VARPTR DIM OCT
 %type <num> then
 %left IMP EQV
 %left OR XOR
@@ -60,6 +60,7 @@ oper:
 | bsave
 | def fnihead fnibody
 | def fnshead fnsbody
+| DIM arraylist
 | DATAOPER {
     char *p = (char*)$1, *q;
     if (datalabels.find(dataline) == datalabels.end()) datalabels[dataline] = dataoffset;
@@ -182,6 +183,15 @@ labellist: lablistel
 ;
 lablistel: NUMBER {code[progp++] = ".WORD "; reallocl[progp++] = $1;}
 ;
+arraylist: array
+| array ',' arraylist
+;
+array: IVAR '(' NUMBER ')' {
+   ivarp += 2*($3 - 1);
+}
+| SVAR '(' NUMBER ')' {
+   svarp += 2*($3 - 1);
+}
 assign: ivar '=' iexpr {
      asmcomm("ivar ASSIGN i");
      code[progp++] = "POP R3\nPOP R4\nMOV R3,@R4\n";
@@ -977,6 +987,18 @@ sexpr: STRINGTYPE {
      code[progp++] = "MOV R3,R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
      code[progp++] = "BIC #240,R3\nMOV R3,R4\nCALL @#hexconv\n";
      code[progp++] = "MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+}
+| OCT '(' iexpr ')' {
+     asmcomm("s -> oct$(i)");
+     used_code["gc"] = 1;
+     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOVB #6,(R2)+\n";//r2!!
+     code[progp++] = "MOV #24,R4\nASL R3\nROL R4\nMOVB R4,(R2)+\n";
+     code[progp++] = "MOV #5,R1\n" + tostr(locals) + "$:\n";
+     code[progp++] = "MOV #6,R4\nMOV #3,R0\n" + tostr(locals + 1) + "$:\n";
+     code[progp++] = "ASL R3\nROL R4\nSOB R0," + tostr(locals + 1) + "$\n";
+     code[progp++] = "MOVB R4,(R2)+\nSOB R1," + tostr(locals) + "$\n";
+     code[progp++] = "MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     locals += 2;
 }
 | UPPER '(' sexpr ')' {
      asmcomm("s -> upper$(s)");

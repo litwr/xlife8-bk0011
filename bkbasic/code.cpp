@@ -5,7 +5,6 @@
 #define progstart 512
 
 int progp, ivarp, svarp, strconstp, stringp, locals, comm_on = 0;
-string lexdimname;
 
 void initcode() {
 }

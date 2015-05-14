@@ -15,11 +15,11 @@ Unsupported operators: /
 
 
 Supported keywords:
-? ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FN FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MONIT NEXT NOT ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL VARPTR XOR
+? ABS AND ASC AT BIN$ BLOAD BSAVE CHR$ CLEAR CLS CSRLIN DATA DEC DEF DIM ELSE END EOF EQV FILES FIND FN FOR GET# GOSUB GOTO HEX$ IF IMP INKEY$ INP INPUT INSTR LEN LET LOCATE MID$ MOD MONIT NEXT NOT OCT$ ON OR OUT PEEK POKE POS PRINT READ REM RESTORE RETURN SGN SPC STEP STR$ STRING$ SYSTEM TAB THEN TO UINT$ UPPER$ USR VAL VARPTR XOR
 
 
 Unsupported keywords:
-BEEP CINT COLOR KEY OCT$
+BEEP CINT COLOR KEY
 CIRCLE DRAW PAINT POINT PRESET PSET
 ATN CDBL COS EXP INT FIX LOG PI RND SIN SQR TAN CSNG
 . AUTO CALL CLOAD CONT CSAVE DELETE LIST LLIST LOAD LPOS MERGE NEW RENUM RUN SAVE STOP TROFF TRON
@@ -47,7 +47,7 @@ The unsupported or supported with the limits features of BK0011 Basic:
 
 - Supported only integer (at the range -32768..32767) and string (up to 255 chars length) types.
 
-- DIM should be used for any array (even with less than 10 elements) and its number argument has to be a constant.  Only one dimensional arrays are supported.  Only one variable name after DIM is allowed.  The virtual arrays are not supported (so as for VARPTR).
+- DIM should be used for any array (even with less than 10 elements) and its number argument has to be a constant.  Only one dimensional arrays are supported.  The virtual arrays are not supported (so as for VARPTR).
 
 - Only some syntax errors are detected.
 
@@ -92,6 +92,7 @@ Special notes:
 
 * Keywords should be spelled fully, the shortcuts are not allowed.
 
+* HEX$, OCT$, BIN$ may return a string with the leading zeros.
 
 Common information:
 

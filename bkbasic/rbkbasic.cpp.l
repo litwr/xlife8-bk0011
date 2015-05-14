@@ -5,7 +5,6 @@ void str2upper(string &sbuf) {
 }
 void lexaddsym(string& sbuf, int len = 2) {
    if (names.find(sbuf) == names.end()) {
-      names[sbuf].len = len;
       if (sbuf[sbuf.length() - 1] == '$') {
          names[sbuf].type = SVAR;
          names[sbuf].addr = svarp;
@@ -19,7 +18,7 @@ void lexaddsym(string& sbuf, int len = 2) {
       names[sbuf].name = &(string&)names.find(sbuf)->first;
    }
 }
-int lexeol = 1, lexdimst;
+int lexeol = 1;
 string curdeffn;
 %}
 %option    noyywrap
@@ -57,7 +56,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:CSRLIN)(\(.*\))? return CSRLIN;
 (?i:DEC)   return DEC;
 (?i:DEF)   return DEF;
-(?i:DIM)   lexdimst = 1;
+(?i:DIM)   return DIM;
 (?i:ELSE)  return ELSE;
 (?i:END)   return END;
 (?i:EQV)   return EQV;
@@ -85,6 +84,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:MONIT) return END;
 (?i:NEXT)  return NEXT;
 (?i:NOT)   return NOT;
+(?i:OCT)\$ return OCT;
 (?i:ON)    return ON;
 (?i:OPEN)  return OPEN;
 (?i:OR)    return OR;
@@ -113,8 +113,6 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:VAL)   return VAL;
 (?i:VARPTR)   return VARPTR;
 (?i:XOR)   return XOR;
-\(         if (lexdimst == 0) return '(';
-\)         if (lexdimst) lexdimst = 0; else return ')';
 {number}   {
               string sbuf(yytext);
               unsigned long p;
@@ -134,9 +132,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
                  else
                     yylval.num = strtol(sbuf.c_str(), 0, 2);
               }
-              if (lexdimst == 2)
-                 lexaddsym(lexdimname, yylval.num*2);
-              else if (lexeol)
+              if (lexeol)
                  return lexeol = 0, LABEL;
               else
                  return NUMBER;
@@ -144,45 +140,39 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 {symbol}   {
               string sbuf(yytext);
               str2upper(sbuf);
-              if (lexdimst == 1) {
-                 lexdimname = sbuf;
-                 lexdimst++;
+              if (deffn == 0) {
+                 curdeffn = sbuf;
+                 sbuf = ":" + sbuf;
+                 deffn++;
+                 lexaddsym(sbuf, 0);
+                 if (names[sbuf].type == SVAR)
+                    names[sbuf].type = SFN;
+                 else
+                    names[sbuf].type = IFN;
               }
-              else {
-                 if (deffn == 0) {
-                    curdeffn = sbuf;
-                    sbuf = ":" + sbuf;
-                    deffn++;
-                    lexaddsym(sbuf, 0);
-                    if (names[sbuf].type == SVAR)
-                       names[sbuf].type = SFN;
-                    else
-                       names[sbuf].type = IFN;
-                 }
-                 else if (deffn > 0) {
+              else if (deffn > 0) {
+                 sbuf = curdeffn + ":" + sbuf;
+                 lexaddsym(sbuf, 0);
+                 names[sbuf].addr = deffn++;
+                 if (names[sbuf].type == SVAR)
+                    names[sbuf].type = FSVAR;
+                 else
+                    names[sbuf].type = FIVAR;
+              }
+              else if (deffn == -2) {
+                 if (names.find(curdeffn + ":" + sbuf) != names.end())
                     sbuf = curdeffn + ":" + sbuf;
-                    lexaddsym(sbuf, 0);
-                    names[sbuf].addr = deffn++;
-                    if (names[sbuf].type == SVAR)
-                       names[sbuf].type = FSVAR;
-                    else
-                       names[sbuf].type = FIVAR;
-                 }
-                 else if (deffn == -2) {
-                    if (names.find(curdeffn + ":" + sbuf) != names.end())
-                       sbuf = curdeffn + ":" + sbuf;
-                 }
-                 if (deffn < 0)
-                    if (callfn == 0)
-                       if (names.find(":" + sbuf) != names.end())
-                          callfn++, sbuf = ":" + sbuf;
-                       else
-                          throw (string) "call to undefined function";
-                    else
-                       lexaddsym(sbuf);
-                 yylval.sym = &names[sbuf];
-                 return yylval.sym->type;
               }
+              if (deffn < 0)
+                 if (callfn == 0)
+                    if (names.find(":" + sbuf) != names.end())
+                       callfn++, sbuf = ":" + sbuf;
+                    else
+                       throw (string) "call to undefined function";
+                 else
+                    lexaddsym(sbuf);
+              yylval.sym = &names[sbuf];
+              return yylval.sym->type;
            }
 {string}   {
               string istr(yytext + 1);
