@@ -954,6 +954,7 @@ octdigit0:
 octdigit1:
          CLR R4
          RETURN
+.endc
 
 .if df opt_octconv
 octmain: MOV @#strdcurre,R2

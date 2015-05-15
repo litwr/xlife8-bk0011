@@ -19,7 +19,7 @@ Symbol *ptempsymb;
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN FN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
 %token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
-%token <num> VARPTR DIM OCT
+%token <num> VARPTR DIM OCT BEEP
 %type <num> then
 %left IMP EQV
 %left OR XOR
@@ -150,6 +150,7 @@ oper:
       locals += 3;
 }
 | CLS {asmcomm("oper -> CLS"); code[progp++] = "MOV #12,R0\nCALL @#charout\n";}
+| BEEP {asmcomm("oper -> BEEP"); code[progp++] = "MOV #7,R0\nCALL @#charout\n";}
 | CLEAR iexpr ',' iexpr {
      asmcomm("oper -> CLEAR i,i");
      used_code["gc"] = 1;
@@ -1040,7 +1041,12 @@ int yyerror(const string &s) {
    throw oss.str();
 }
 
-main () {
+int main (int argc, char **argv) {
+   if (argc > 1) {
+      cout << "Reduced Basic cross-compiler for BK0011 v0.01 (C) 2015 GNU GPL\n";
+      cout << "USAGE: rbkbasic <INFILE >OUTFILE\n";
+      return 0;
+   }
    //yydebug = 1;
    try {
       initcode();
@@ -1053,5 +1059,6 @@ main () {
       relocate(); 
       printcode();
    }
+   return 0;
 }
 

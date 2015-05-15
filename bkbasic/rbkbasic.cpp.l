@@ -46,6 +46,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:AND)   return AND;
 (?i:ASC)   return ASC;
 (?i:AT)    return AT;
+(?i:BEEP) return BEEP;
 (?i:BIN)\$ return BIN;
 (?i:BLOAD)  return BLOAD;
 (?i:BSAVE)  return BSAVE;
