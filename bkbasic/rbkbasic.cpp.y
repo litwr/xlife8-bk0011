@@ -19,7 +19,7 @@ Symbol *ptempsymb;
 %token <num> CLOSE OUTPUT BEOF OPEN FIND GET LET LABEL ABS SGN CSRLIN FN
 %token <num> UINT ON STR CHR INKEY MID HEX BIN CLEAR BLOAD BSAVE DEF USR
 %token <num> SPC TAB AT INP OUT XOR READ RESTORE DEC INSTR IMP EQV UPPER
-%token <num> VARPTR DIM OCT BEEP
+%token <num> VARPTR DIM OCT BEEP COLOR
 %type <num> then
 %left IMP EQV
 %left OR XOR
@@ -176,6 +176,20 @@ oper:
 | OUT iexpr ',' iexpr ',' iexpr {
       asmcomm("oper -> OUT i,i,i");
       code[progp++] = "POP R3\nPOP R2\nPOP R4\nCOM R2\nBIC R2,R3\nBIS @R4,R3\nMOV R3,@R4\n";
+}
+| COLOR iexpr ',' iexpr {
+      asmcomm("oper -> COLOR i,i");
+      code[progp++] = "POP R3\nPOP R4\nASL R3\nMOV COLORS(R3),@#138\nASL R4\nMOV COLORS(R4),R4\nBNE " + tostr(locals) + "$\n";
+      code[progp++] = "MOV @#138,R4\n" + tostr(locals++) + "$:MOV R4,@#140\n";
+}
+| COLOR iexpr {
+      asmcomm("oper -> COLOR i");
+      code[progp++] = "POP R4\nASL R4\nMOV COLORS(R4),R4\nBNE " + tostr(locals) + "$\n";
+      code[progp++] = "MOV @#138,R4\n" + tostr(locals) + "$:MOV R4,@#140\n";
+}
+| COLOR ',' iexpr {
+      asmcomm("oper -> COLOR ,i");
+      code[progp++] = "POP R3\nASL R3\nMOV COLORS(R3),@#138\n";
 }
 | END {code[progp++] = "JMP @#finalfinish\n";}
 ;

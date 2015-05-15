@@ -1,3 +1,5 @@
+COLORS:    .word 0,-1,43690,21845,0
+
 kbdbuf     = key2irq + 4
 key2irq:   mov @#kbddtport,#0
            beq 0$

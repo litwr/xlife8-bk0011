@@ -54,6 +54,7 @@ dataline   (?i:DATA)({dataelem},)*{dataelem}
 (?i:CLEAR) return CLEAR;
 (?i:CLOSE) return CLOSE;
 (?i:CLS)   return CLS;
+(?i:COLOR) return COLOR;
 (?i:CSRLIN)(\(.*\))? return CSRLIN;
 (?i:DEC)   return DEC;
 (?i:DEF)   return DEF;
