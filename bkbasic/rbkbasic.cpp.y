@@ -975,49 +975,40 @@ sexpr: STRINGTYPE {
 | CHR '(' iexpr ')' {
      asmcomm("s -> chr$(i)");
      used_code["gc"] = 1;
+     used_code["exitstring"] = 1;
      code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOVB #1,(R2)+\n"; //r2!!
-     code[progp++] = "MOVB R3,(R2)+\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     code[progp++] = "MOVB R3,(R2)+\nCALL @#exitstr0\nPUSH R5\n";
 }
 | HEX '(' iexpr ')' {
      asmcomm("s -> hex$(i)");
      used_code["hexconv"] = 1;
+     used_code["exitstring"] = 1;
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOVB #4,(R2)+\n";//r2!!
-     code[progp++] = "MOV R3,R4\nCLC\nSWAB R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
-     code[progp++] = "MOV R3,R4\nSWAB R4\nBIC #240,R4\nCALL @#hexconv\n";
-     code[progp++] = "MOV R3,R4\nRORB R4\nASRB R4\nASRB R4\nASRB R4\nCALL @#hexconv\n";
-     code[progp++] = "BIC #240,R3\nMOV R3,R4\nCALL @#hexconv\n";
-     code[progp++] = "MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     code[progp++] = "POP R3\nCALL @#hexmain\nPUSH R5\n";
 }
 | OCT '(' iexpr ')' {
      asmcomm("s -> oct$(i)");
+     used_code["octconv"] = 1;
+     used_code["exitstring"] = 1;
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOVB #6,(R2)+\n";//r2!!
-     code[progp++] = "MOV #24,R4\nASL R3\nROL R4\nMOVB R4,(R2)+\n";
-     code[progp++] = "MOV #5,R1\n" + tostr(locals) + "$:\n";
-     code[progp++] = "MOV #6,R4\nMOV #3,R0\n" + tostr(locals + 1) + "$:\n";
-     code[progp++] = "ASL R3\nROL R4\nSOB R0," + tostr(locals + 1) + "$\n";
-     code[progp++] = "MOVB R4,(R2)+\nSOB R1," + tostr(locals) + "$\n";
-     code[progp++] = "MOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
-     locals += 2;
+     code[progp++] = "POP R3\nCALL @#octmain\nPUSH R5\n";
 }
 | UPPER '(' sexpr ')' {
      asmcomm("s -> upper$(s)");
      used_code["gc"] = 1;
+     used_code["exitstring"] = 1;
      code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nCLR R4\nBISB (R3)+,R4\nMOVB R4,(R2)+\n";//r2!!
      code[progp++] = tostr(locals + 1) + "$:MOVB (R3)+,R1\nCMPB R1,#'a\nBCS " + tostr(locals) + "$\nCMPB R1,#'z+1\n";
      code[progp++] = "BCC " + tostr(locals) + "$\nSUB #32,R1\n" + tostr(locals) + "$:MOVB R1,(R2)+\n";
-     code[progp++] = "SOB R4," + tostr(locals + 1) + "$\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
+     code[progp++] = "SOB R4," + tostr(locals + 1) + "$\nCALL @#exitstr0\nPUSH R5\n";
      locals += 2;
 }
 | BIN '(' iexpr ')' {
      asmcomm("s -> bin$(i)");
+     used_code["binconv"] = 1;
+     used_code["exitstring"] = 1;
      used_code["gc"] = 1;
-     code[progp++] = "POP R3\nMOV @#strdcurre,R2\nMOV r2,R5\nMOV #16,r4\nMOVB R4,(R2)+\n"; //r2,r4!!
-     code[progp++] = tostr(locals) + "$:MOV #'0,R0\nASL R3\nBCC " + tostr(locals + 1);
-     code[progp++] = "$\nINC R0\n" + tostr(locals + 1) + "$:MOVB R0,(R2)+\nSOB R4," + tostr(locals);
-     code[progp++] = "$\nMOV R2,@#strdcurre\nCALL @#gc\nPUSH R5\n";
-     locals += 2;
+     code[progp++] = "POP R3\nCALL @#binmain\nPUSH R5\n";
 }
 | UINT '(' iexpr ')' {
      asmcomm("s -> uint$(i)");

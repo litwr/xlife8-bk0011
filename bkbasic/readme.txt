@@ -92,7 +92,6 @@ Special notes:
 
 * Keywords should be spelled fully, the shortcuts are not allowed.
 
-* HEX$, OCT$, BIN$ may return a string with the leading zeros.
 
 Common information:
 

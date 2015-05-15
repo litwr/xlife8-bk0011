@@ -872,14 +872,116 @@ str2dec: clr r1           ;IN: R4; OUT: R3
 10$:     return
 .endc
 
+.if df opt_binconv
+binmain: MOV @#strdcurre,R2
+         MOV r2,R5
+         INC R2
+         CLR R1
+         MOV #15,R0
+1$:      CLR R4
+         ASL R3
+         ADC R4
+         CALL @#octdigit
+         SOB R0,1$
+
+         ASL R3
+         ADC R4
+         CALL @#octdigit0
+         BR exitstr
+.endc
+
 .if df opt_hexconv
-hexconv: ADD #48,R4
+hexdigit:BNE hexdigit0
+
+         TST R1
+         BEQ hexdigit1:
+
+hexdigit0:
+         ADD #48,R4
+         INC R1
          CMPB #'9,R4
          BCC 1$
 
          ADD #7,R4
 1$:      MOVB R4,(R2)+
+hexdigit1:
+         RETURN               ;CARRY=0
+
+hexmain: MOV @#strdcurre,R2
+         MOV r2,R5
+         INC R2
+         CLR R1     ;length
+         MOV R3,R4
+         CLC
+         SWAB R4
+         RORB R4
+         ASRB R4
+         ASRB R4
+         ASRB R4
+         CALL @#hexdigit
+         MOV R3,R4
+         SWAB R4
+         BICB #240,R4
+         CALL @#hexdigit
+         MOV R3,R4
+         RORB R4
+         ASRB R4
+         ASRB R4
+         ASRB R4
+         CALL @#hexdigit
+         BICB #240,R3
+         MOV R3,R4
+         CALL @#hexdigit0
+.endc
+.if df opt_exitstring
+exitstr:
+         MOVB R1,@R5
+exitstr0:
+         MOV R2,@#strdcurre
+         JMP @#gc
+.endc
+
+.if df opt_octconv ! opt_binconv
+octdigit:BNE octdigit0
+
+         TST R1
+         BEQ octdigit1:
+
+octdigit0:
+         ADD #48,R4
+         INC R1
+         MOVB R4,(R2)+
+octdigit1:
+         CLR R4
          RETURN
+
+.if df opt_octconv
+octmain: MOV @#strdcurre,R2
+         MOV r2,R5
+         INC R2
+         CLR R1
+         CLR R4
+         ASL R3
+         ROL R4
+         CALL @#octdigit
+         MOV #4,R0
+1$:      ASL R3
+         ROL R4
+         ASL R3
+         ROL R4
+         ASL R3
+         ROL R4
+         CALL @#octdigit
+         SOB R0,1$
+
+         ASL R3
+         ROL R4
+         ASL R3
+         ROL R4
+         ASL R3
+         ROL R4
+         CALL @#octdigit0
+         BR exitstr
 .endc
 
 .if df opt_hex2dec
