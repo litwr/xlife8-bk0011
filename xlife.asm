@@ -1,7 +1,7 @@
 ;this program doesn't contain code of the original Xlife
 ;**it is the conversion from 6502 port for Commodore +4 v4
 ;**and from z80 port for Amstrad CPC6128 v2
-;written by litwr, 2014
+;written by litwr, 2014-15
 ;it is under GNU GPL
 
          .radix 10

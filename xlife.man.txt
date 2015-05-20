@@ -1,5 +1,3 @@
-\gXlife(6)                                                Xlife(6)
-
 \bNAME
 
 \g Xlife - Conway's Game of Life and other cellular  automata  for

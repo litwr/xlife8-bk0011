@@ -10,6 +10,14 @@ text:       mov #keyirq,@#^O60
             mov #inittxt,r1
             mov #initxt2-inittxt,r2
             emt ^O20
+            clr r1
+6$:         movb title(r1),r0
+            beq 5$
+
+            emt ^O22
+            inc r1
+            br 6$
+
 5$:         call @#getkey
             bic #160,r0     ;$a0
             cmpb #'C,r0
@@ -35,7 +43,7 @@ text:       mov #keyirq,@#^O60
 1$:         call @#getkey2
             bne 1$
 
-            mov #800,r1
+8$:         mov #800,r1
 3$:         sob r1,3$
             sob r2,2$
 
@@ -67,10 +75,10 @@ keyirq:     mov @#kbddtport,@#kbdbuf
             rti
 
 kbdbuf:     .word 0
+title:      .ascii "Xlife(6)                                                Xlife(6)"
+            .byte 0
 inittxt:    .byte 154,12
-            .ascii "C-key selects color,"
-            .byte 10
-            .ascii "another key begins to show the manpage"
+            .ascii "C-key selects color, another key begins to show the manpage."
 initxt2:    .byte 154,12
 palette:    .byte 0
 mantext:

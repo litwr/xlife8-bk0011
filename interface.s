@@ -272,7 +272,7 @@ dispat0: cmpb #'g,r0
          call @#cleanup
 5148$:   dec @#x0
          bne 5146$
-         jmp @#401$         
+         jmp @#401$
 
 500$:    call @#tograph
          mov #benchirq,@#^O100
