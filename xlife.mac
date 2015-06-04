@@ -96,29 +96,29 @@ y8byte     = saved
           mov #todata,@#pageport
         .endm
 
-         .macro genmac one,two,?ll
-         movb one+3(r0),r5
+         .macro genmac one,?ll
+         movb count'one+3(r0),r5
          movb gentab(r5),r1
          bic #^B1111111111111100,r1
 
-         movb one+2(r0),r5
+         movb count'one+2(r0),r5
          movb gentab(r5),r5
          bic #^B1111111111110011,r5
          bis r5,r1
 
-         movb one+1(r0),r5
+         movb count'one+1(r0),r5
          movb gentab(r5),r5
          bic #^B1111111111001111,r5
          bis r5,r1
 
-         movb one(r0),r5
+         movb count'one(r0),r5
          movb gentab(r5),r5
          bic #^B1111111100111111,r5
          bis r5,r1
-.if eq two
+.if eq one
          movb r1,@r0
 .iff
-         movb r1,two(r0)
+         movb r1,one(r0)
 .endc
          movb tab3(r1),r2
          beq ll
@@ -177,29 +177,33 @@ cond2:
          sob r1,loop
          .endm
 
-         .macro setcount one,two
+         .macro setcount one
+.if eq one
+         mov @r0,r1
+.iff
          mov one(r0),r1
+.endc
          mov r1,r2
          bic r3,r1
-         movb r1,two(r0)
+         movb r1,count'one(r0)
          swab r1
-         movb r1,two+4(r0)
+         movb r1,count'one+4(r0)
          mov r2,r1
          bic r4,r1
          asr r1
-         movb r1,two+1(r0)
+         movb r1,count'one+1(r0)
          swab r1
-         movb r1,two+5(r0)
+         movb r1,count'one+5(r0)
          mov r2,r1
          bic r5,r1
          asl r1
-         movb r1,two+2(r0)
+         movb r1,count'one+2(r0)
          swab r1
-         movb r1,two+6(r0)
+         movb r1,count'one+6(r0)
          mov r2,r1
          bic #^B1111110011111100,r1
-         movb r1,two+3(r0)
+         movb r1,count'one+3(r0)
          swab r1
-         movb r1,two+7(r0)
+         movb r1,count'one+7(r0)
          .endm
 

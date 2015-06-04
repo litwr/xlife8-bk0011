@@ -4,7 +4,7 @@ AWKHEX=~/bk/xlife-bk0011/lst2hex.awk
 E=macro11.errs
 macro11 -yus -ysl 16 -o ${F}z.obj -l ${F}lst $1 2>$E || echo Errors found >> $E
 awk -bf $AWKOPT ${F}lst >${1%%asm}x.asm
-macro11 -yus -ysl 16 -o ${F}obj -l ${F}lst ${1%%asm}x.asm 2>>$E || echo Errors found >> $E
+macro11 -yus -ysl 16 -o ${F}obj -l ${F}x.lst ${1%%asm}x.asm 2>>$E || echo Errors found >> $E
 if [ -s $E ]; then cat $E; rm $E; exit 8; else rm -f $E; fi && \
 dumpobj ${F}obj >${F}dump && \
 bk-obj2bin <${F}dump >${F}bin

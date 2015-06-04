@@ -1,4 +1,3 @@
-genmac requires only one argument!
 ESC/HLT interceptor/trap
 xclrscn? to clear only the place for cells - no screen flicker
 odd relocations support, e.g., .blkb

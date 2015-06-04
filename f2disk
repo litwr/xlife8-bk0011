@@ -1,4 +1,4 @@
-D=XLIFE1.IMG               #name of the disk image file
+D=XLIFE3.IMG               #name of the disk image file
 M=/mnt/loop                #mount point
 T=01010016.00              #start address as the timestamp
 #01010016.00 = 01000 = $200
@@ -12,7 +12,7 @@ compile xlife0.asm && \
 gcc cut3.c && ./a.out && \
 dd if=xlife0.bin of=xlife0.com bs=1 skip=4 && \
 sudo mount -t msdos -o loop,fmask=111,dmask=000,rw $D $M && \
-#rm -f $M/xlife?.com $M/cr.txt $M/manpage.com && \
+rm -f $M/xlife?.com $M/cr.txt $M/manpage.com && \
 awk -bf xlife.man.awk xlife.man.txt >manpage.s && \
 compile manpage.asm && \
 dd if=manpage.bin of=manpage.com bs=1 skip=4 && \

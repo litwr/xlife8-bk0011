@@ -245,10 +245,10 @@ generate:
          mov #^B0011111100111111,r3
          mov #^B1100111111001111,r4
          mov #^B1111001111110011,r5
-30$:     setcount 0,count0
-         setcount 2,count2
-         setcount 4,count4
-         setcount 6,count6
+30$:     setcount 0
+         setcount 2
+         setcount 4
+         setcount 6
 
          mov next(r0),r0
          cmp #1,r0
@@ -566,7 +566,7 @@ generate:
 ;*l2       ldy #5
          ;*lda (currp),y
          ;*beq l3
-23$:     movb 5(r0),r1  ;2 bytes
+23$:     movb 5(r0),r1
          beq 24$
 
          asl r1
@@ -660,15 +660,14 @@ stage2:  mov @#startp,r0
          ;*sta (currp),y
 1$:
          clrb sum(r0)
-         genmac count0,0
-         genmac count1,1
-         genmac count2,2
-         genmac count3,3
-         genmac count4,4
-         genmac count5,5
-         genmac count6,6
-         genmac count7,7
-
+         genmac 0
+         genmac 1
+         genmac 2
+         genmac 3
+         genmac 4
+         genmac 5
+         genmac 6
+         genmac 7
          mov next(r0),r0
          cmp #1,r0
          beq incgen
