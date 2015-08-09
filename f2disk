@@ -3,7 +3,7 @@ M=/mnt/loop                #mount point
 T=01010016.00              #start address as the timestamp
 #01010016.00 = 01000 = $200
 #01010024.00 = 01400 = $300
-gcc genvistab.c && ./a.out >vistab.s && \
+gcc -DBK0011 genvistab.c && ./a.out >vistab.s && \
 gcc -DBK0011 geninitiles.c && ./a.out >initiles.s && \
 gcc -DBK0011 gengentab.c && ./a.out >gentab.s && \
 gcc -DBK0011 gentab12.c && ./a.out >tab12.s && \
