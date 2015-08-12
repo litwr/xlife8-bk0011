@@ -3,14 +3,14 @@ int main() {
    unsigned i, n, t[256] = {0};
 #if defined(IBMPC)
    for (i = 0; i < 256; i++) {
-      if (i & 0x10) t[i] += 0x100;
-      if (i & 0x20) t[i] += 0x400;
-      if (i & 0x40) t[i] += 0x1000;
-      if (i & 0x80) t[i] += 0x4000;
-      if (i & 0x1) t[i] += 1;
-      if (i & 0x2) t[i] += 4;
-      if (i & 0x4) t[i] += 0x10;
-      if (i & 0x8) t[i] += 0x40;
+      if (i & 0x10) t[i] += 1;
+      if (i & 0x20) t[i] += 4;
+      if (i & 0x40) t[i] += 0x10;
+      if (i & 0x80) t[i] += 0x40;
+      if (i & 0x1) t[i] += 0x100;
+      if (i & 0x2) t[i] += 0x400;
+      if (i & 0x4) t[i] += 0x1000;
+      if (i & 0x8) t[i] += 0x4000;
    }
    printf("vistab:\n");
    for (i = 0; i < 16; i++) {
