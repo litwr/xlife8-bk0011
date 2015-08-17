@@ -8,7 +8,7 @@ insteps: call @#totext
 
 3$:      mov #stringbuf,r2
          clr r1
-         clr @#temp
+         clr @#temp2
 1$:      call @#getkey
          cmpb #10,r0
          beq 11$
