@@ -229,7 +229,7 @@ help:    call @#totext
          .ascii "*** XLIFE COMMANDS ***"
          .byte 159,155,10,9,156,'!,156
          .ascii " randomize screen"
-         .byte 10,9,137,156,'%,156
+         .byte 10,9,156,'%,156
          .ascii " set random density - default=42%"
          .byte 10,9,156,'+,156,'/,156,'-,156
          .ascii " zoom in/out"
@@ -282,7 +282,7 @@ help:    call @#totext
          .ascii "AP2"
          .byte 156,159
          .ascii " to speed up the movement"
-         .byte 159,0
+         .byte 159,0,0
          call @#getkey
          jsr r3,@#printstr
          .byte 155,0
@@ -759,7 +759,7 @@ clrscn:   mov #toandos,@#pageport
           mov #16384,r0
           mov #8192,r1
 1$:       clr (r0)+
-          sob r1,1$          
+          sob r1,1$
           jmp @#gexit3   ;???
 
 ;xclrscn  .block

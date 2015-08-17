@@ -174,8 +174,8 @@ dispat0: cmpb #'g,r0
          adc r4
          br 143$
 
-142$:    call @#getkey
-         call @#tograph
+442$:    call @#getkey
+142$:    call @#tograph
          jmp @#calccells
 
 141$:    add r2,r0
@@ -248,12 +248,12 @@ dispat0: cmpb #'g,r0
          ror r0
          add r0,r1
          bcc 152$
- 
+
          add #1,r3
          adc r4
 152$:    call @#todec
          call @#showbline2
-         br 142$
+         br 442$
 
 400$:    beq 500$
 
