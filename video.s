@@ -1923,7 +1923,7 @@ crsrclr: tstb @#zoom
          mov #tovideo,@#pageport
          asl r2
          mov vistab(r2),r2
-5$:      movb @#crsrbit,r3
+5$:      movb @#crsrbit,r3   ;this overcomplicated code is required by cursor flash action
          asl r3
          mov vistab(r3),r3
          mov r3,r4

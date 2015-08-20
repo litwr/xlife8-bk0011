@@ -26,10 +26,9 @@ start:   MOV #240*256+240,@#^O120140   ;allows a fast rewrite of a file
          mov #3,r2
          call @#setpalette         ;inits also timer interrupt, sets active video page
          incb @#errst
-         mov #tiles,@#crsrtile
          call @#tograph
-         call @#calccells
-         call @#infoout
+         ;call @#calccells
+         ;call @#infoout
          mov #crsrirq,@#^O100
          call @#help
 
@@ -140,7 +139,7 @@ waitkbd: mov @#kbdstport,r0
 startp:   .word 1
 tilecnt:  .word 0
 viewport: .word 0
-crsrtile: .word 0
+crsrtile: .word tiles
 temp:     .word 0
 temp2:    .word 0
 kbdbuf:   .word 0
