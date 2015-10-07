@@ -7,8 +7,9 @@ fillrt1: mov #1,r4
          beq 1$
 
 2$:      asl r4
-         dec r3
-         bne 2$
+         ;dec r3
+         ;bne 2$
+         sob r3,2$
 
 1$:      return
 
@@ -49,7 +50,7 @@ fillrt2: bcc 1$
          beq 13$
 
 12$:     bisb r0,gentab(r1)
-         return 
+         return
 
 11$:     mov @#born,r4
          bit @#temp2,r4
