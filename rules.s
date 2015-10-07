@@ -14,9 +14,9 @@ fillrt1: mov #1,r4
 
 fillrtsl: adc r3
          add r2,r3
-         call @#fillrt1
+         call @#fillrt1    ;sets R3=0
          mov r4,@#temp
-         clr r3
+;         clr r3
          bisb r1,r3
          return
 

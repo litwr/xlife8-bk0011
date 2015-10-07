@@ -643,7 +643,7 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         bcs cont1
          cmpb r3,r2
          bcs 100$
-         
+
          sub r2,r3
          br 1$
 
@@ -713,7 +713,7 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 23$:     bit #65528,r1
          bmi 13$
          bne 10$
-         
+
 ;         lda #7
 ;         sec
 ;         sbc x8bit

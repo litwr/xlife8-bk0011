@@ -398,15 +398,16 @@ dispat0: cmpb #'g,r0
 72$:     mov @#crsrtile,r2
          add r1,r2
          cmp @r2,#plainbox
-         bne 73$
+         ;bne 73$
+         beq 270$
 
 ;*         ldx i2
 ;*         lda crsrbit,x
 ;*         sta t1
 ;*         bcs cm5
-         movb @r4,r0
-         br 74$
-         
+         ;movb @r4,r0
+         ;br 74$
+
 ;*cm4      sta crsrtile+1
 ;*         stx crsrtile
 ;*cm5      lda t1
