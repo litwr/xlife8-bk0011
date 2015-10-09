@@ -612,7 +612,7 @@ dispat0: cmpb #'g,r0
 
 ;*         jsr zoomout
          clrb @#zoom
-         
+
 ;*nozoom1  jsr totext
 ;*         jsr loadmenu
 ;*         beq exitload

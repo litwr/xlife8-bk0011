@@ -887,7 +887,7 @@ loadmenu:call @#totext
 100$:    movb r0,r4
 101$:    jsr r3,@#printstr
          .byte 154,0
-         mtps r4
+200$:    mtps r4
          return
 
 17$:     cmpb r0,#'*
@@ -905,11 +905,8 @@ loadmenu:call @#totext
 
          call @#ramdisk
          mov #toandos,@#pageport
-         jsr r3,@#printstr
-         .byte 154,0
-
-         mov #1,r0
-         br 100$
+         mov #1,r4
+         br 200$
 
 ;cont8    and $7f
 ;         cp 33
