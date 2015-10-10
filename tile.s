@@ -724,9 +724,9 @@ putpixel:     ;IN: x0,y0; USE: R1, R2, R3, R4; DON'T USE: R0,R5
 ;         jmp putpixel2
          mov #7,r4
          sub r1,r4
-         bic #65528,r4
+         ;bic #65528,r4
          movb bittab(r4),r4
-         bic #65528,r3
+         ;bic #65528,r3
          tstb @#ppmode
          bne putpixel3
          jmp @#putpixel2
