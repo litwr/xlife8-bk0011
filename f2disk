@@ -1,8 +1,9 @@
 D=XLIFE3.IMG               #name of the disk image file
 M=/mnt/loop                #mount point
-T=01010016.00              #start address as the timestamp
-#01010016.00 = 01000 = $200
-#01010024.00 = 01400 = $300
+MD=`date +%m%d`
+T=${MD}0016.00              #start address as the timestamp
+#0016.00 = 01000 = $200
+#0024.00 = 01400 = $300
 gcc -DBK0011 genvistab.c && ./a.out >vistab.s && \
 gcc -DBK0011 geninitiles.c && ./a.out >initiles.s && \
 gcc -DBK0011 gengentab.c && ./a.out >gentab.s && \

@@ -1317,7 +1317,7 @@ drawrect: call @#xchgxy
          movb @#y0,r0
          tstb @#ydir
          beq 3$
-         
+
          mov r4,r5
          sub r0,r4
          cmp r5,r4

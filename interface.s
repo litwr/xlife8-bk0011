@@ -603,63 +603,29 @@ dispat0: cmpb #'g,r0
 172$:    cmpb #'l,r0
          bne 173$
 
-;*         lda zoom
-;*         pha
-;*         beq nozoom1
-         movb @#zoom,r0
+         call @#loadmenu
+         bcs 302$
+
+303$:    movb @#zoom,r0
          push r0
          beq 301$
 
-;*         jsr zoomout
          clrb @#zoom
-
-;*nozoom1  jsr totext
-;*         jsr loadmenu
-;*         beq exitload
-301$:    call @#loadmenu
-         bcs 302$
-
-;*cont17w  jsr loadpat
-;*         jsr scrnorm
-303$:    call @#tograph
+301$:    call @#tograph
          call @#loadpat
-
-;*exitload jsr finish
-;*         pla
-;*         bne zoomin
-302$:    pop r0
+         pop r0
          movb r0,@#zoom
          mov #todata,@#pageport
          call @#calccells
-         jmp @#tograph0
+302$:    jmp @#tograph0
 
-173$:     cmpb #'L,r0
+173$:    cmpb #'L,r0
          bne 174$
 
-;*         lda fnlen
-;*         bne cont17v
          tstb @#fn
-         bne 317$
+         bne 303$
 
-;*         rts
 100$:    return
-
-;*cont17v  lda zoom
-;*         pha
-;*         beq nozoom3
-;*         jsr zoomout
-317$:    movb @#zoom,r0
-         push r0
-         beq 303$
-         
-         call @#319$
-
-;*nozoom3  jsr totext
-;*         lda #147
-;*         jsr BSOUT
-;*         jsr curoff
-;*         jmp cont17w
-         br 303$
 
 174$:    cmpb #'+,r0
          bne 175$
