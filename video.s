@@ -2114,7 +2114,7 @@ infov:   call @#totext
 11$:     mov #todata,@#pageport
          call @#boxsz
          mov #toandos,@#pageport
-         bis r5,r1  ;r5 = boxsz_ymax, this instruction is part of boxsz
+         bis r5,r1  ;r5 = boxsz_ymax, this instruction is part of boxsz - but MOV changes ZF
          beq 12$
 
          jsr r3,@#printstr
@@ -2262,11 +2262,11 @@ putpixel2:
          asr r3
          asr r3
          add r3,r2
-22$:     cmp r2,#16384
-         bcs 22$
+;22$:     cmp r2,#16384
+;         bcs 22$
 
-         cmp r2,#32768
-         bcc 22$
+;         cmp r2,#32768
+;         bcc 22$
 
          mov #tovideo,@#pageport
          bic r4,@r2

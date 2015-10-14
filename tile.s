@@ -769,7 +769,7 @@ putpixel3:       ;IN: r2,r3,r4
 ;         sta (adjcell),y
          add r2,r3
          bisb r4,@r3
- 
+
 ;         jsr chkadd	;uses adjcell!
 ;         sta $ff3e
 ;         rts

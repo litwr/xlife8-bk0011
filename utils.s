@@ -237,7 +237,7 @@ boxsz:   mov #192,@#boxsz_ymin
          mov @#tiles,r1
          bis r3,r1
          return
-         
+
 rndbyte: push r0   ;IN: R2
          push r1
          push r4
