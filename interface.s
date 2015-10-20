@@ -280,7 +280,7 @@ dispat0: cmpb #'g,r0
 4147$:   call @#showscn
          dec @#x0
          bne 4147$
-         jmp @#401$ 
+         jmp @#401$
 
 15$:     cmpb #'R,r0
          bne 16$
@@ -523,7 +523,7 @@ dispat0: cmpb #'g,r0
 ;*         beq lsp1
          bitb r1,r2
          beq 79$
-         
+
 ;*         jsr inctsum
 ;*lsp2     sta (crsrtile),y  ;always writes no-zero value, so must be AC != 0
          mov #1,r2

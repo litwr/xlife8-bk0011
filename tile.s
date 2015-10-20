@@ -376,7 +376,7 @@ plain:
          mov r2,ur(r0)
          add #tilesize,r0
          sob r1,5$
-         
+
 ;         lda #<tiles+((vermax-1)*hormax*tilesize)  ;bottom border
 ;         sta i1
 ;         lda #>tiles+((vermax-1)*hormax*tilesize)
@@ -396,7 +396,7 @@ plain:
 ;         sta (i1),y
 ;         lda #>plainbox
 ;         iny
-;         sta (i1),y    
+;         sta (i1),y
 ;         lda #<plainbox
 ;         iny		;dl
 ;         sta (i1),y

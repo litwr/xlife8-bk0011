@@ -459,12 +459,12 @@ showscnzp:
          bpl 11$
 
          mov #84,r4
-         tst r3         ;pseudocolor  
+         tst r3         ;pseudocolor
          bmi 112$
-         
+
          mov #68,r4
 112$:    movb r4,64(r1)   ;new cell char
-         movb r4,128(r1)  
+         movb r4,128(r1)
          movb r4,192(r1)
          movb r4,256(r1)
          movb #16,320(r1)
@@ -548,7 +548,7 @@ showscnz:
 ;         cp ixh
 ;         jr nz,cont4
 
-4$:      
+4$:
 ;cont4    ld d,8
           mov #8,r3    ;D -> R3
 
@@ -853,7 +853,7 @@ chgdrv:  movb @#andos_disk,r0
          mov r3,r2
          return
 
-loadmenu:call @#totext 
+loadmenu:call @#totext
          movb @#andos_disk,r0
          add #'A-1,r0
          movb r0,@#80$+2
@@ -936,7 +936,7 @@ loadmenu:call @#totext
 
          movb r0,(r5)+
          inc r2
-         emt ^O16 
+         emt ^O16
 14$:     br 1$
 
 ;cont1    call TXT_REMOVE_CURSOR     ;cursor off
@@ -1120,7 +1120,7 @@ getsvfn: call @#totext
 
          movb r0,(r5)+
          inc r2
-         emt ^O16 
+         emt ^O16
 14$:     br 1$
 
 11$:     tst r2
@@ -1259,11 +1259,11 @@ drawrect: call @#xchgxy
          sub @#x0,r3
          cmpb r1,r3
          bcc 2$
- 
+
 ;         eor #$ff
 ;         beq cont10
          comb r3
-         beq 10$ 
+         beq 10$
 
 ;         inc xcut
 ;cont10   lda rectulx
@@ -1360,7 +1360,7 @@ drawrect: call @#xchgxy
          sub r1,r4
          cmpb r0,r4
          bcc 8$
- 
+
 ;         eor #$ff
 ;         adc #1
          neg r4
@@ -1614,7 +1614,7 @@ clrect1pc: push r3
          pop r4
          pop r3
          return
-         
+
 crsrset1:
          mov @#crsrtile,r0     ;sets r0,r1
          movb @#crsrbyte,r1
@@ -1671,7 +1671,7 @@ setdirmsk: jsr r3,@#printstr
 
          movb r0,(r5)+
          inc r2
-         emt ^O16 
+         emt ^O16
          br 1$
 
 11$:     mov #svfn,r4
@@ -1730,7 +1730,7 @@ setviewport:
 ;         ld a,l
 ;         or h
 ;         jr nz,cont1
- 
+
 ;         ld a,(ycrsr+2)
 ;         cp 8
 ;         jr nc,cont1
@@ -2060,7 +2060,7 @@ crsrcalc:
         add #8,r3
         movb @#vptilecx,r2
         bmi 35$
- 
+
         mov #right,r1
         sub #16,r3
         cmpb r2,#40
@@ -2354,7 +2354,7 @@ exit55:  return
 crsrclr2: mov #135,@#crsrflash    ;135 = $87 = return
           tstb @#zoom
           bne exit55
-          
+
           jmp @#crsrclr
 
 crsrset2: mov #135,@#crsrflash    ;135 = $87 = return
@@ -2380,7 +2380,7 @@ showmode:
          mov #msgrun,r3
          dec r0
          beq showptxt
-         
+
          mov #msghide,r3
 
 showptxt:     ;IN: R1 - X, R2 - Y, R3 - msg

@@ -56,7 +56,7 @@ loadpat: call @#commonin
 10$:     mov #16384,r0
          br 9$
 
-showfree: push r5 
+showfree: push r5
          mov @#andos_rdfat,r1
          call @r1
          mov @#andos_iobuff,r0

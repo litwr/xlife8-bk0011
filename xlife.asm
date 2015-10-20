@@ -100,7 +100,7 @@ ttab:    .byte 0,1,2,3,3,4,5,6,7,8,8,9,16,17,18,19,19,20
 bittab:  .byte 1,2,4,8,16,32,64,128
 
 digifont:   ;8th columns are free
-;      .byte 28,34,50,42,38,34,28, 0 
+;      .byte 28,34,50,42,38,34,28, 0
 ;      .byte  8,12, 8, 8, 8, 8,28, 0
 ;      .byte 28,34,16, 8, 4, 2,62, 0
 ;      .byte 62,32,16,28,32,34,28, 0
@@ -374,7 +374,7 @@ generate:
          mov r1,r3
          add r4,count1+2(r2)
          add r4,count2+2(r2)
-         add r4,count3+2(r2)         
+         add r4,count3+2(r2)
 9$:      mov 4(r0),r1               ;2 rows
          bpl 10$
 
