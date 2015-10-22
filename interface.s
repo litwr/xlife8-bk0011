@@ -603,29 +603,36 @@ dispat0: cmpb #'g,r0
 172$:    cmpb #'l,r0
          bne 173$
 
-         call @#loadmenu
-         bcs 302$
-
-303$:    movb @#zoom,r0
+         movb @#zoom,r0
          push r0
          beq 301$
 
          clrb @#zoom
-301$:    call @#tograph
+301$:    call @#loadmenu
+         bcs 302$
+
+303$:    call @#tograph
          call @#loadpat
-         pop r0
+302$:    pop r0
          movb r0,@#zoom
          mov #todata,@#pageport
          call @#calccells
-302$:    jmp @#tograph0
+         jmp @#tograph0
 
 173$:    cmpb #'L,r0
          bne 174$
 
          tstb @#fn
-         bne 303$
+         bne 317$
 
 100$:    return
+
+317$:    movb @#zoom,r0
+         push r0
+         beq 303$
+         
+         call @#319$
+         br 303$
 
 174$:    cmpb #'+,r0
          bne 175$

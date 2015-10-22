@@ -86,11 +86,11 @@
 2770 if i=4 then 9600:rem pgdn
 2780 if i=14 then 9700 'new
 2790 if i=6 then 9800:rem search
-2800 if i=18 then 9900:rem repeat search 
+2800 if i=18 then 9900:rem repeat search
 2810 if i=12 then 3000 'load
 2820 if i=19 then 3200:rem save
-2830 if i=7 then 3400:rem change drv 
-2840 if i=3 then 3500:rem cat & load 
+2830 if i=7 then 3400:rem change drv
+2840 if i=3 then 3500:rem cat & load
 2850 if i=22 then 3800 'delete
 2890 goto 2600
 

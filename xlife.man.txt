@@ -90,8 +90,8 @@
  next  two  bytes  describes "stay alive on" condition,  and the
  next two - "born on".  The next contents are the sequence of  X
  and Y coordinate pairs of live cells. The patterns have to have
- 8L0 filename extension.  If the patterns is big  then  it  uses
- more files with extension 8L1, 8L2, and 8L3.
+ 8L0 filename extension.  If a pattern is big then it uses  more
+ files with extension 8L1, 8L2, and 8L3.
 
  The file with comments must have the same name as  the  corres-
  ponding pattern filename.  The comments' file is a common plain
