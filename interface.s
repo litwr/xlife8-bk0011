@@ -605,10 +605,8 @@ dispat0: cmpb #'g,r0
 
          movb @#zoom,r0
          push r0
-         beq 301$
-
          clrb @#zoom
-301$:    call @#loadmenu
+         call @#loadmenu
          bcs 302$
 
 303$:    call @#tograph
@@ -624,14 +622,11 @@ dispat0: cmpb #'g,r0
 
          tstb @#fn
          bne 317$
-
 100$:    return
 
 317$:    movb @#zoom,r0
          push r0
-         beq 303$
-         
-         call @#319$
+         clrb @#zoom
          br 303$
 
 174$:    cmpb #'+,r0
@@ -657,7 +652,7 @@ dispat0: cmpb #'g,r0
          tstb @#zoom
          beq 100$
 
-319$:    clrb @#zoom
+         clrb @#zoom
          br 271$
 
 176$:    cmpb #'V,r0
