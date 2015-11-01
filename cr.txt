@@ -1,4 +1,4 @@
-Xlife for Элeктpoникa БK0011 v1 ported to 8/16-bit universe
+Xlife for Элeктpoникa БK0011 v2 ported to 8/16-bit universe
 by litwr
 
 (c) 2014,15 This program is under GNU GPL

@@ -1,5 +1,5 @@
  1 rem *** koi8-r encoding
- 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.3
+ 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.4
  4 rem *** converted from Commodore plus/4 and Amstrad CPC6128
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
@@ -19,7 +19,7 @@
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
 150 locate 38,11:print "üÌeËÔpoÎÉËa âK0011 Edition";
-154 locate 32,12,0:print "v1r3, by litwr, (c) 2015 gnu gpl"
+154 locate 32,12,0:print "v1r4, by litwr, (c) 2015 gnu gpl"
 156 for i=0 to 7000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
@@ -385,7 +385,7 @@
 9600 rem page down
 9610 cx=0:l=ty+nl:if l>=lc then l=lc-nl
 9620 if l<0 then l=0
-9630 cy=cy+l-ty:if cy>=lc then cy=lc-1
+9630 cy=cy+24:if cy>=lc then cy=lc-1
 9640 goto 9420
 
 9700 rem new
@@ -404,7 +404,7 @@
 
 9900 rem repeat find
 9910 if fs$="" then return
-9920 cls:?:print "seek "fs$:l=len(fs$):goto 9830:gosub 10280
+9920 cls:?:print "searching "fs$:l=len(fs$):goto 9830:gosub 10280
 
 10000 for j=cy to lc-1
 10010 s$=upper$(a$(j)):print chr$(18) j+1;
