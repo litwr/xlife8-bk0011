@@ -385,7 +385,7 @@
 9600 rem page down
 9610 cx=0:l=ty+nl:if l>=lc then l=lc-nl
 9620 if l<0 then l=0
-9630 cy=cy+24:if cy>=lc then cy=lc-1
+9630 cy=cy+nl:if cy>=lc then cy=lc-1
 9640 goto 9420
 
 9700 rem new

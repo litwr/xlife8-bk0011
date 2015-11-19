@@ -1057,7 +1057,7 @@ int yyerror(const string &s) {
 
 int main (int argc, char **argv) {
    if (argc > 1) {
-      cout << "Reduced Basic cross-compiler for BK0011 v0.01 (C) 2015 GNU GPL\n";
+      cout << "Reduced Basic cross-compiler for BK0011 v0.02 (C) 2015 GNU GPL\n";
       cout << "USAGE: rbkbasic <INFILE >OUTFILE\n";
       return 0;
    }

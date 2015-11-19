@@ -100,5 +100,10 @@ void optimizer(string &code) {
     RE("MOV ([^,]+),(R[0-5])\nMOV @\\2,(R[0-5])\n", opts).GlobalReplace("MOV @\\1,\\3\n", &code); //danger!
     RE("MOV R([0-5]),R\\1\n", opts).GlobalReplace("", &code); //danger?
     RE("MOV ([^,]+),(R[0-5])\nMOV \\2,([^\n]+)\n", opts).GlobalReplace("MOV \\1,\\3\n", &code); //danger!
+    RE("PUSH (R[0-5])\n(MOV @#[^,]+,R3\n)POP (R[01245])\n", opts).GlobalReplace("MOV \\1,\\3\n\\2", &code);
+    RE("PUSH (R[0-5])\n(MOV @#[^,]+,R2\n)POP (R[01345])\n", opts).GlobalReplace("MOV \\1,\\3\n\\2", &code);
+    RE("PUSH (#[^\n]+)\n(MOV @#[^,]+,R[13]\n)POP (R[0245])\n", opts).GlobalReplace("MOV \\1,\\3\n\\2", &code);
+    RE("PUSH (@R[0-5])\n(MOV @#[^,]+,R3\n)POP (R[01245])\n", opts).GlobalReplace("MOV \\1,\\3\n\\2", &code);
+    RE("MOV R([0-5]),R\\1\n", opts).GlobalReplace("", &code);
 }
 
