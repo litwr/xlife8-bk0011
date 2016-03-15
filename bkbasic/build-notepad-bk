@@ -1,11 +1,3 @@
 rbkbasic <notepad-bk.bas >notepad-bk.asm
-macro11 -yus -ysl 16 -o notepad-bk.obj -l notepad-bk.lst notepad-bk.asm
-#the next two lines are optional
-gawk -bf jmp2br.awk notepad-bk.lst >notepad-bk.x.asm
-macro11 -yus -ysl 16 -o notepad-bk.obj -l notepad-bk.lst notepad-bk.x.asm
-dumpobj notepad-bk.obj >notepad-bk.dump  #prepares data for the linker
-bk-obj2bin <notepad-bk.dump >notepad-bk.bin    #links
-dd if=notepad-bk.bin of=notepad-bk.com bs=1 skip=4 #removes 1st 4 bytes
-MD=`date +%m%d`
-T=${MD}0016.00               #start address as the timestamp
-touch -t $T notepad-bk.com   #sets the start address for AnDOS
+#../compile notepad-bk.asm
+../compile2img notepad-bk.asm

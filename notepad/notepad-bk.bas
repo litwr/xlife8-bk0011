@@ -5,8 +5,8 @@
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
 10 mc=64:cc$=chr$(191):cf$=chr$(127):mo$="ins":im=1
 12 u=1:un$=chr$(u+64)+":":nl=24:poke -78,16896
-14 ml=500:dim a$(500):clear 0,49108
-15 for i=0 to 21:read c$:poke 49108+i*2,dec(c$):next:def usr = 49108:def usr1 = 49128
+14 ml=500:dim a$(500):clear 0,49090
+15 for i=0 to 30:read c$:poke 49090+i*2,dec(c$):next:def usr = 49090
 20 gosub 100
 30 gosub 9700
 40 if fo then gosub 2210
@@ -24,10 +24,10 @@
 180 c$=inkey$:if c$<>"" then 180
 190 return
 
-300 data 15cd,1b00,15c1,1cc0,15c0,4400,1c10,280,7e43,109
-310 data 15cd,1b00,15c1,1cc0,15c0,7d80,1830,280,7e43,15cd,2b00,87
+300 data 15cd,1b00,65df,f6,ffb4,17c0,84,e5c0,280,15c3,c000,40c0,101f,84,e5c0
+310 data 180,1001,e5c0,280,15c2,200,40c0,40c1,e0c1,e0c0,1250,a11,7e87,15cd,2b00,87
 
-2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 ‚K0011 Edition commands list":print
+2000 gosub 10280:print chr$(12)tab(16)"Notepad +4 ‚K0011 Edition commands":print
 2005 print tab(23)chr$(156)"With the Cı key"chr$(156)
 2010 print "P - help"tab(22)"N - new"tab(44)"L/S - load/save"
 2020 print "U/D - page up/down"tab(22)"B/E - to begin/end"tab(44)"F - find forward"
@@ -44,7 +44,7 @@
 2200 rem show screen
 2205 fo=1:return
 2210 i=ty:cls
-2215 poke 116,2048
+2215 poke 116,1600
 2220 if i<lc and i-ty<nl then gosub 2400:i=i+1:goto 2220
 2225 poke 116,1536
 2230 gosub 2310
@@ -63,7 +63,7 @@
 2410 return
 
 2500 rem show line #i
-2510 locate 0,i-ty:poke 116,2048:print chr$(153) a$(i);:poke 116,1536:return
+2510 locate 0,i-ty:poke 116,1600:print chr$(153) a$(i);:poke 116,1536:return
 
 2600 locate cx,cy-ty,1
 2604 c$=inkey$:if c$="" then 2604
@@ -179,7 +179,7 @@
 4220 if cy<lc-1 then cy=cy+1
 4230 if cy-ty>nl-1 then ty=ty+1:e=1
 4240 gosub 4150
-4250 if e then e=usr(-50):locate 0,nl-1:poke 116,2048:print chr$(153)a$(ty+nl-1);:poke 116,1536
+4250 if e then locate 0,nl-1:?:poke 116,1600:print chr$(153)a$(ty+nl-1);:poke 116,1536
 4260 goto 2310
 
 4300 rem cursor up
@@ -187,7 +187,7 @@
 4310 if cy>0 then cy=cy-1
 4320 if cy-ty<0 then ty=ty-1:e=1
 4330 gosub 4150
-4340 if e then e=usr1(-50):locate 0,0:print chr$(153)a$(ty);
+4340 if e then e=usr(-50):locate 0,0:print a$(ty);
 4350 goto 2310
 
 4400 rem cursor home
@@ -349,13 +349,13 @@
 8800 rem esc+v
 8810 if ty>=lc-1 then return
 8820 ty=ty+1:if cy<ty then cy=ty
-8830 e=usr(-50):locate 0,nl-1:print chr$(153);:if ty+nl-1<lc then poke 116,2048:print a$(ty+nl-1);:poke 116,1536
+8830 locate 0,nl-1:?:print chr$(153);:if ty+nl-1<lc then poke 116,1600:print a$(ty+nl-1);:poke 116,1536
 8840 goto 2310
 
 8900 rem esc+w
 8910 if ty=0 then return
 8920 ty=ty-1:if cy-ty>nl-1 then cy=cy-1
-8930 e=usr1(-50):locate 0,0:print chr$(153)a$(ty);:goto 2310
+8930 e=usr(-50):locate 0,0:print a$(ty);:goto 2310
 
 9000 rem esc+a
 9010 im=1:mo$="ins"
@@ -426,7 +426,7 @@
 10280 c$=chr$(153):y=0
 10300 rem write to status bar C$ at pos Y
 10310 y1=csrlin:x1=pos:locate 0,0
-10320 poke 112,peek(132)+15424+y:print c$;
+10320 poke 112,(peek(132)+15424+y) or 16384:print c$;
 10340 locate x1,y1
 10350 return
 
