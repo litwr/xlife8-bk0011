@@ -390,18 +390,16 @@ strS_i:
 .include gc.s
 .endc
 
-.if df opt_midS_s_i ! opt_midS_s_i_!
+.if df opt_midS_s_i ! opt_midS_s_i_i
 midS_s_i:
      MOV @#strdcurre,R1
      MOV R1,R5
      CLR R0
      BISB @R2,R0
      SUB R4,R0
-     BPL 1$
-     CLRB (R1)+
-     BR midS_s_i0
+     BMI midS_s_i_i0
 
-1$:  INC R1
+     INC R1
      ADD R4,R2
 3$:  MOVB (R2)+,(R1)+
      DEC R0
@@ -422,13 +420,15 @@ midS_s_i_i:
      CLR R0
      BISB @R2,R0
      SUB R4,R0
-     BPL 0$
+     BPL midS_s_i_i1
 
-2$:  CLRB (R1)+
+midS_s_i_i0:
+     CLRB (R1)+
      BR midS_s_i0
 
-0$:  TST R3
-     BLE 2$
+midS_s_i_i1:
+     TST R3
+     BLE midS_s_i_i0
 
      INC R1
      ADD R4,R2
@@ -536,7 +536,7 @@ s_EQ_s0:
      BR s_GE_s0
 .endc
 
-.if df opt_midS_s_i_i_s ! opt_midS_s_i_i_s
+.if df opt_midS_s_i_s ! opt_midS_s_i_i_s
 midS_s_i_s:
      MOV #256,R2
 
@@ -935,6 +935,7 @@ hexmain: MOV @#strdcurre,R2
          MOV R3,R4
          CALL @#hexdigit0
 .endc
+
 .if df opt_exitstring
 exitstr:
          MOVB R1,@R5

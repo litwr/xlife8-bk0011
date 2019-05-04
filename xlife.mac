@@ -200,10 +200,10 @@ cond2:
          movb r1,count'one+2(r0)
          swab r1
          movb r1,count'one+6(r0)
-         mov r2,r1
-         bic #^B1111110011111100,r1
-         movb r1,count'one+3(r0)
-         swab r1
-         movb r1,count'one+7(r0)
+         ;mov r2,r1
+         bic #^B1111110011111100,r2
+         movb r2,count'one+3(r0)
+         swab r2
+         movb r2,count'one+7(r0)
          .endm
 

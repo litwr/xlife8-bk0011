@@ -234,7 +234,7 @@ help:    call @#totext
          .byte 10,9,156,'+,156,'/,156,'-,156
          .ascii " zoom in/out"
          .byte 10,9,156,'.,156,'/,156,'C,226,'P,156
-         .ascii " center/home cursor"
+         .ascii " center/home the cursor"
          .byte 10,9,156,'?,156
          .ascii " show this help"
          .byte 10,9,156,'B,156
@@ -242,15 +242,15 @@ help:    call @#totext
          .byte 10,9,156,'C,156
          .ascii " clear screen"
          .byte 10,9,156,'E,156
-         .ascii " toggle pseudocolor mode"
+         .ascii " toggle the pseudocolor mode"
          .byte 10,9,156,'g,156
-         .ascii " toggle run/stop mode"
+         .ascii " - the run/stop mode"
          .byte 10,9,156,'h,156
-         .ascii " toggle hide mode - about 20% faster"
+         .ascii " - the hiding (fastest) mode"
          .byte 10,9,156,'l,156
-         .ascii " load and transform file"
+         .ascii " load and transform a pattern"
          .byte 10,9,156,'L,156
-         .ascii " reload pattern"
+         .ascii " reload a pattern"
          .byte 10,9,156,'o,156
          .ascii " one step"
          .byte 10,9,156,'Q,156
@@ -264,15 +264,15 @@ help:    call @#totext
          .byte 10,9,156,"v",156
          .ascii " show some info"
          .byte 10,9,156,"V",156
-         .ascii " show comments to the pattern"
+         .ascii " show comments to a pattern"
          .byte 10,9,156,"X",156,"/",156,"Z",156
-         .ascii " reload/set&save palette"
+         .ascii " reload/set&save a palette"
          .byte 10,10,159
          .ascii "Use "
          .byte 159,156
          .ascii "cursor keys"
          .byte 156,159
-         .ascii " to set the position and "
+         .ascii " to set a position and a "
          .byte 159,156
          .ascii "space key"
          .byte 156,159
