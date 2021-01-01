@@ -259,7 +259,7 @@ help:    call @#totext
          .ascii " set the rules"
          .byte 10,9,156,"S",156
          .ascii " save"
-         .byte 10,9,156,"t",156
+         .byte 10,9,156,"T",156
          .ascii " toggle plain/torus topology"
          .byte 10,9,156,"v",156
          .ascii " show some info"
@@ -2173,7 +2173,7 @@ chgcolors:
         .byte 145
         .ascii "ENTER"
         .byte 146
-        .ascii " TO USE DEFAULT PALETTE OR INPUT DECIMAL NUMBER OF PALETTE ("
+        .ascii " TO USE DEFAULT PALETTE OR INPUT A DECIMAL NUMBER OF PALETTE ("
 88$:    .ascii "  ): "
         .byte 147,0
 

@@ -1,15 +1,15 @@
-Xlife for üÌeËÔpoÎÉËa âK0011 v2 ported to 8/16-bit universe
-by litwr
+Xlife for the üÌeËÔpoÎÉËa âK0011 v2 ported to 8/16-bit
+universe by litwr
 
-(c) 2014,15 This program is under GNU GPL
+(c) 2013-21 This program is under GNU GPL
 
 The 1st version of the original xlife for Unix was developed
-at CMU at the 1989 by Jon Bennett & Chuck Silvers
+at CMU in 1989 by Jon Bennett & Chuck Silvers
 
-It was developed by Jon Bennett, Paul Callahan, Achim
+It was being developed by Jon Bennett, Paul Callahan, Achim
 Flammenkamp, Eric S. Raymond up to 1999
 
-Its development was continued by Vladimir Lidovski at 2011
+Its development was continued by Vladimir Lidovski in 2011
 
 http://freecode.com/projects/xlife
 
