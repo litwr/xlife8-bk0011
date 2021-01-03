@@ -25,8 +25,8 @@ the ¸ÃeÀ‘poŒ…Àa ‚K0011.
  \xE  Toggle pseudocolor display mode. In this mode, new cells are
     shown in the extra color.  It is slightly slower.
  \xg  Toggle running the game.  Evolve/Stop.   Then  step  through
-    generations until something exceptional happens,  like no live
-    cells or a key pressed.
+    generations until something exceptional happens, like no li-
+    ve cells or a key pressed.
  \xh  (Hide) stop  displaying  after  each generation.  This  mode
     is more than 10% faster than established by g-command in the
     zoomed out mode.
@@ -71,10 +71,10 @@ the ¸ÃeÀ‘poŒ…Àa ‚K0011.
 \g It is possible to see only up to 99 files from a disk  directo-
  ry.  Use mask to show only matched files.
 
- The tentative pattern may show only up to 1280 cells. Other cells
- are not shown but loaded later. This quantity is enough to show
- the every cell from a pattern file that is equal  approximately
- to 2.5 KB.
+ The tentative pattern may show only up  to  1280  cells.  Other
+ cells are not shown but loaded later.  This quantity is  enough
+ to show the every cell from a pattern file that is  equal  app-
+ roximately to 2.5 KB.
 
  The universe size is 160x192.
 
@@ -82,9 +82,9 @@ the ¸ÃeÀ‘poŒ…Àa ‚K0011.
 
  Files on ramdisk are without comments.
 
-\bFORMATS
+\bFORMATS\g
 
- \gThe first two bytes of a pattern file are the number of file 16
+ The first two bytes of a pattern file are the number of file 16
  KB blocks. This number is 0 for the pattern with size to 16 KB.
  The next two bytes of a pattern file are its width and  height.
  The next two bytes describes "stay alive on" condition, and the
@@ -97,9 +97,9 @@ the ¸ÃeÀ‘poŒ…Àa ‚K0011.
  nding pattern filename.  A comment file is a common plain  text
  file.  It may be edited by any text editor.
 
-\bUsing the "lifeconv" utility
+\bUsing the "lifeconv" utility\g
 
- \gThis utility  from Xlife  main  sources may convert CELLS, LIF,
+ This utility  from Xlife  main  sources may convert CELLS, LIF,
  L, RLE, and MCL formats.  It may be used from any  relative  to
  Unix OS or from Microsoft Windows. The \plifeconv\g utility takes a
  pattern name as an argument.  It writes a file to standard out-
@@ -127,9 +127,9 @@ the ¸ÃeÀ‘poŒ…Àa ‚K0011.
  name as \p8L0\g-file, the \ptxt\g-extension, and its content may be any
  textual data.
 
-\bRAMDISK
+\bRAMDISK\g
 
-\g It contains 10 patterns:
+ It contains 10 patterns:
 
 \pglider gun\g  The Gosper glider gun is the first  known  gun,  and
         indeed the first known  finite  pattern  with  unbounded
