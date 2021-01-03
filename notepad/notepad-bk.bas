@@ -1,5 +1,5 @@
  1 rem *** koi8-r encoding
- 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.4
+ 2 rem *** notepad+4 bk0011 edition, the text file editor, v1 rev.5
  4 rem *** converted from Commodore plus/4 and Amstrad CPC6128
  6 rem *** by litwr, 2015, (C) GNU GPL, thanks to SyX
  7 rem *** the initial banner was made by Text Resizer by MIRKOSOFT
@@ -19,7 +19,7 @@
 116 PRINT "¯¯ ¬¯¯ ¯¯  ¯¯   ¯¯ »» ¯¯¬¬¬¬ ¯¯»»¯¬ »¯¬¬¯¯ ¯¯  ¯¯   ¯¯   ¬¬¬¬¯¯"
 118 PRINT "¬¬  ¬¬  ¬¬¬¬     ¬¬¬   ¬¬¬¬¬ ¯¯      ¬¬¬¬¬  ¬¬¬¬¬            ¬¬"
 150 locate 38,11:print "üÌeËÔpoÎÉËa âK0011 Edition";
-154 locate 32,12,0:print "v1r4, by litwr, (c) 2015 gnu gpl"
+154 locate 29,12,0:print "v1r5, by litwr, (c) 2015-21 gnu gpl"
 156 for i=0 to 7000:cx=55*i:next i
 180 c$=inkey$:if c$<>"" then 180
 190 return
@@ -38,7 +38,7 @@
 2060 print "J/K - to start/end of line"tab(35)"P/Q - erase begin/end of line";
 2070 print "V/W - scroll up/down"tab(35)"Any other key - cancel TAB":print
 2090 print "|<--, |-->, return, cursors, ..."
-2100 print:print:print tab(20)"Hit any key to continue"
+2100 print:print uint$(fre(""))" bytes free":print tab(20)"Hit any key to continue"
 2120 c$=inkey$:if c$="" then 2120
 
 2200 rem show screen
@@ -49,7 +49,8 @@
 2225 poke 116,1536
 2230 gosub 2310
 
-2250 c$=f$+" "+uint$(fre)+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
+2250 c$=f$:if c$="" then c$="        "
+2260 c$=c$+" "+uint$(fre)+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
 
 2270 i=cy
 2280 if i<lc and i-ty<nl then gosub 2510:if mid$(a$(i),len(a$(i)))<>cc$ then i=i+1:goto 2280

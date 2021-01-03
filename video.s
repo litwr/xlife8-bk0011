@@ -2173,7 +2173,7 @@ chgcolors:
         .byte 145
         .ascii "ENTER"
         .byte 146
-        .ascii " TO USE DEFAULT PALETTE OR INPUT A DECIMAL NUMBER OF PALETTE ("
+        .ascii " TO USE THE CURRENT PALETTE OR INPUT A DECIMAL NUMBER OF PALETTE ("
 88$:    .ascii "  ): "
         .byte 147,0
 
