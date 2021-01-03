@@ -1,5 +1,5 @@
 #include <stdio.h>
-main() {
+int main() {
    FILE *f = fopen("xlife.bin", "r");
    char b[48644];
    fread(b, 48644, 1, f);

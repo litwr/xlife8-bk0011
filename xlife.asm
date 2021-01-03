@@ -17,8 +17,10 @@ start:   MOV #240*256+240,@#^O120140   ;allows a fast rewrite of a file
          mov #128,@#^O102
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
+         mov @#4,@#saveesc+4
+         mov #emptyirq,@#4            ;block HALT-instruction/STOP-key interrupt
          call @#copyr
-         mov #^B10010,@#timerport3    ;start timer
+         mov #^B10010,@#timerport3    ;start timer, 32 microsec interval
          jsr r3,@#printstr
          .byte 155,154,0,0   ;cursor off, 32 chars
 
@@ -38,8 +40,9 @@ mainloop: call @#dispatcher
          beq crsrflash2
 
          cmpb #3,r0
-         bne 3$
+saveesc: bne 3$        ;this label is used to point to the first argument of the next instruction 
 
+         mov #0,@#4    ;restore HALT-instruction/STOP-key interrupt
          halt    ;directly to ANDOS?
 
 3$:      tst @#tilecnt

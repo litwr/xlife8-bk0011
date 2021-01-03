@@ -49,7 +49,7 @@
 2225 poke 116,1536
 2230 gosub 2310
 
-2250 c$=f$:if c$="" then c$="        "
+2250 c$=f$:if len(c$)<12 then c$=c$+string$(12-len(f$),32)
 2260 c$=c$+" "+uint$(fre)+"  ":y=0:gosub 10300:c$=mo$:y=22:gosub 10300:c$=un$:y=28:goto 10300
 
 2270 i=cy
