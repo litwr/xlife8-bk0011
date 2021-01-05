@@ -96,7 +96,7 @@
 2890 goto 2600
 
 3000 rem load
-3010 cls:s$="":print"enter file name to load":input s$:if s$="" goto 3100
+3010 cls:s$="":print"enter filename to load (case-sensitive)":input s$:if s$="" goto 3100
 3014 f$=s$:gosub 5900
 3020 cls:open f$ for input:if peek(208) and -256 then 3120
 3030 get# c$
@@ -149,7 +149,7 @@
 3500 rem directory & load
 3510 cls:dm$="":input"enter directory mask (*.* by default)";dm$:if dm$="" then dm$="*.*"
 3520 files dm$:?
-3640 s$="":input "Filename (empty string = exit)";s$:if s$="" then 3100
+3640 s$="":input "Filename (case-sensitive, empty string = exit)";s$:if s$="" then 3100
 3650 goto 3014
 
 3800 rem delete char

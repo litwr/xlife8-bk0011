@@ -18,7 +18,8 @@ start:   MOV #240*256+240,@#^O120140   ;allows a fast rewrite of a file
          mov #keyirq,@#^O60
          mov #key2irq,@#^O274
          mov @#4,@#saveesc+4
-         mov #emptyirq,@#4            ;block HALT-instruction/STOP-key interrupt
+         mov #emptyirq,@#4            ;block HALT-instruction/STOP-key interrupt - it is for buggy emus
+         mov #^B0001000010000000,@#pageport ;block STOP-key interrupt
          call @#copyr
          mov #^B10010,@#timerport3    ;start timer, 32 microsec interval
          jsr r3,@#printstr
@@ -40,10 +41,11 @@ mainloop: call @#dispatcher
          beq crsrflash2
 
          cmpb #3,r0
-saveesc: bne 3$        ;this label is used to point to the first argument of the next instruction 
+saveesc: bne 3$        ;this label is used to point to the first argument of the next instruction
 
          mov #0,@#4    ;restore HALT-instruction/STOP-key interrupt
-         halt    ;directly to ANDOS?
+         ;halt    ;directly to ANDOS?
+         jmp @#^O160000
 
 3$:      tst @#tilecnt
          bne 4$

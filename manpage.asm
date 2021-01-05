@@ -7,6 +7,9 @@
 
 text:       mov #keyirq,@#^O60
             mov #keyirq,@#^O274
+            mov @#4,@#saveesc+2
+            mov #emptyirq,@#4   ;block HALT-instruction/STOP-key interrupt - it is for buggy emus
+            mov #^B0001000010000000,@#pageport ;block STOP-key interrupt
             mov #inittxt,r1
             mov #initxt2-inittxt,r2
             emt ^O20
@@ -48,6 +51,8 @@ text:       mov #keyirq,@#^O60
             sob r2,2$
 
             call @#getkey
+saveesc:    mov #0,@#4    ;restore HALT-instruction/STOP-key interrupt
+            ;halt    ;directly to ANDOS?
             jmp @#^O160000
 
 getkey:     movb @#kbdbuf,r0    ;waitkey
@@ -72,7 +77,7 @@ kbddelay:   mov #20000,r1
 exit11:     return
 
 keyirq:     mov @#kbddtport,@#kbdbuf
-            rti
+emptyirq:   rti
 
 kbdbuf:     .word 0
 title:      .ascii "Xlife(6)                                                Xlife(6)"
