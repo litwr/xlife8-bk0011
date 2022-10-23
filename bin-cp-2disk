@@ -1,0 +1,14 @@
+D=$1
+F=${2%%.bin}
+M=/mnt/loop                #mount point
+MD=`date +%m%d`
+T=${MD}0016.00              #start address as the timestamp
+#0016.00 = 01000 = $200
+#0024.00 = 01400 = $300
+dd if=$F.bin of=$F.com bs=1 skip=4 
+sudo mount -t msdos -o loop,fmask=111,dmask=000,rw $D $M
+cp $F.com $M
+touch -t $T $M/$F.com
+sudo sync
+ls -l $M/xlife*.com $M/manpage.com
+sudo umount $M

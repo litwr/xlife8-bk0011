@@ -772,12 +772,14 @@ cat:     mov #11,r0
          sob r3,44$
 
 showdir: TOSCREEN
-         mov @#andos_init,r1    ;linker! absence of @addr support eats 2 bytes!
-         call @r1
+         ;mov @#andos_init,r1    ;linker! absence of @addr support eats 2 bytes!
+         ;call @r1
+         call @andos_init
          clr r0
 1$:      mov #stringbuf,r3
-         mov @#andos_diren2,r1  ;linker! absence of @addr support eats 2 bytes!
-         call @r1
+         ;mov @#andos_diren2,r1  ;linker! absence of @addr support eats 2 bytes!
+         ;call @r1
+         call @andos_diren2
          beq fcharout0
 
          mov #11,r2
