@@ -1,0 +1,33 @@
+kbdstport  = ^O177660            ;kbd state, $ffb0
+kbddtport  = ^O177662            ;kbd data, palette, timer, $ffb2
+yshift     = ^O177664            ;y-scroller, $ffb4
+timerport1 = ^O177706            ;$ffc6
+timerport2 = ^O177710            ;$ffc8
+timerport3 = ^O177712            ;$ffca
+pageport   = ^O177716            ;$ffce
+todata     = ^B010101100000000   ;open pages 2 and 3
+tovideo    = ^B001111100000000   ;show both video pages 1 (soft 5), 7 (soft 6)
+toandos    = ^B001110000000000   ;open pages 1 (soft 5) and 4 (AnDOS)
+toio       = ^B101110000000000   ;open pages 5 (soft 7) and 4 (AnDOS)
+nokbirq    = ^B1000000
+andos_iobuff = ^O120110          ;$a048
+andos_disk = ^O120154            ;$a06c
+andos_curdsk = ^O120155          ;$a06d
+andos_size = ^O120162            ;$a072
+andos_init = ^O120204            ;$a084
+andos_diren2 = ^O120214          ;$a08c
+andos_rdfat = ^O120230           ;$a098
+io_op      = ^O320               ;$d0
+io_start   = ^O322
+io_len     = ^O324
+io_fn      = ^O326
+loaded_sz  = ^O266               ;$b6
+
+         .macro push arg
+         mov arg,-(sp)
+         .endm
+
+         .macro pop arg
+         mov (sp)+,arg
+         .endm
+

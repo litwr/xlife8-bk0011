@@ -1,0 +1,3 @@
+rbkbasic <notepad-bk.bas >notepad-bk.asm
+#../compile notepad-bk.asm
+../compile2img notepad-bk.asm

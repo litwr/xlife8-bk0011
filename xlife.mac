@@ -1,0 +1,209 @@
+vermax   = 24     ;192
+hormax   = 20     ;160
+total    = <hormax*vermax>+1
+tilesize = 62
+plainbox = <hormax*vermax*tilesize>+tiles
+statusline = 197
+videostart = 16384+12+128
+
+left     = 8      ;all directions
+ul       = 10     ;not zero!
+up       = 12
+ur       = 14
+right    = 16
+dr       = 18
+down     = 20
+dl       = 22
+next     = 24
+count0   = 26
+count1   = 30
+count2   = 34
+count3   = 38
+count4   = 42
+count5   = 46
+count6   = 50
+count7   = 54
+video    = 58
+sum      = 60
+
+         .macro tile
+l0       .byte 0
+l1       .byte 0
+l2       .byte 0
+l3       .byte 0
+l4       .byte 0
+l5       .byte 0
+l6       .byte 0
+l7       .byte 0
+left     .word 0	;+8
+ul       .word 0
+up       .word 0        ;+12
+ur       .word 0
+right    .word 0        ;+16
+dr       .word 0
+down     .word 0        ;+20
+dl       .word 0
+next     .word 0        ;+24
+         .blkb 32       ;+26, count0
+video    .word 0        ;+58
+sum      .byte 0        ;+60
+         .byte 0        ;free
+         .endm
+
+boxsz_xmin = i1
+boxsz_ymin = saved
+boxsz_curx = temp          ;boxsz_sizex
+boxsz_cury = temp2         ;boxsz_sizey
+xcut       = temp2
+ycut       = temp2+1
+x8poscp    = temp
+y8poscp    = temp+1
+y8byte     = saved
+
+        .macro vidmacp one,two
+          mov one(r0),r2
+          mov one+2(r0),r4
+          bic #^B1110011100111111,r2
+          mov r2,r3
+          swab r3
+          aslb r3   ;sets CY=0
+          bis r3,r2
+          mov r1,r3
+          rorb r3    ;uses CY=0
+          asrb r3
+          asrb r3
+          asrb r3
+          movb r3,r3
+          bisb r2,r3
+          mov #tovideo,@#pageport
+.if eq two
+          movb vistabpc(r3),@r5
+.iff
+          movb vistabpc(r3),two(r5)
+.endc
+          bic #^B1111110011100111,r4
+          asl r4
+          asl r4
+          asl r4
+          mov r4,r3
+          swab r3
+          asl r3
+          bis r3,r4
+          movb r1,r3
+          bic #^B1111111111110000,r3
+          bisb r4,r3
+          movb vistabpc(r3),two+1(r5)
+          mov #todata,@#pageport
+        .endm
+
+         .macro genmac one,?ll
+         movb count'one+3(r0),r5
+         movb gentab(r5),r1
+         bic #^B1111111111111100,r1
+
+         movb count'one+2(r0),r5
+         movb gentab(r5),r5
+         bic #^B1111111111110011,r5
+         bis r5,r1
+
+         movb count'one+1(r0),r5
+         movb gentab(r5),r5
+         bic #^B1111111111001111,r5
+         bis r5,r1
+
+         movb count'one(r0),r5
+         movb gentab(r5),r5
+         bic #^B1111111100111111,r5
+         bis r5,r1
+.if eq one
+         movb r1,@r0
+.iff
+         movb r1,one(r0)
+.endc
+         movb tab3(r1),r2
+         beq ll
+
+         movb r2,sum(r0)
+         cmpb #2,@#mode
+         beq ll
+
+         cellsum ll
+ll:
+         .endm
+
+         .macro cellsum cond2,?l1      ;in: r2; use: r1,r3
+         mov #<cellcnt+4>,r1
+         movb (r1),r3
+         add r2,r3
+         cmp r3,#10
+         bcc l1
+
+         movb r3,(r1)
+         br cond2
+
+l1:      sub #10,r3
+         movb r3,@r1
+         movb -(r1),r3
+         incbcd cond2
+         incbcd cond2
+         incbcd cond2
+         incbcd cond2
+cond2:
+         .endm
+
+         .macro incbcd l0   ;in: r1 - address, r3 - value
+         inc r3
+         movb r3,@r1
+         cmpb #10,r3
+         bne l0
+
+         clrb @r1
+         movb -(r1),r3
+         .endm
+
+;*inibcd   .macro
+          .macro inibcd one,two,?loop
+
+;*         lda #$30
+         clr r0
+         mov #<two+1>,r1
+
+;*         ldx #\2
+;*loop0    sta \1,x
+ loop:   movb r0,<one-1>(r1)
+
+;*         dex
+;*         bpl loop0
+         sob r1,loop
+         .endm
+
+         .macro setcount one
+.if eq one
+         mov @r0,r1
+.iff
+         mov one(r0),r1
+.endc
+         mov r1,r2
+         bic r3,r1
+         movb r1,count'one(r0)
+         swab r1
+         movb r1,count'one+4(r0)
+         mov r2,r1
+         bic r4,r1
+         asr r1
+         movb r1,count'one+1(r0)
+         swab r1
+         movb r1,count'one+5(r0)
+         mov r2,r1
+         bic r5,r1
+         asl r1
+         movb r1,count'one+2(r0)
+         swab r1
+         movb r1,count'one+6(r0)
+         ;mov r2,r1
+         bic #^B1111110011111100,r2
+         movb r2,count'one+3(r0)
+         swab r2
+         movb r2,count'one+7(r0)
+         .endm
+

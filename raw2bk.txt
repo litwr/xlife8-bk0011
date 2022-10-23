@@ -1,0 +1,9 @@
+`raw2bk' converts a raw file produced by lifeconv to BK0011 8Ln format.
+
+USAGE
+    raw2bk rawfile
+
+This utility and `cpc2bk' are scripts using bash, awk, dd.
+
+The comments maybe just copy-pasted from XLife-file to BK-file.
+

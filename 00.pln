@@ -1,0 +1,8 @@
+notepad: faster gc (shell?)
+xclrscn? to clear only the place for cells - no screen flicker
+odd relocations support, e.g., .blkb
+benchmark results rounding problems
+capacity of file menu test at 100 items!
+fatal disk error #6
+showfree works only for 800K disk
+faster todec

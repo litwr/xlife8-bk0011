@@ -1,0 +1,2 @@
+grep -in $1 `ls xlife*.asm *.mac *.s |grep -v \\.x\\.`
+#grep -in $1 *.s xlife*.asm *.mac
