@@ -8,10 +8,16 @@ int main(int argc, char **argv) {
    short prg[MAX_PRG_SZ];
    FILE *fin, *fout;
    int l, addr, len, len_sum = 0, pc = 2, line = 0, mod, mod2, f = 0;
-   fputs("Macro-11 linker for the BK, v2\n", stderr);
-   if (argc != 1 && argc != 3) {
-      fputs("Run this program without arguments, e.g., obj2bin <IN >OUT\n", stderr);
-      fputs("Or run it with two arguments, e.g., obj2bin IN OUT\n", stderr);
+   fputs("Macro-11 linker for the BK, v3\n", stderr);
+   if (argc != 3
+#if !_WIN32
+       && argc != 1
+#endif
+      ) {
+      fputs("Run this program with two arguments, e.g., obj2bin IN OUT\n", stderr);
+#if !_WIN32
+      fputs("Or run it without arguments, e.g., obj2bin <IN >OUT\n", stderr);
+#endif
       return 1;
    }
    if (argc == 1) {
@@ -23,7 +29,7 @@ int main(int argc, char **argv) {
          fputs("Can't open the file to read\n", stderr);
          return 5;
       }
-      fout = fopen(argv[2], "w");
+      fout = fopen(argv[2], "wb");
       if (fout == 0) {
          fputs("Can't open the file to write\n", stderr);
          return 4;
@@ -86,7 +92,7 @@ repeatit:
       fprintf(stderr, "Possible wrong relocation @%x/%o!\n", mod, mod);
       return 2;
    }
-   fwrite(prg, pc, 2, fout);
+   fwrite(prg, 2, pc, fout);
    if (argc == 3) {
       fclose(fout);
       fclose(fin);
